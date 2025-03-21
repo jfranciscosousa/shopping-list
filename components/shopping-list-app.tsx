@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { addItem, deleteAllItems, deleteItem } from "@/server/actions";
+import { addItem, deleteAllItems } from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
 import { Loader, Plus } from "lucide-react";
 import { FormEvent, useState } from "react";
