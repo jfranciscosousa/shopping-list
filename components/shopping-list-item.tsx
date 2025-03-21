@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { deleteItem, editItem } from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
 import { Edit, Save, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 type Props = {
   item: ShoppingItem;
@@ -22,8 +22,13 @@ export default function ShoppingListItem({ item }: Props) {
   const [editing, setEditing] = useState(false);
   const updateItemMutation = useShoppingListUpdateItem();
   const deleteItemMutation = useShoppingListDeleteItem();
+  const isMutating =
+    updateItemMutation.isMutating || deleteItemMutation.isMutating;
 
-  const saveEditItem = async (newItem: string) => {
+  const saveEditItem = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const newItem = new FormData(event.currentTarget).get("item") as string;
+
     if (!newItem.trim()) {
       deleteItemMutation.trigger(item.id);
       return;
@@ -57,35 +62,34 @@ export default function ShoppingListItem({ item }: Props) {
   return (
     <li className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
       {editing ? (
-        <div className="flex items-center gap-2 flex-1">
+        <form
+          className="flex items-center gap-2 flex-1"
+          onSubmit={saveEditItem}
+        >
           <Input
+            name="item"
             defaultValue={item.name}
             autoFocus
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                saveEditItem((e.target as HTMLInputElement).value);
-              }
-            }}
+            disabled={isMutating}
           />
           <Button
+            type="submit"
             size="icon"
             variant="ghost"
-            onClick={() =>
-              saveEditItem(
-                (
-                  document.querySelector(
-                    `input[defaultValue="${item.name}"]`
-                  ) as HTMLInputElement
-                )?.value || ""
-              )
-            }
+            disabled={isMutating}
           >
             <Save className="h-4 w-4" />
           </Button>
-          <Button size="icon" variant="ghost" onClick={() => setEditing(false)}>
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() => setEditing(false)}
+            disabled={isMutating}
+          >
             <X className="h-4 w-4" />
           </Button>
-        </div>
+        </form>
       ) : (
         <>
           <span className="flex-1">
