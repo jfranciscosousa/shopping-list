@@ -72,7 +72,6 @@ export default function ShoppingListItem({ item }: Props) {
             variant="ghost"
             onClick={() =>
               saveEditItem(
-                item.id,
                 (
                   document.querySelector(
                     `input[defaultValue="${item.name}"]`
