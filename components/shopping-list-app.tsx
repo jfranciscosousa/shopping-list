@@ -11,31 +11,42 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { addItem, deleteAllItems } from "@/server/actions";
+import { addItem, deleteAllItems, getItems } from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
 import { Loader, Plus } from "lucide-react";
 import { FormEvent, useState } from "react";
+import useSWR from "swr";
 import ListReset from "./list-reset";
 import ShoppingListItem from "./shopping-list-item";
+import {
+  useShoppingListAddItem,
+  useShoppingListDeleteAllItems,
+  useShoppingListItems,
+} from "@/hooks/use-shopping-list";
 
-export default function ShoppingListApp({
-  shoppingItems,
-}: {
-  shoppingItems: ShoppingItem[];
-}) {
+type Props = {
+  initialShoppingItems: ShoppingItem[];
+};
+
+export default function ShoppingListApp({ initialShoppingItems }: Props) {
   const [newItem, setNewItem] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
   const { toast } = useToast();
+  const { data: shoppingItems = [], isLoading: isLoadingItems } =
+    useShoppingListItems(initialShoppingItems);
+  const addItemMutation = useShoppingListAddItem();
+  const deleteAllItemsMutation = useShoppingListDeleteAllItems();
+  const isLoading =
+    isLoadingItems || addItemMutation.isMutating || deleteAllItemsMutation.isMutating;
 
   async function handleAddItemSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const itemToSubmit = newItem;
     setNewItem("");
-    setIsLoading(true);
 
     try {
-      await addItem(itemToSubmit);
+      await addItemMutation.trigger(itemToSubmit);
     } catch (error) {
       console.error("Error adding item:", error);
       toast({
@@ -43,13 +54,11 @@ export default function ShoppingListApp({
         description: "An unexpected error occurred",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   }
 
   const resetList = async () => {
-    await deleteAllItems();
+    await deleteAllItemsMutation.trigger();
     toast({
       title: "List Reset",
       description: "Your shopping list has been cleared.",

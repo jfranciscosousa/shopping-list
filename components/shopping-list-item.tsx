@@ -3,11 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
 import {
-  deleteItem,
-  editItem
-} from "@/server/actions";
+  useShoppingListDeleteItem,
+  useShoppingListUpdateItem,
+} from "@/hooks/use-shopping-list";
+import { useToast } from "@/hooks/use-toast";
+import { deleteItem, editItem } from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
 import { Edit, Save, Trash2, X } from "lucide-react";
 import { useState } from "react";
@@ -19,15 +20,20 @@ type Props = {
 export default function ShoppingListItem({ item }: Props) {
   const { toast } = useToast();
   const [editing, setEditing] = useState(false);
+  const updateItemMutation = useShoppingListUpdateItem();
+  const deleteItemMutation = useShoppingListDeleteItem();
 
-  const saveEditItem = async (id: number, newName: string) => {
-    if (!newName.trim()) {
-      deleteItem(id);
+  const saveEditItem = async (newItem: string) => {
+    if (!newItem.trim()) {
+      deleteItemMutation.trigger(item.id);
       return;
     }
 
     try {
-      const result = await editItem(id, newName);
+      const result = await updateItemMutation.trigger({
+        itemId: item.id,
+        newItem: newItem,
+      });
 
       if (result.success && result.item) {
         setEditing(false);
@@ -49,10 +55,7 @@ export default function ShoppingListItem({ item }: Props) {
   };
 
   return (
-    <li
-      key={item.id}
-      className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0"
-    >
+    <li className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0">
       {editing ? (
         <div className="flex items-center gap-2 flex-1">
           <Input
@@ -60,7 +63,7 @@ export default function ShoppingListItem({ item }: Props) {
             autoFocus
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                saveEditItem(item.id, (e.target as HTMLInputElement).value);
+                saveEditItem((e.target as HTMLInputElement).value);
               }
             }}
           />
@@ -100,7 +103,7 @@ export default function ShoppingListItem({ item }: Props) {
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => deleteItem(item.id)}
+              onClick={() => deleteItemMutation.trigger(item.id)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

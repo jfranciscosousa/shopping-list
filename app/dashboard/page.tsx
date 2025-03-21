@@ -8,5 +8,5 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/");
 
-  return <ShoppingListApp shoppingItems={await getItems()} />;
+  return <ShoppingListApp initialShoppingItems={await getItems()} />;
 }
