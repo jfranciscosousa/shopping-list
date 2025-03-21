@@ -44,7 +44,7 @@ async function categoryFromAI(item: string): Promise<string> {
   return text;
 }
 
-export async function categorizeItem(item: string): Promise<void> {
+export async function addItem(item: string): Promise<void> {
   const user = await requireAuth();
 
   try {
@@ -68,7 +68,6 @@ export async function categorizeItem(item: string): Promise<void> {
   }
 }
 
-// Server action to edit an item
 export async function editItem(id: number, newName: string) {
   const user = await requireAuth();
 

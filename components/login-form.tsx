@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { login, signup } from "@/lib/auth";
+import { login, signup } from "@/server/auth";
 
 export default function LoginForm() {
   const [activeTab, setActiveTab] = useState("login");

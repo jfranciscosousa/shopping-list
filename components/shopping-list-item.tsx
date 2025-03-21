@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   deleteItem,
   editItem
-} from "@/lib/actions";
+} from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
 import { Edit, Save, Trash2, X } from "lucide-react";
 import { useState } from "react";

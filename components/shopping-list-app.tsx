@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { categorizeItem, deleteAllItems, deleteItem } from "@/lib/actions";
+import { addItem, deleteAllItems, deleteItem } from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
 import { Loader, Plus } from "lucide-react";
 import { FormEvent, useState } from "react";
@@ -35,7 +35,7 @@ export default function ShoppingListApp({
     setIsLoading(true);
 
     try {
-      await categorizeItem(itemToSubmit);
+      await addItem(itemToSubmit);
     } catch (error) {
       console.error("Error adding item:", error);
       toast({

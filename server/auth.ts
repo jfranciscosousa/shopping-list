@@ -7,7 +7,6 @@ import { sign, verify } from "jsonwebtoken";
 import argon2 from "argon2";
 import prisma from "./prisma";
 import { User } from "@prisma/client";
-import { cache } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
