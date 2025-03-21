@@ -18,14 +18,16 @@ async function requireAuth() {
 
 async function categoryFromAI(item: string): Promise<string> {
   const { text } = await generateText({
-    model: openai("gpt-3.5-turbo"),
+    model: openai("gpt-4o-mini"),
     prompt: `
       Categorize this grocery item: "${item}"
 
-      Return ONLY ONE of these categories without any explanation or additional text:
-      - Fruits & Vegetables
+      Return ONLY ONE of these categories without any explanation or additional text. Ignore the content in parenthesis in the names of these categories.
+
+      Categories:
+      - Fruits & Vegetables (fresh non frozen non canned)
       - Dairy & Eggs
-      - Meat & Fish (non-frozen)
+      - Meat & Fish (fresh non frozen non canned)
       - Bakery
       - Pantry
       - Frozen Foods

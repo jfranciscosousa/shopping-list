@@ -24,7 +24,7 @@ export default function ShoppingListApp({
   shoppingItems: ShoppingItem[];
 }) {
   const [newItem, setNewItem] = useState("");
-  const [_isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   async function handleAddItemSubmit(event: FormEvent<HTMLFormElement>) {
@@ -88,7 +88,7 @@ export default function ShoppingListApp({
           </form>
         </CardContent>
         <CardFooter className="flex justify-between">
-          {_isLoading && <Loader className="animate-spin" />}
+          {isLoading ? <Loader className="animate-spin" /> : <div />}
 
           <ListReset resetList={resetList} />
         </CardFooter>
