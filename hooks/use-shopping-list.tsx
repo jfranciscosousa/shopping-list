@@ -12,7 +12,12 @@ import useSWR, { mutate } from "swr";
 import useSWRMutation from "swr/mutation";
 
 export function useShoppingListItems(initialShoppingItems: ShoppingItem[]) {
-  return useSWR("getItems", getItems, { fallbackData: initialShoppingItems });
+  return useSWR("getItems", getItems, {
+    fallbackData: initialShoppingItems,
+    refreshInterval: 300,
+    refreshWhenHidden: false,
+    revalidateOnFocus: true,
+  });
 }
 
 export function useShoppingListAddItem() {
