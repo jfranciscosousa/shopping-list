@@ -4,8 +4,9 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
+import UserProfileForm from "@/components/user-profile-form";
 import { getCurrentUser } from "@/server/auth";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -24,29 +25,8 @@ export default async function ProfilePage() {
         </Link>
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Profile</CardTitle>
-          <CardDescription>Manage your account settings</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">Name</p>
-            <p className="text-lg">{user.name}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">Email</p>
-            <p className="text-lg">{user.email}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">
-              Account Created
-            </p>
-            <p className="text-lg">
-              {new Date(user.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-        </CardContent>
+      <Card className="px-6">
+        <UserProfileForm user={user} />
       </Card>
     </div>
   );

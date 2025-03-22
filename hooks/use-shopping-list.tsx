@@ -8,7 +8,7 @@ import {
   getItems,
 } from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
 export function useShoppingListItems(initialShoppingItems: ShoppingItem[]) {

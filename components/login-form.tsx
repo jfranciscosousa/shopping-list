@@ -2,10 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -14,16 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { login, signup } from "@/server/auth";
+import { useState } from "react";
 
 export default function LoginForm() {
   const [activeTab, setActiveTab] = useState("login");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
@@ -32,32 +30,17 @@ export default function LoginForm() {
 
     const formData = new FormData(e.currentTarget);
 
-    try {
-      const data = await login(formData);
+    const data = await login(formData);
 
-      if (data.success) {
-        toast({
-          title: "Success",
-          description: "You have been logged in",
-        });
-        router.push("/dashboard");
-        router.refresh();
-      } else {
-        toast({
-          title: "Error",
-          description: data.error || "Invalid email or password",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+    if (!data.success) {
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: data.error || "Invalid email or password",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   }
 
   async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
@@ -66,32 +49,17 @@ export default function LoginForm() {
 
     const formData = new FormData(e.currentTarget);
 
-    try {
-      const data = await signup(formData);
+    const data = await signup(formData);
 
-      if (data.success) {
-        toast({
-          title: "Success",
-          description: "Account created successfully",
-        });
-        router.push("/dashboard");
-        router.refresh();
-      } else {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to create account",
-          variant: "destructive",
-        });
-      }
-    } catch (_error) {
+    if (!data.success) {
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: data.error || "Failed to create account",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   }
 
   return (

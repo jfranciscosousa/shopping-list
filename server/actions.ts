@@ -1,5 +1,6 @@
 "use server";
 
+import argon2 from "argon2";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { revalidatePath } from "next/cache";
@@ -135,4 +136,46 @@ export async function getItems() {
   });
 
   return items;
+}
+
+export async function updateUser(formData: FormData) {
+  const user = await requireAuth();
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const currentPassword = formData.get("currentPassword") as string;
+  const newPassword = formData.get("newPassword") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+
+  console.log({ name, email, currentPassword, newPassword, confirmPassword });
+
+  if (!user) return { success: false, error: "Must be logged in" };
+
+  const userWithPassword = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { password: true },
+  });
+
+  if (
+    newPassword &&
+    !(await argon2.verify(userWithPassword!.password, currentPassword))
+  ) {
+    return { success: false, error: "Current password is incorrect" };
+  }
+
+  if (newPassword && newPassword !== confirmPassword) {
+    return { success: false, error: "Passwords do not match" };
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      name,
+      email,
+      password: newPassword
+        ? await argon2.hash(newPassword)
+        : userWithPassword!.password,
+    },
+  });
+
+  return { success: true };
 }

@@ -73,8 +73,6 @@ export async function getCurrentUser() {
 
   return user;
 }
-
-// Server action for login
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -98,10 +96,9 @@ export async function login(formData: FormData) {
 
   await setAuthCookie(user, rememberMe);
 
-  return { success: true };
+  redirect("/dashboard");
 }
 
-// Server action for signup
 export async function signup(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -132,9 +129,9 @@ export async function signup(formData: FormData) {
     },
   });
 
-  setAuthCookie(newUser, rememberMe);
+  await setAuthCookie(newUser, rememberMe);
 
-  return { success: true };
+  redirect("/dashboard");
 }
 
 // Server action for logout
