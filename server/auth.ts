@@ -99,6 +99,44 @@ export async function login(formData: FormData) {
   redirect("/dashboard");
 }
 
+const DEFAULT_CATEGORIES = [
+  {
+    name: "Fruits & Vegetables",
+    description: "fresh non frozen non canned",
+  },
+  {
+    name: "Dairy & Eggs",
+  },
+  {
+    name: "Meat & Fish",
+    description: "fresh non frozen non canned",
+  },
+  {
+    name: "Bakery",
+  },
+  {
+    name: "Pantry",
+  },
+  {
+    name: "Frozen Foods",
+  },
+  {
+    name: "Beverages",
+  },
+  {
+    name: "Snacks",
+  },
+  {
+    name: "Household",
+  },
+  {
+    name: "Personal Care",
+  },
+  {
+    name: "Other",
+  },
+];
+
 export async function signup(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -127,6 +165,13 @@ export async function signup(formData: FormData) {
       email,
       password: await argon2.hash(password),
     },
+  });
+  await prisma.category.createMany({
+    data: DEFAULT_CATEGORIES.map((category) => ({
+      name: category.name,
+      description: category.description || "",
+      userId: newUser.id,
+    })),
   });
 
   await setAuthCookie(newUser, rememberMe);

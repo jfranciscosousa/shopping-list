@@ -7,11 +7,12 @@ import {
   editItem,
   getItems,
 } from "@/server/actions";
-import { ShoppingItem } from "@prisma/client";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
-export function useShoppingListItems(initialShoppingItems: ShoppingItem[]) {
+export function useShoppingListItems(
+  initialShoppingItems: Awaited<ReturnType<typeof getItems>>
+) {
   return useSWR("getItems", getItems, {
     fallbackData: initialShoppingItems,
     refreshInterval: 300,

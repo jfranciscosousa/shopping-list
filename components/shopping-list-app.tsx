@@ -19,14 +19,15 @@ import { Loader } from "lucide-react";
 import ListReset from "./list-reset";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
+import { getItems } from "@/server/actions";
 
 type Props = {
-  initialShoppingItems: ShoppingItem[];
+  initialShoppingItems: Awaited<ReturnType<typeof getItems>>;
 };
 
 export default function ShoppingListApp({ initialShoppingItems }: Props) {
   const { toast } = useToast();
-  const { data: shoppingItems = [], isLoading: isLoadingItems } =
+  const { data = [], isLoading: isLoadingItems } =
     useShoppingListItems(initialShoppingItems);
   const addItemMutation = useShoppingListAddItem();
   const deleteAllItemsMutation = useShoppingListDeleteAllItems();
@@ -42,15 +43,6 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
       description: "Your shopping list has been cleared.",
     });
   };
-
-  // Group items by category
-  const groupedItems = shoppingItems.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {} as Record<string, ShoppingItem[]>);
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-3xl">
@@ -72,24 +64,24 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
         </CardFooter>
       </Card>
 
-      {Object.keys(groupedItems).length === 0 ? (
+      {Object.keys(data).length === 0 ? (
         <div className="text-center text-muted-foreground py-8">
           Your shopping list is empty. Add some items to get started!
         </div>
       ) : (
-        Object.entries(groupedItems).map(([category, categoryItems]) => (
-          <Card key={category} className="mb-4">
+        data.map(({ name, shoppingItems }) => (
+          <Card key={name} className="mb-4">
             <CardHeader className="py-3">
               <CardTitle className="text-lg flex items-center">
                 <Badge variant="outline" className="mr-2">
-                  {categoryItems.length}
+                  {shoppingItems.length}
                 </Badge>
-                {category}
+                {name}
               </CardTitle>
             </CardHeader>
             <CardContent className="py-2">
               <ul className="space-y-2">
-                {categoryItems.map((item) => (
+                {shoppingItems.map((item) => (
                   <ShoppingListItem key={item.id} item={item} />
                 ))}
               </ul>

@@ -1,15 +1,6 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import UserProfileForm from "@/components/user-profile-form";
+import Profile from "@/components/profile";
+import { getCategories } from "@/server/actions";
 import { getCurrentUser } from "@/server/auth";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {
@@ -17,17 +8,7 @@ export default async function ProfilePage() {
 
   if (!user) redirect("/");
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Button variant="ghost" className="mb-4" asChild>
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" /> Back to Shopping List
-        </Link>
-      </Button>
+  const initialCategories = await getCategories();
 
-      <Card className="px-6">
-        <UserProfileForm user={user} />
-      </Card>
-    </div>
-  );
+  return <Profile user={user} initialCategories={initialCategories} />;
 }

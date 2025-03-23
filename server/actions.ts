@@ -6,6 +6,7 @@ import { openai } from "@ai-sdk/openai";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "./auth";
 import prisma from "./prisma";
+import { Category } from "@prisma/client";
 
 async function requireAuth() {
   const user = await getCurrentUser();
@@ -17,32 +18,36 @@ async function requireAuth() {
   return user;
 }
 
-async function categoryFromAI(item: string): Promise<string> {
+async function categoryFromAI(
+  item: string,
+  user: { id: number }
+): Promise<Category> {
+  const categories = await prisma.category.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+
   const { text } = await generateText({
     model: openai("gpt-4o-mini"),
     prompt: `
       Categorize this grocery item: "${item}"
 
-      Return ONLY ONE of these categories without any explanation or additional text. Ignore the content in parenthesis in the names of these categories.
+      Return ONLY ONE of these category IDs (not the description) without any explanation or additional text.
 
-      Categories:
-      - Fruits & Vegetables (fresh non frozen non canned)
-      - Dairy & Eggs
-      - Meat & Fish (fresh non frozen non canned)
-      - Bakery
-      - Pantry
-      - Frozen Foods
-      - Beverages
-      - Snacks
-      - Household
-      - Personal Care
-      - Other
+      Categories: ${JSON.stringify(categories)}
     `,
     temperature: 0.1,
     maxTokens: 10,
   });
 
-  return text;
+  const category = await prisma.category.findUnique({
+    where: { id: Number(text) },
+  });
+
+  if (!category) throw new Error("AI returned an unknown category");
+
+  return category;
 }
 
 export async function addItem(item: string): Promise<void> {
@@ -53,7 +58,7 @@ export async function addItem(item: string): Promise<void> {
       await prisma.shoppingItem.create({
         data: {
           name: item,
-          category: await categoryFromAI(item),
+          categoryId: (await categoryFromAI(item, user)).id,
           userId: user.id,
         },
       });
@@ -77,13 +82,13 @@ export async function editItem(id: number, newName: string) {
   }
 
   try {
-    const category = await categoryFromAI(newName);
+    const category = await categoryFromAI(newName, user);
 
     await prisma.shoppingItem.update({
       where: { id, userId: user.id },
       data: {
         name: newName,
-        category,
+        categoryId: (await categoryFromAI(newName, user)).id,
       },
     });
 
@@ -126,12 +131,24 @@ export async function deleteAllItems() {
 export async function getItems() {
   const user = await requireAuth();
 
-  const items = await prisma.shoppingItem.findMany({
+  const items = await prisma.category.findMany({
     where: {
       userId: user.id,
+      shoppingItems: {
+        some: {
+          userId: user.id,
+        },
+      },
     },
     orderBy: {
-      createdAt: "asc",
+      sortIndex: "asc",
+    },
+    include: {
+      shoppingItems: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
   });
 
@@ -178,4 +195,65 @@ export async function updateUser(formData: FormData) {
   });
 
   return { success: true };
+}
+
+export async function getCategories() {
+  const user = await requireAuth();
+
+  return prisma.category.findMany({
+    where: {
+      userId: user.id,
+    },
+    orderBy: {
+      sortIndex: "asc",
+    },
+  });
+}
+
+export async function addCategory(category: string, description?: string) {
+  const user = await requireAuth();
+
+  return prisma.category.create({
+    data: {
+      name: category,
+      description,
+      userId: user.id,
+      sortIndex:
+        (await prisma.category.count({ where: { userId: user.id } })) + 1,
+    },
+  });
+}
+
+export async function updateCategory(
+  id: number,
+  name?: string,
+  description?: string,
+  sortIndex?: number
+) {
+  const user = await requireAuth();
+
+  return prisma.category.update({
+    where: { id, userId: user.id },
+    data: {
+      name,
+      description,
+      sortIndex,
+    },
+  });
+}
+
+export async function deleteAllCategories() {
+  const user = await requireAuth();
+
+  await prisma.category.deleteMany({
+    where: { userId: user.id },
+  });
+}
+
+export async function deleteCategory(id: number) {
+  const user = await requireAuth();
+
+  await prisma.category.delete({
+    where: { id, userId: user.id },
+  });
 }
