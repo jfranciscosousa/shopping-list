@@ -8,7 +8,6 @@ import {
   useShoppingListUpdateItem,
 } from "@/hooks/use-shopping-list";
 import { useToast } from "@/hooks/use-toast";
-import { deleteItem, editItem } from "@/server/actions";
 import { ShoppingItem } from "@prisma/client";
 import { Edit, Save, Trash2, X } from "lucide-react";
 import { FormEvent, useState } from "react";
@@ -69,6 +68,7 @@ export default function ShoppingListItem({ item }: Props) {
           <Input
             name="item"
             defaultValue={item.name}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
             disabled={isMutating}
           />
@@ -93,7 +93,7 @@ export default function ShoppingListItem({ item }: Props) {
       ) : (
         <>
           <span className="flex-1">
-            {false ? <Skeleton className="h-6 w-full" /> : item.name}
+            {isMutating ? <Skeleton className="h-6 w-full" /> : item.name}
           </span>
           <div className="flex gap-1">
             <Button

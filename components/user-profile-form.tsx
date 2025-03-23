@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/server/actions";
 import { User } from "@prisma/client";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function UserProfileForm({
@@ -45,7 +44,7 @@ export default function UserProfileForm({
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Error",
         description: "An unexpected error occurred",

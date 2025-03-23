@@ -14,7 +14,6 @@ import {
   useShoppingListItems,
 } from "@/hooks/use-shopping-list";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingItem } from "@prisma/client";
 import { Loader } from "lucide-react";
 import ListReset from "./list-reset";
 import ShoppingListInput from "./shopping-list-input";

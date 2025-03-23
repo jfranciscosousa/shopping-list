@@ -55,7 +55,7 @@ export async function getCurrentUser() {
 
   const userId = verify(
     authToken.value,
-    process.env.SECRET_KEY_BASE as string
+    process.env.SECRET_KEY_BASE as string,
   ) as string;
 
   const user = await prisma.user.findUnique({

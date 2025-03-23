@@ -20,7 +20,7 @@ async function requireAuth() {
 
 async function categoryFromAI(
   item: string,
-  user: { id: number }
+  user: { id: number },
 ): Promise<Category> {
   const categories = await prisma.category.findMany({
     where: {
@@ -163,8 +163,6 @@ export async function updateUser(formData: FormData) {
   const newPassword = formData.get("newPassword") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
 
-  console.log({ name, email, currentPassword, newPassword, confirmPassword });
-
   if (!user) return { success: false, error: "Must be logged in" };
 
   const userWithPassword = await prisma.user.findUnique({
@@ -228,7 +226,7 @@ export async function updateCategory(
   id: number,
   name?: string,
   description?: string,
-  sortIndex?: number
+  sortIndex?: number,
 ) {
   const user = await requireAuth();
 

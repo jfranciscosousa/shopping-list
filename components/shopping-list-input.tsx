@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useShoppingListAddItem } from "@/hooks/use-shopping-list";
 import { useToast } from "@/hooks/use-toast";
 import { Plus } from "lucide-react";
 import { FormEvent, useState } from "react";

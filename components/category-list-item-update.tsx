@@ -1,5 +1,3 @@
-import { Edit2 } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -11,10 +9,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import { InputField } from "./ui/input-field";
 import { useCategoriesUpdate } from "@/hooks/use-categories";
+import { toast } from "@/hooks/use-toast";
 import { Category } from "@prisma/client";
+import { Edit2 } from "lucide-react";
+import { FormEvent, useState } from "react";
+import { InputField } from "./ui/input-field";
 import { TextareaField } from "./ui/textarea-field";
 
 interface UpdateMealModalProps {
@@ -45,7 +45,7 @@ function Form({
         onError: () => {
           toast({ title: "Failed to update category", variant: "destructive" });
         },
-      }
+      },
     );
   }
 

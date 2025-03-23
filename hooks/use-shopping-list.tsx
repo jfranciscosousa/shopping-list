@@ -11,7 +11,7 @@ import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 
 export function useShoppingListItems(
-  initialShoppingItems: Awaited<ReturnType<typeof getItems>>
+  initialShoppingItems: Awaited<ReturnType<typeof getItems>>,
 ) {
   return useSWR("getItems", getItems, {
     fallbackData: initialShoppingItems,
@@ -30,7 +30,7 @@ export function useShoppingListAddItem() {
 export function useShoppingListUpdateItem() {
   const updateItemFn = (
     _url: string,
-    { arg: { itemId, newItem } }: { arg: { itemId: number; newItem: string } }
+    { arg: { itemId, newItem } }: { arg: { itemId: number; newItem: string } },
   ) => editItem(itemId, newItem);
 
   return useSWRMutation("getItems", updateItemFn);

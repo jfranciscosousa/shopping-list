@@ -10,7 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import {
   useCategories,
-  useCategoriesAdd
+  useCategoriesAdd,
+  useCategoriesUpdate,
 } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@prisma/client";
@@ -18,6 +19,20 @@ import { Plus } from "lucide-react";
 import { FormEvent } from "react";
 import CategoryListItem from "./category-list-item";
 import { Textarea } from "./ui/textarea";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 
 type Props = {
   initialCategories: Category[];
@@ -25,8 +40,14 @@ type Props = {
 
 export default function CategoryList({ initialCategories }: Props) {
   const { toast } = useToast();
-  const { data: categories = [] } = useCategories(initialCategories);
+  const { data: categories = [], mutate } = useCategories(initialCategories);
   const addCategoriesMutation = useCategoriesAdd();
+  const updateCategoriesMutation = useCategoriesUpdate();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor),
+  );
 
   function handleAddCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,8 +65,34 @@ export default function CategoryList({ initialCategories }: Props) {
           toast({ title: "New category added" });
           formEl.reset();
         },
-      }
+      },
     );
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = categories.findIndex(
+        (category) => category.id === active.id,
+      );
+      const newIndex = categories.findIndex(
+        (category) => category.id === over?.id,
+      );
+      const newCategories = arrayMove(categories, oldIndex, newIndex);
+
+      mutate(newCategories, false);
+
+      // Update sortIndex on the server
+      newCategories.forEach((category, index) => {
+        if (category.sortIndex !== index) {
+          updateCategoriesMutation.trigger({
+            id: category.id,
+            sortIndex: index,
+          });
+        }
+      });
+    }
   }
 
   return (
@@ -92,19 +139,34 @@ export default function CategoryList({ initialCategories }: Props) {
           </Button>
         </form>
 
-        <div className="border rounded-md">
-          {categories.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">
-              No categories defined. Add some categories to get started.
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={categories}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="border rounded-md">
+              {categories.length === 0 ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  No categories defined. Add some categories to get started.
+                </div>
+              ) : (
+                <ul className="divide-y">
+                  {categories.map((category) => (
+                    <CategoryListItem
+                      key={category.id}
+                      id={category.id}
+                      category={category}
+                    />
+                  ))}
+                </ul>
+              )}
             </div>
-          ) : (
-            <ul className="divide-y">
-              {categories.map((category, index) => (
-                <CategoryListItem key={index} {...{ category, index }} />
-              ))}
-            </ul>
-          )}
-        </div>
+          </SortableContext>
+        </DndContext>
       </CardContent>
     </div>
   );

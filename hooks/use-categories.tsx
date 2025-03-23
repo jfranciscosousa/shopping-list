@@ -48,7 +48,7 @@ type CategoryUpdateArgs = {
 export function useCategoriesUpdate() {
   const fn = (
     _url: string,
-    { arg: { id, name, description, sortIndex } }: CategoryUpdateArgs
+    { arg: { id, name, description, sortIndex } }: CategoryUpdateArgs,
   ) => updateCategory(id, name, description, sortIndex);
 
   return useSWRMutation(KEY, fn);
