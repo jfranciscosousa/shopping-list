@@ -181,6 +181,6 @@ export async function signup(formData: FormData) {
 
 // Server action for logout
 export async function logout() {
-  clearAuthCookie();
+  await clearAuthCookie();
   redirect("/");
 }
