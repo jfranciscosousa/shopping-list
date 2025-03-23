@@ -24,7 +24,7 @@ export default function Navbar({ user }: { user: { id: number } | null }) {
         {user && (
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/profile">
+              <Link href="/profile" className="contents">
                 <User className="mr-2 h-4 w-4" /> Profile
               </Link>
             </Button>
