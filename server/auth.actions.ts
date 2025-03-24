@@ -14,12 +14,19 @@ const loginSchema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-const signupSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  rememberMe: z.boolean().optional(),
-});
+const signupSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+    inviteToken: z.string().optional(),
+    rememberMe: z.boolean().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Confirm password must match password",
+    path: ["confirmPassword"],
+  });
 
 // Helper to set the auth cookie
 async function setAuthCookie(user: User, rememberMe = false) {
@@ -141,12 +148,25 @@ export async function signup(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
+  const inviteToken = formData.get("inviteToken") as string;
   const rememberMe = formData.get("rememberMe") === "on";
 
-  const result = signupSchema.safeParse({ name, email, password, rememberMe });
+  const result = signupSchema.safeParse({
+    name,
+    email,
+    password,
+    confirmPassword,
+    inviteToken,
+    rememberMe,
+  });
 
   if (!result.success) {
     return { success: false, error: result.error.errors[0].message };
+  }
+
+  if (process.env.INVITE_TOKEN && inviteToken !== process.env.INVITE_TOKEN) {
+    return { success: false, error: "Invalid invite token" };
   }
 
   const user = await prisma.user.findUnique({

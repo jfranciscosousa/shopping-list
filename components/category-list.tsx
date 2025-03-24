@@ -53,20 +53,20 @@ export default function CategoryList({ initialCategories }: Props) {
     event.preventDefault();
     const formEl = event.currentTarget;
     const formData = new FormData(formEl);
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
 
-    if (!name.trim()) return;
-
-    addCategoriesMutation.trigger(
-      { name, description },
-      {
-        onSuccess: () => {
-          toast({ title: "New category added" });
-          formEl.reset();
-        },
+    addCategoriesMutation.trigger(formData, {
+      onSuccess: () => {
+        toast({ title: "New category added" });
+        formEl.reset();
       },
-    );
+      onError: (error) => {
+        toast({
+          title: "Failed to add new category",
+          description: error.message,
+          variant: "destructive",
+        });
+      },
+    });
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -86,10 +86,11 @@ export default function CategoryList({ initialCategories }: Props) {
       // Update sortIndex on the server
       newCategories.forEach((category, index) => {
         if (category.sortIndex !== index) {
-          updateCategoriesMutation.trigger({
-            id: category.id,
-            sortIndex: index,
-          });
+          const formData = new FormData();
+          formData.set("id", category.id.toString());
+          formData.set("sortIndex", index.toString());
+
+          updateCategoriesMutation.trigger(formData);
         }
       });
     }

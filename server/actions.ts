@@ -1,22 +1,11 @@
 "use server";
 
-import argon2 from "argon2";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { revalidatePath } from "next/cache";
-import { getCurrentUser } from "./auth";
 import prisma from "./prisma";
 import { Category } from "@prisma/client";
-
-async function requireAuth() {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
-  return user;
-}
+import { requireAuth } from "./utils";
 
 async function categoryFromAI(
   item: string,
@@ -153,105 +142,4 @@ export async function getItems() {
   });
 
   return items;
-}
-
-export async function updateUser(formData: FormData) {
-  const user = await requireAuth();
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const currentPassword = formData.get("currentPassword") as string;
-  const newPassword = formData.get("newPassword") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-
-  if (!user) return { success: false, error: "Must be logged in" };
-
-  const userWithPassword = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { password: true },
-  });
-
-  if (
-    newPassword &&
-    !(await argon2.verify(userWithPassword!.password, currentPassword))
-  ) {
-    return { success: false, error: "Current password is incorrect" };
-  }
-
-  if (newPassword && newPassword !== confirmPassword) {
-    return { success: false, error: "Passwords do not match" };
-  }
-
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
-      name,
-      email,
-      password: newPassword
-        ? await argon2.hash(newPassword)
-        : userWithPassword!.password,
-    },
-  });
-
-  return { success: true };
-}
-
-export async function getCategories() {
-  const user = await requireAuth();
-
-  return prisma.category.findMany({
-    where: {
-      userId: user.id,
-    },
-    orderBy: {
-      sortIndex: "asc",
-    },
-  });
-}
-
-export async function addCategory(category: string, description?: string) {
-  const user = await requireAuth();
-
-  return prisma.category.create({
-    data: {
-      name: category,
-      description,
-      userId: user.id,
-      sortIndex:
-        (await prisma.category.count({ where: { userId: user.id } })) + 1,
-    },
-  });
-}
-
-export async function updateCategory(
-  id: number,
-  name?: string,
-  description?: string,
-  sortIndex?: number,
-) {
-  const user = await requireAuth();
-
-  return prisma.category.update({
-    where: { id, userId: user.id },
-    data: {
-      name,
-      description,
-      sortIndex,
-    },
-  });
-}
-
-export async function deleteAllCategories() {
-  const user = await requireAuth();
-
-  await prisma.category.deleteMany({
-    where: { userId: user.id },
-  });
-}
-
-export async function deleteCategory(id: number) {
-  const user = await requireAuth();
-
-  await prisma.category.delete({
-    where: { id, userId: user.id },
-  });
 }

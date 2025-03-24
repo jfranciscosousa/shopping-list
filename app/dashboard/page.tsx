@@ -1,6 +1,6 @@
 import ShoppingListApp from "@/components/shopping-list-app";
 import { getItems } from "@/server/actions";
-import { getCurrentUser } from "@/server/auth";
+import { getCurrentUser } from "@/server/auth.actions";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {

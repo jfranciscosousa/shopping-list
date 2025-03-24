@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { updateUser } from "@/server/actions";
+import { updateUser } from "@/server/user.actions";
 import { User } from "@prisma/client";
 import { FormEvent, useState } from "react";
 

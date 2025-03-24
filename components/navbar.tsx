@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { logout } from "@/server/auth";
+import { logout } from "@/server/auth.actions";
 import { LogOut, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 

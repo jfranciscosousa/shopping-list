@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { login, signup } from "@/server/auth";
+import { login, signup } from "@/server/auth.actions";
 import { useState } from "react";
 
 export default function LoginForm() {
@@ -120,30 +120,54 @@ export default function LoginForm() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <Input type="text" name="name" placeholder="Name" required />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    required
-                  />
-                </div>
+              <form
+                onSubmit={handleSignup}
+                className="space-y-4 flex flex-col gap-2"
+              >
+                <Input
+                  type="text"
+                  name="name"
+                  placeholder="Name"
+                  required
+                  aria-label="Name"
+                />
+
+                <Input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  required
+                  aria-label="Email"
+                />
+
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  required
+                  aria-label="Password"
+                />
+
+                <Input
+                  type="password"
+                  name="confirmPassword"
+                  placeholder="Confirm password"
+                  required
+                  aria-label="Confirm password"
+                />
+
+                <Input
+                  type="text"
+                  name="inviteToken"
+                  placeholder="Invite token"
+                  aria-label="Invite token"
+                />
+
                 <div className="flex items-center space-x-2">
                   <Checkbox id="signup-remember" name="rememberMe" />
                   <Label htmlFor="signup-remember">Remember me</Label>
                 </div>
+
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? (
                     <div className="flex items-center gap-2">

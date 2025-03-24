@@ -1,6 +1,6 @@
 import Profile from "@/components/profile";
-import { getCategories } from "@/server/actions";
-import { getCurrentUser } from "@/server/auth";
+import { getCategories } from "@/server/categories.actions";
+import { getCurrentUser } from "@/server/auth.actions";
 import { redirect } from "next/navigation";
 
 export default async function ProfilePage() {

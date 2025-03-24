@@ -1,5 +1,5 @@
 import LoginForm from "@/components/login-form";
-import { getCurrentUser } from "@/server/auth";
+import { getCurrentUser } from "@/server/auth.actions";
 import { redirect } from "next/navigation";
 
 export default async function Home() {

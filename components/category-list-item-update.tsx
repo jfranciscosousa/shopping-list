@@ -32,21 +32,16 @@ function Form({
 
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
 
-    updateCategoriesMutation.trigger(
-      { id: category.id, name, description },
-      {
-        onSuccess: () => {
-          toast({ title: "Category updated" });
-          setOpen(false);
-        },
-        onError: () => {
-          toast({ title: "Failed to update category", variant: "destructive" });
-        },
+    updateCategoriesMutation.trigger(formData, {
+      onSuccess: () => {
+        toast({ title: "Category updated" });
+        setOpen(false);
       },
-    );
+      onError: () => {
+        toast({ title: "Failed to update category", variant: "destructive" });
+      },
+    });
   }
 
   return (
@@ -59,6 +54,8 @@ function Form({
       </AlertDialogHeader>
 
       <div className="py-6 space-y-4">
+        <input type="hidden" name="id" defaultValue={category.id} />
+
         <InputField label="Name" name="name" defaultValue={category.name} />
 
         <TextareaField

@@ -6,7 +6,7 @@ import {
   deleteCategory,
   getCategories,
   updateCategory,
-} from "@/server/actions";
+} from "@/server/categories.actions";
 import { Category } from "@prisma/client";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
@@ -23,33 +23,21 @@ export function useCategories(initialCategories: Category[]) {
 }
 
 type CategoryAddArgs = {
-  arg: {
-    name: string;
-    description?: string;
-  };
+  arg: FormData;
 };
 
 export function useCategoriesAdd() {
-  const fn = (_url: string, { arg: { name, description } }: CategoryAddArgs) =>
-    addCategory(name, description);
+  const fn = (_url: string, { arg }: CategoryAddArgs) => addCategory(arg);
 
   return useSWRMutation(KEY, fn);
 }
 
 type CategoryUpdateArgs = {
-  arg: {
-    id: number;
-    name?: string;
-    description?: string;
-    sortIndex?: number;
-  };
+  arg: FormData;
 };
 
 export function useCategoriesUpdate() {
-  const fn = (
-    _url: string,
-    { arg: { id, name, description, sortIndex } }: CategoryUpdateArgs,
-  ) => updateCategory(id, name, description, sortIndex);
+  const fn = (_url: string, { arg }: CategoryUpdateArgs) => updateCategory(arg);
 
   return useSWRMutation(KEY, fn);
 }
