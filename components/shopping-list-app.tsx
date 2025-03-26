@@ -18,7 +18,7 @@ import { Loader } from "lucide-react";
 import ListReset from "./list-reset";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
-import { getItems } from "@/server/actions";
+import { getItems } from "@/server/shopping-items.actions";
 
 type Props = {
   initialShoppingItems: Awaited<ReturnType<typeof getItems>>;

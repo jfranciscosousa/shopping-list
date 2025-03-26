@@ -6,7 +6,7 @@ import {
   deleteItem,
   editItem,
   getItems,
-} from "@/server/actions";
+} from "@/server/shopping-items.actions";
 import useSWR from "swr";
 import useSWRMutation from "swr/mutation";
 

@@ -31,12 +31,14 @@ const signupSchema = z
 // Helper to set the auth cookie
 async function setAuthCookie(user: User, rememberMe = false) {
   const cookieStore = await cookies();
-  const jwt = sign(String(user.id), process.env.SECRET_KEY_BASE as string);
-
   // Set expiration time - 1 hour or "forever" (1 year)
   const expiresIn = rememberMe
     ? 60 * 60 * 24 * 365 // 1 year in seconds
     : 60 * 60; // 1 hour in seconds
+
+  const jwt = sign(String(user.id), process.env.SECRET_KEY_BASE as string, {
+    expiresIn,
+  });
 
   cookieStore.set("auth-token", jwt, {
     httpOnly: true,
