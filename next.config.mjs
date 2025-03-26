@@ -1,7 +1,27 @@
-let userConfig = undefined;
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+        ],
+      },
+    ];
+  },
+
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -17,27 +37,5 @@ const nextConfig = {
     parallelServerCompiles: true,
   },
 };
-
-mergeConfig(nextConfig, userConfig);
-
-function mergeConfig(nextConfig, userConfig) {
-  if (!userConfig) {
-    return;
-  }
-
-  for (const key in userConfig) {
-    if (
-      typeof nextConfig[key] === "object" &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...userConfig[key],
-      };
-    } else {
-      nextConfig[key] = userConfig[key];
-    }
-  }
-}
 
 export default nextConfig;
