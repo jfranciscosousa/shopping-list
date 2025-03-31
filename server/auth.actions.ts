@@ -44,7 +44,7 @@ async function setAuthCookie(user: User, rememberMe = false) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: expiresIn,
+    expires: new Date(Date.now() + expiresIn * 1000),
     path: "/",
   });
 }
