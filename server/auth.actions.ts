@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { sign, verify } from "jsonwebtoken";
+import { JwtPayload, sign, verify } from "jsonwebtoken";
 import argon2 from "argon2";
 import prisma from "./prisma";
 import { User } from "@prisma/client";
@@ -36,7 +36,7 @@ async function setAuthCookie(user: User, rememberMe = false) {
     ? 60 * 60 * 24 * 365 // 1 year in seconds
     : 60 * 60; // 1 hour in seconds
 
-  const jwt = sign(String(user.id), process.env.SECRET_KEY_BASE as string, {
+  const jwt = sign({ id: user.id }, process.env.SECRET_KEY_BASE as string, {
     expiresIn,
   });
 
@@ -62,10 +62,12 @@ export async function getCurrentUser() {
 
   if (!authToken) return null;
 
-  const userId = verify(
+  const { id: userId } = verify(
     authToken.value,
     process.env.SECRET_KEY_BASE as string,
-  ) as string;
+  ) as JwtPayload;
+
+  if (!userId) return null;
 
   const user = await prisma.user.findUnique({
     where: {
