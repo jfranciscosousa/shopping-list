@@ -66,7 +66,7 @@ export default function CategoryListItem({ id, category }: Props) {
       </div>
 
       {category.description && (
-        <div className="mt-2 text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground px-6 pb-4">
           {category.description}
         </div>
       )}
