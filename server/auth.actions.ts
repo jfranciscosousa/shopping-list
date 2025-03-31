@@ -43,7 +43,7 @@ async function setAuthCookie(user: User, rememberMe = false) {
   cookieStore.set("auth-token", jwt, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     expires: new Date(Date.now() + expiresIn * 1000),
     path: "/",
   });
