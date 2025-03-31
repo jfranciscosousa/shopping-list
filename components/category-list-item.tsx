@@ -8,6 +8,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Category } from "@prisma/client";
 import { GripVertical, X } from "lucide-react";
 import { CategoryListItemUpdate } from "./category-list-item-update";
+import { cn } from "@/lib/utils";
 
 type Props = {
   id: number;
@@ -18,8 +19,14 @@ export default function CategoryListItem({ id, category }: Props) {
   const { toast } = useToast();
   const deleteCategoriesMutation = useCategoriesDelete();
 
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -35,15 +42,19 @@ export default function CategoryListItem({ id, category }: Props) {
   }
 
   return (
-    <li key={category.id} className="p-3" ref={setNodeRef} style={style}>
+    <li key={category.id} ref={setNodeRef} style={style}>
       <div className="flex items-center justify-between">
         <div
-          className="flex items-center justify-between"
+          className={cn("p-4 grow cursor-grab", {
+            "cursor-grabbing": isDragging,
+          })}
           {...attributes}
           {...listeners}
         >
-          <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-          <div className="font-medium">{category.name}</div>
+          <div className="flex items-center gap-1">
+            <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+            <div className="font-medium">{category.name}</div>
+          </div>
         </div>
 
         <div className="flex items-center gap-1">

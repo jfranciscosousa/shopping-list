@@ -57,32 +57,37 @@ export async function clearAuthCookie() {
 
 // Get the current user from the cookie
 export async function getCurrentUser() {
-  const cookieStore = await cookies();
-  const authToken = cookieStore.get("auth-token");
+  try {
+    const cookieStore = await cookies();
+    const authToken = cookieStore.get("auth-token");
 
-  if (!authToken) return null;
+    if (!authToken) return null;
 
-  const { id: userId } = verify(
-    authToken.value,
-    process.env.SECRET_KEY_BASE as string,
-  ) as JwtPayload;
+    const { id: userId } = verify(
+      authToken.value,
+      process.env.SECRET_KEY_BASE as string,
+    ) as JwtPayload;
 
-  if (!userId) return null;
+    if (!userId) return null;
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: Number(userId),
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: Number(userId),
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-  return user;
+    return user;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
