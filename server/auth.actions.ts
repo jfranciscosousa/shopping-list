@@ -1,12 +1,12 @@
 "use server";
 
+import { User } from "@prisma/client";
+import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { JwtPayload, sign, verify } from "jsonwebtoken";
-import argon2 from "argon2";
+import { hashPassword, verifyPassword } from "./password";
 import prisma from "./prisma";
-import { User } from "@prisma/client";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -31,14 +31,13 @@ const signupSchema = z
 // Helper to set the auth cookie
 async function setAuthCookie(user: User, rememberMe = false) {
   const cookieStore = await cookies();
-  // Set expiration time - 1 hour or "forever" (1 year)
-  const expiresIn = rememberMe
-    ? 60 * 60 * 24 * 365 // 1 year in seconds
-    : 60 * 60; // 1 hour in seconds
+  const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
+  const expiresIn = rememberMe ? 60 * 60 * 24 * 365 : 60 * 60;
 
-  const jwt = sign({ id: user.id }, process.env.SECRET_KEY_BASE as string, {
-    expiresIn,
-  });
+  const jwt = await new SignJWT({ id: user.id })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime(`${expiresIn}s`)
+    .sign(secret);
 
   cookieStore.set("auth-token", jwt, {
     httpOnly: true,
@@ -63,11 +62,10 @@ export async function getCurrentUser() {
 
     if (!authToken) return null;
 
-    const { id: userId } = verify(
-      authToken.value,
-      process.env.SECRET_KEY_BASE as string,
-    ) as JwtPayload;
+    const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
+    const { payload } = await jwtVerify(authToken.value, secret);
 
+    const userId = (payload as { id?: number }).id;
     if (!userId) return null;
 
     const user = await prisma.user.findUnique({
@@ -89,6 +87,7 @@ export async function getCurrentUser() {
     return null;
   }
 }
+
 export async function login(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -106,7 +105,7 @@ export async function login(formData: FormData) {
     },
   });
 
-  if (!user || !(await argon2.verify(user.password, password))) {
+  if (!user || !(await verifyPassword(user.password, password))) {
     return { success: false, error: "Invalid email or password" };
   }
 
@@ -192,7 +191,7 @@ export async function signup(formData: FormData) {
     data: {
       name,
       email,
-      password: await argon2.hash(password),
+      password: await hashPassword(password),
     },
   });
   await prisma.category.createMany({

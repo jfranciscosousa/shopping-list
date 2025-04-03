@@ -1,6 +1,6 @@
 "use server";
 
-import argon2 from "argon2";
+import { hashPassword, verifyPassword } from "./password";
 import prisma from "./prisma";
 import { requireAuth } from "./utils";
 
@@ -21,7 +21,7 @@ export async function updateUser(formData: FormData) {
 
   if (
     newPassword &&
-    !(await argon2.verify(userWithPassword!.password, currentPassword))
+    !(await verifyPassword(userWithPassword!.password, currentPassword))
   ) {
     return { success: false, error: "Current password is incorrect" };
   }
@@ -36,7 +36,7 @@ export async function updateUser(formData: FormData) {
       email,
       name,
       password: newPassword
-        ? await argon2.hash(newPassword)
+        ? await hashPassword(newPassword)
         : userWithPassword!.password,
     },
   });

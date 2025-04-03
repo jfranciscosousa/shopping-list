@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import Prisma from "@prisma/client";
+import Prisma from "@prisma/client/edge";
 
 function buildClient() {
   const client = new Prisma.PrismaClient({
