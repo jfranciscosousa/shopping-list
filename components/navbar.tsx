@@ -11,8 +11,8 @@ export default function Navbar({ user }: { user: { id: number } | null }) {
   }
 
   return (
-    <nav className="border-b bg-background/95 backdrop-blur-xs supports-backdrop-filter:bg-background/60">
-      <div className="container flex h-14 items-center justify-between">
+    <nav className="border-b bg-background/95 backdrop-blur-xs supports-backdrop-filter:bg-background/60 px-2">
+      <div className="flex h-14 items-center justify-between p-4 md:p-8">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 font-semibold"
@@ -22,14 +22,19 @@ export default function Navbar({ user }: { user: { id: number } | null }) {
         </Link>
 
         {user && (
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" asChild className="p-0">
               <Link href="/profile" className="contents">
-                <User className="mr-2 h-4 w-4" /> Profile
+                <User className="mr-0.5 h-4 w-4" /> Profile
               </Link>
             </Button>
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" /> Logout
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="p-0"
+            >
+              <LogOut className="mr-0.5 h-4 w-4" /> Logout
             </Button>
           </div>
         )}

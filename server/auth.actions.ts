@@ -7,21 +7,22 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { hashPassword, verifyPassword } from "./password";
 import prisma from "./prisma";
+import { validateFormData } from "./utils";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  rememberMe: z.boolean().optional(),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  rememberMe: z.preprocess((v) => v === "on", z.boolean().optional()),
 });
 
 const signupSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
     inviteToken: z.string().optional(),
-    rememberMe: z.boolean().optional(),
+    rememberMe: z.preprocess((v) => v === "on", z.boolean().optional()),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Confirm password must match password",
@@ -89,15 +90,13 @@ export async function getCurrentUser() {
 }
 
 export async function login(formData: FormData) {
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const rememberMe = formData.get("rememberMe") === "on";
-
-  const result = loginSchema.safeParse({ email, password, rememberMe });
+  const result = await validateFormData(formData, loginSchema);
 
   if (!result.success) {
     return { success: false, error: result.error.errors[0].message };
   }
+
+  const { email, password, rememberMe } = result.data;
 
   const user = await prisma.user.findUnique({
     where: {
@@ -153,25 +152,13 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export async function signup(formData: FormData) {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
-  const inviteToken = formData.get("inviteToken") as string;
-  const rememberMe = formData.get("rememberMe") === "on";
-
-  const result = signupSchema.safeParse({
-    name,
-    email,
-    password,
-    confirmPassword,
-    inviteToken,
-    rememberMe,
-  });
+  const result = await validateFormData(formData, signupSchema);
 
   if (!result.success) {
     return { success: false, error: result.error.errors[0].message };
   }
+
+  const { name, email, password, inviteToken, rememberMe } = result.data;
 
   if (process.env.INVITE_TOKEN && inviteToken !== process.env.INVITE_TOKEN) {
     return { success: false, error: "Invalid invite token" };

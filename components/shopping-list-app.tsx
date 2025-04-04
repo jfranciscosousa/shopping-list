@@ -44,7 +44,7 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-3xl">
+    <main className="container mx-auto px-2 md:px-4 py-8 max-w-3xl">
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-center text-2xl">
@@ -61,6 +61,18 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
 
           <ListReset resetList={resetList} />
         </CardFooter>
+      </Card>
+
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg">
+            Total entries:{" "}
+            {data.reduce(
+              (acc, { shoppingItems }) => acc + shoppingItems.length,
+              0,
+            )}
+          </CardTitle>
+        </CardHeader>
       </Card>
 
       {Object.keys(data).length === 0 ? (

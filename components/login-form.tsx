@@ -18,9 +18,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { login, signup } from "@/server/auth.actions";
 import { useState } from "react";
+import useTabs from "@/hooks/use-tabs";
 
 export default function LoginForm() {
-  const [activeTab, setActiveTab] = useState("login");
+  const { activeTab, setActiveTab } = useTabs("login");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 

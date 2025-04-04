@@ -7,13 +7,13 @@ import UserProfileForm from "@/components/user-profile-form";
 import { Category, User } from "@prisma/client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import CategoryList from "./category-list";
+import useTabs from "@/hooks/use-tabs";
 
 type Props = { user: Omit<User, "password">; initialCategories: Category[] };
 
 export default function Profile({ user, initialCategories }: Props) {
-  const [currentTab, setCurrentTab] = useState("profile");
+  const { activeTab, setActiveTab } = useTabs("profile");
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -27,9 +27,9 @@ export default function Profile({ user, initialCategories }: Props) {
 
       <Card>
         <Tabs
-          defaultValue={currentTab}
-          value={currentTab}
-          onValueChange={setCurrentTab}
+          defaultValue={activeTab}
+          value={activeTab}
+          onValueChange={setActiveTab}
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-2">

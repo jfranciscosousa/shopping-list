@@ -1,18 +1,42 @@
 "use server";
 
+import { z } from "zod";
 import { hashPassword, verifyPassword } from "./password";
 import prisma from "./prisma";
-import { requireAuth } from "./utils";
+import { requireAuth, validateFormData } from "./utils";
+
+const updateUserSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters").optional(),
+    email: z.string().email("Invalid email address").optional(),
+    currentPassword: z.string(),
+    newPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .or(z.literal("")),
+    confirmPassword: z.string().optional(),
+  })
+  .refine(
+    (data) => !data.newPassword || data.newPassword === data.confirmPassword,
+    {
+      message: "Confirm password must match password",
+      path: ["confirmPassword"],
+    },
+  );
 
 export async function updateUser(formData: FormData) {
   const user = await requireAuth();
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const currentPassword = formData.get("currentPassword") as string;
-  const newPassword = formData.get("newPassword") as string;
-  const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!user) return { success: false, error: "Must be logged in" };
+
+  const result = await validateFormData(formData, updateUserSchema);
+
+  if (!result.success) {
+    return { success: false, error: result.error.errors[0].message };
+  }
+
+  const { name, email, currentPassword, newPassword, confirmPassword } =
+    result.data;
 
   const userWithPassword = await prisma.user.findUnique({
     where: { id: user.id },

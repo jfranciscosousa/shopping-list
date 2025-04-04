@@ -16,7 +16,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@prisma/client";
 import { Plus } from "lucide-react";
-import { FormEvent } from "react";
+import { FormEvent, useId } from "react";
 import CategoryListItem from "./category-list-item";
 import { Textarea } from "./ui/textarea";
 import {
@@ -39,6 +39,7 @@ type Props = {
 };
 
 export default function CategoryList({ initialCategories }: Props) {
+  const id = useId();
   const { toast } = useToast();
   const { data: categories = [], mutate } = useCategories(initialCategories);
   const addCategoriesMutation = useCategoriesAdd();
@@ -141,6 +142,7 @@ export default function CategoryList({ initialCategories }: Props) {
         </form>
 
         <DndContext
+          id={id}
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
