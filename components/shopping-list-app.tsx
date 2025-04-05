@@ -19,12 +19,15 @@ import ListReset from "./list-reset";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
 import { getItems } from "@/server/shopping-items.actions";
+import useWakeLock from "@/hooks/use-wake-lock";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Props = {
   initialShoppingItems: Awaited<ReturnType<typeof getItems>>;
 };
 
 export default function ShoppingListApp({ initialShoppingItems }: Props) {
+  useWakeLock(useIsMobile());
   const { toast } = useToast();
   const { data = [], isLoading: isLoadingItems } =
     useShoppingListItems(initialShoppingItems);

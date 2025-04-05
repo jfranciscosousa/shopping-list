@@ -52,7 +52,7 @@ export async function addItem(item: string): Promise<void> {
         },
       });
 
-      revalidatePath("/dashboard");
+      revalidatePath("/list");
     } catch (error) {
       console.error("Error with OpenAI API:", error);
       throw error;
@@ -81,7 +81,7 @@ export async function editItem(id: number, newName: string) {
       },
     });
 
-    revalidatePath("/dashboard");
+    revalidatePath("/list");
 
     return {
       success: true,
@@ -104,7 +104,7 @@ export async function deleteItem(id: number) {
     where: { id, userId: user.id },
   });
 
-  revalidatePath("/dashboard");
+  revalidatePath("/list");
 }
 
 export async function deleteAllItems() {
@@ -114,7 +114,7 @@ export async function deleteAllItems() {
     where: { userId: user.id },
   });
 
-  revalidatePath("/dashboard");
+  revalidatePath("/list");
 }
 
 export async function getItems() {

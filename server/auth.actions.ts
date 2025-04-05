@@ -110,7 +110,7 @@ export async function login(formData: FormData) {
 
   await setAuthCookie(user, rememberMe);
 
-  redirect("/dashboard");
+  redirect("/list");
 }
 
 const DEFAULT_CATEGORIES = [
@@ -191,7 +191,7 @@ export async function signup(formData: FormData) {
 
   await setAuthCookie(newUser, rememberMe);
 
-  redirect("/dashboard");
+  redirect("/list");
 }
 
 // Server action for logout

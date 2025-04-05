@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 export default async function Home() {
   const user = await getCurrentUser();
 
-  if (user) redirect("/dashboard");
+  if (user) redirect("/list");
 
   return <LoginForm />;
 }
