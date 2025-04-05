@@ -42,7 +42,7 @@ export default function CategoryListItem({ id, category }: Props) {
   }
 
   return (
-    <li className="select-none" ref={setNodeRef} style={style}>
+    <li className="touch-none" ref={setNodeRef} style={style}>
       <div className="flex items-center justify-between">
         <div
           className={cn("p-4 grow cursor-grab", {
