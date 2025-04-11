@@ -2,6 +2,7 @@
 
 import {
   addItem,
+  addMultiItem,
   deleteAllItems,
   deleteItem,
   editItem,
@@ -25,6 +26,13 @@ export function useShoppingListAddItem() {
   const addItemFn = (_url: string, { arg }: { arg: string }) => addItem(arg);
 
   return useSWRMutation("getItems", addItemFn);
+}
+
+export function useShoppingListAddMultiItem() {
+  const addMultiItemFn = (_url: string, { arg }: { arg: string }) =>
+    addMultiItem(arg);
+
+  return useSWRMutation("getItems", addMultiItemFn);
 }
 
 export function useShoppingListUpdateItem() {

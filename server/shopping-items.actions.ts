@@ -1,11 +1,12 @@
 "use server";
 
-import { generateText } from "ai";
+import { generateObject, generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { revalidatePath } from "next/cache";
 import prisma from "./prisma";
 import { Category } from "@prisma/client";
 import { requireAuth } from "./utils";
+import { z } from "zod";
 
 async function categoryFromAI(
   item: string,
@@ -39,6 +40,37 @@ async function categoryFromAI(
   return category;
 }
 
+async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
+  const categories = await prisma.category.findMany({
+    where: {
+      userId: user.id,
+    },
+  });
+  const items = await getItems();
+
+  const { object } = await generateObject({
+    model: openai("gpt-4o"),
+    prompt: `
+      Build categorized shopping items from this prompt ${prompt}
+
+      Do not repeat any items found in the shopping list already: ${JSON.stringify(items.flatMap((item) => item.shoppingItems.map((item) => item.name)))}
+
+      Categories: ${JSON.stringify(categories)}
+    `,
+    temperature: 0.1,
+    schema: z.object({
+      items: z.array(
+        z.object({
+          name: z.string().describe("the item name"),
+          categoryId: z.number(),
+        }),
+      ),
+    }),
+  });
+
+  return object;
+}
+
 export async function addItem(item: string): Promise<void> {
   const user = await requireAuth();
 
@@ -61,6 +93,28 @@ export async function addItem(item: string): Promise<void> {
     console.error("Error in categorization:", error);
     throw error;
   }
+}
+
+export async function addMultiItem(prompt: string): Promise<void> {
+  const user = await requireAuth();
+  const list = await buildItemsFromPrompt(prompt, user).catch((e) => {
+    console.error("Error with OpenAI API:", e);
+    throw e;
+  });
+
+  try {
+    await prisma.shoppingItem.createMany({
+      data: list.items.map((item) => ({
+        name: item.name,
+        categoryId: item.categoryId,
+        userId: user.id,
+      })),
+    });
+  } catch (error) {
+    console.error("Error while saving multi prompt:", error);
+  }
+
+  revalidatePath("/list");
 }
 
 export async function editItem(id: number, newName: string) {

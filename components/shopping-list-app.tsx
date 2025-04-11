@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import {
   useShoppingListAddItem,
+  useShoppingListAddMultiItem,
   useShoppingListDeleteAllItems,
   useShoppingListItems,
 } from "@/hooks/use-shopping-list";
@@ -32,10 +33,12 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
   const { data = [], isLoading: isLoadingItems } =
     useShoppingListItems(initialShoppingItems);
   const addItemMutation = useShoppingListAddItem();
+  const addMultiItemMutation = useShoppingListAddMultiItem();
   const deleteAllItemsMutation = useShoppingListDeleteAllItems();
   const isLoading =
     isLoadingItems ||
     addItemMutation.isMutating ||
+    addMultiItemMutation.isMutating ||
     deleteAllItemsMutation.isMutating;
 
   const resetList = async () => {
@@ -56,7 +59,10 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
         </CardHeader>
         <CardContent>
           <ShoppingListInput
-            onSubmit={(newItem) => addItemMutation.trigger(newItem)}
+            onSingleItemSubmit={(newItem) => addItemMutation.trigger(newItem)}
+            onMultiItemSubmit={(newItem) =>
+              addMultiItemMutation.trigger(newItem)
+            }
           />
         </CardContent>
         <CardFooter className="flex justify-between">
