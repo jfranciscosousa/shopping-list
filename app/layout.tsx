@@ -1,4 +1,4 @@
-import ClientProviders from "@/components/client-providers";
+import QueryProvider from "@/components/query-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
@@ -22,7 +22,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ClientProviders>
+        <QueryProvider>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
@@ -32,7 +32,7 @@ export default async function RootLayout({
             {children}
             <Toaster />
           </ThemeProvider>
-        </ClientProviders>
+        </QueryProvider>
       </body>
     </html>
   );

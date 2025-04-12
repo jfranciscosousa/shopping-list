@@ -1,66 +1,25 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  useShoppingListAddItem,
-  useShoppingListAddMultiItem,
-  useShoppingListDeleteAllItems,
-  useShoppingListItems,
-} from "@/hooks/use-shopping-list";
-import { Loader } from "lucide-react";
-import ListReset from "./list-reset";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useShoppingListItems } from "@/hooks/use-shopping-list";
+import useWakeLock from "@/hooks/use-wake-lock";
+import { getItems } from "@/server/shopping-items.actions";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
-import { getItems } from "@/server/shopping-items.actions";
-import useWakeLock from "@/hooks/use-wake-lock";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 type Props = {
   initialShoppingItems: Awaited<ReturnType<typeof getItems>>;
 };
 
-export default function ShoppingListApp({ initialShoppingItems }: Props) {
+export default function ShoppingList({ initialShoppingItems }: Props) {
   useWakeLock(useIsMobile());
-  const { data = [], isLoading: isLoadingItems } =
-    useShoppingListItems(initialShoppingItems);
-  const addItemMutation = useShoppingListAddItem();
-  const addMultiItemMutation = useShoppingListAddMultiItem();
-  const deleteAllItemsMutation = useShoppingListDeleteAllItems();
-  const isLoading =
-    isLoadingItems ||
-    addItemMutation.isPending ||
-    addMultiItemMutation.isPending;
-
-  const resetList = async () => {
-    deleteAllItemsMutation.mutate({});
-  };
+  const { data = [] } = useShoppingListItems(initialShoppingItems);
 
   return (
     <main className="container mx-auto px-2 md:px-4 py-8 max-w-3xl">
-      <Card className="mb-8">
-        <CardContent>
-          <ShoppingListInput
-            onSingleItemSubmit={(newItem) =>
-              addItemMutation.mutateAsync(newItem)
-            }
-            onMultiItemSubmit={(newItem) =>
-              addMultiItemMutation.mutateAsync(newItem)
-            }
-          />
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          {isLoading ? <Loader className="animate-spin" /> : <div />}
-
-          <ListReset resetList={resetList} />
-        </CardFooter>
-      </Card>
+      <ShoppingListInput />
 
       <Card className="mb-8">
         <CardHeader>

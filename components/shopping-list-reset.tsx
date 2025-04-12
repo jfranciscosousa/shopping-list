@@ -10,13 +10,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useShoppingListDeleteAllItems } from "@/hooks/use-shopping-list";
 import { RefreshCw } from "lucide-react";
 
-type Props = {
-  resetList: () => void;
-};
+export default function ShoppingListReset() {
+  const mutation = useShoppingListDeleteAllItems();
 
-export default function ListReset({ resetList }: Props) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -34,7 +33,9 @@ export default function ListReset({ resetList }: Props) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={resetList}>Reset</AlertDialogAction>
+          <AlertDialogAction onClick={() => mutation.mutate({})}>
+            Reset
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
