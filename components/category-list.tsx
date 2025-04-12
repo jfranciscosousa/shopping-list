@@ -9,9 +9,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  CATEGORIES_QUERY_KEY,
   useCategories,
   useCategoriesAdd,
-  useCategoriesUpdate,
+  useCategoriesUpdateBulk,
 } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@prisma/client";
@@ -33,17 +34,19 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
   initialCategories: Category[];
 };
 
 export default function CategoryList({ initialCategories }: Props) {
+  const queryClient = useQueryClient();
   const id = useId();
   const { toast } = useToast();
-  const { data: categories = [], mutate } = useCategories(initialCategories);
+  const { data: categories = [] } = useCategories(initialCategories);
   const addCategoriesMutation = useCategoriesAdd();
-  const updateCategoriesMutation = useCategoriesUpdate();
+  const updateCategoriesBulkMutation = useCategoriesUpdateBulk();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -55,19 +58,17 @@ export default function CategoryList({ initialCategories }: Props) {
     const formEl = event.currentTarget;
     const formData = new FormData(formEl);
 
-    addCategoriesMutation.trigger(formData, {
-      onSuccess: () => {
-        toast({ title: "New category added" });
-        formEl.reset();
-      },
+    addCategoriesMutation.mutate(formData, {
       onError: (error) => {
         toast({
           title: "Failed to add new category",
-          description: error.message,
+          description: (error as Error).message,
           variant: "destructive",
         });
       },
     });
+
+    formEl.reset();
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -82,18 +83,22 @@ export default function CategoryList({ initialCategories }: Props) {
       );
       const newCategories = arrayMove(categories, oldIndex, newIndex);
 
-      mutate(newCategories, false);
+      queryClient.setQueryData(CATEGORIES_QUERY_KEY, newCategories);
 
       // Update sortIndex on the server
-      newCategories.forEach((category, index) => {
-        if (category.sortIndex !== index) {
-          const formData = new FormData();
-          formData.set("id", category.id.toString());
-          formData.set("sortIndex", index.toString());
+      const formDatas = newCategories
+        .map((category, index) => {
+          if (category.sortIndex !== index) {
+            const formData = new FormData();
+            formData.set("id", category.id.toString());
+            formData.set("sortIndex", index.toString());
 
-          updateCategoriesMutation.trigger(formData);
-        }
-      });
+            return formData;
+          }
+        })
+        .filter((o) => !!o);
+
+      updateCategoriesBulkMutation.mutate(formDatas);
     }
   }
 
@@ -117,6 +122,7 @@ export default function CategoryList({ initialCategories }: Props) {
               name="name"
               placeholder="e.g., Electronics"
               className="mt-1"
+              required
             />
           </div>
 
@@ -136,7 +142,7 @@ export default function CategoryList({ initialCategories }: Props) {
             />
           </div>
 
-          <Button disabled={addCategoriesMutation.isMutating} type="submit">
+          <Button type="submit">
             <Plus className="h-4 w-4 mr-2" /> Add Category
           </Button>
         </form>

@@ -14,7 +14,6 @@ import {
   useShoppingListDeleteAllItems,
   useShoppingListItems,
 } from "@/hooks/use-shopping-list";
-import { useToast } from "@/hooks/use-toast";
 import { Loader } from "lucide-react";
 import ListReset from "./list-reset";
 import ShoppingListInput from "./shopping-list-input";
@@ -29,7 +28,6 @@ type Props = {
 
 export default function ShoppingListApp({ initialShoppingItems }: Props) {
   useWakeLock(useIsMobile());
-  const { toast } = useToast();
   const { data = [], isLoading: isLoadingItems } =
     useShoppingListItems(initialShoppingItems);
   const addItemMutation = useShoppingListAddItem();
@@ -37,16 +35,11 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
   const deleteAllItemsMutation = useShoppingListDeleteAllItems();
   const isLoading =
     isLoadingItems ||
-    addItemMutation.isMutating ||
-    addMultiItemMutation.isMutating ||
-    deleteAllItemsMutation.isMutating;
+    addItemMutation.isPending ||
+    addMultiItemMutation.isPending;
 
   const resetList = async () => {
-    await deleteAllItemsMutation.trigger();
-    toast({
-      title: "List Reset",
-      description: "Your shopping list has been cleared.",
-    });
+    deleteAllItemsMutation.mutate({});
   };
 
   return (
@@ -54,9 +47,11 @@ export default function ShoppingListApp({ initialShoppingItems }: Props) {
       <Card className="mb-8">
         <CardContent>
           <ShoppingListInput
-            onSingleItemSubmit={(newItem) => addItemMutation.trigger(newItem)}
+            onSingleItemSubmit={(newItem) =>
+              addItemMutation.mutateAsync(newItem)
+            }
             onMultiItemSubmit={(newItem) =>
-              addMultiItemMutation.trigger(newItem)
+              addMultiItemMutation.mutateAsync(newItem)
             }
           />
         </CardContent>

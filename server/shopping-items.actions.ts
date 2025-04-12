@@ -125,13 +125,10 @@ export async function editItem(id: number, newName: string) {
   }
 
   try {
-    const category = await categoryFromAI(newName, user);
-
-    await prisma.shoppingItem.update({
+    const item = await prisma.shoppingItem.update({
       where: { id, userId: user.id },
       data: {
         name: newName,
-        categoryId: (await categoryFromAI(newName, user)).id,
       },
     });
 
@@ -139,11 +136,7 @@ export async function editItem(id: number, newName: string) {
 
     return {
       success: true,
-      item: {
-        id,
-        name: newName,
-        category,
-      },
+      item,
     };
   } catch (error) {
     console.error("Error editing item:", error);

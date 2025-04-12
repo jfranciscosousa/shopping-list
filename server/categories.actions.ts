@@ -36,7 +36,8 @@ export async function addCategory(formData: FormData) {
       description,
       userId: user.id,
       sortIndex:
-        (await prisma.category.count({ where: { userId: user.id } })) + 1,
+        ((await prisma.category.count({ where: { userId: user.id } })) + 1) *
+        -1,
     },
   });
 }
@@ -44,7 +45,7 @@ export async function addCategory(formData: FormData) {
 const categoryUpdateSchema = categorySchema.partial().merge(
   z.object({
     id: z.preprocess(Number, z.number().int().positive()),
-    sortIndex: z.number().optional(),
+    sortIndex: z.preprocess(Number, z.number().int().optional()).optional(),
   }),
 );
 
@@ -64,6 +65,10 @@ export async function updateCategory(formData: FormData) {
       sortIndex,
     },
   });
+}
+
+export async function updateCategoryBulk(formDatas: FormData[]) {
+  return Promise.all(formDatas.map((formData) => updateCategory(formData)));
 }
 
 export async function deleteAllCategories() {

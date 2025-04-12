@@ -34,7 +34,7 @@ export default function CategoryListItem({ id, category }: Props) {
   };
 
   function handleRemoveCategory() {
-    deleteCategoriesMutation.trigger(category.id, {
+    deleteCategoriesMutation.mutate(category.id, {
       onSuccess: () => toast({ title: "Category deleted" }),
       onError: () =>
         toast({ title: "Failed to delete category", variant: "destructive" }),

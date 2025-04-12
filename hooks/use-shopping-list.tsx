@@ -8,49 +8,91 @@ import {
   editItem,
   getItems,
 } from "@/server/shopping-items.actions";
-import useSWR from "swr";
-import useSWRMutation from "swr/mutation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import useOptimisticUpdate from "./use-optimistic-update";
+
+export const SHOPPING_QUERY_KEY = ["shopping-items"];
+
+type ShoppingItem = Awaited<ReturnType<typeof getItems>>[number];
 
 export function useShoppingListItems(
   initialShoppingItems: Awaited<ReturnType<typeof getItems>>,
 ) {
-  return useSWR("getItems", getItems, {
-    fallbackData: initialShoppingItems,
-    refreshInterval: 300,
-    refreshWhenHidden: false,
-    revalidateOnFocus: true,
+  return useQuery({
+    queryKey: SHOPPING_QUERY_KEY,
+    queryFn: getItems,
+    initialData: initialShoppingItems,
   });
 }
 
 export function useShoppingListAddItem() {
-  const addItemFn = (_url: string, { arg }: { arg: string }) => addItem(arg);
+  const queryClient = useQueryClient();
 
-  return useSWRMutation("getItems", addItemFn);
+  return useMutation({
+    mutationFn: addItem,
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
+  });
 }
 
 export function useShoppingListAddMultiItem() {
-  const addMultiItemFn = (_url: string, { arg }: { arg: string }) =>
-    addMultiItem(arg);
-
-  return useSWRMutation("getItems", addMultiItemFn);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: addMultiItem,
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
+  });
 }
 
 export function useShoppingListUpdateItem() {
-  const updateItemFn = (
-    _url: string,
-    { arg: { itemId, newItem } }: { arg: { itemId: number; newItem: string } },
-  ) => editItem(itemId, newItem);
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
-  return useSWRMutation("getItems", updateItemFn);
+  return useMutation({
+    mutationFn: ({ id, newName }: { id: number; newName: string }) =>
+      editItem(id, newName),
+    onMutate: async ({ id, newName }) =>
+      optimisticUpdate((categories) =>
+        categories.map((category) => ({
+          ...category,
+          shoppingItems: category.shoppingItems.map((item) =>
+            id === item.id ? { ...item, name: newName } : item,
+          ),
+        })),
+      ),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
 }
 
 export function useShoppingListDeleteAllItems() {
-  return useSWRMutation("getItems", deleteAllItems);
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
+
+  return useMutation({
+    mutationFn: deleteAllItems,
+    onMutate: async () => optimisticUpdate(() => []),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
 }
 
 export function useShoppingListDeleteItem() {
-  const deleteItemFn = (_url: string, { arg }: { arg: number }) =>
-    deleteItem(arg);
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
-  return useSWRMutation("getItems", deleteItemFn);
+  return useMutation({
+    mutationFn: deleteItem,
+    onMutate: async (id) =>
+      optimisticUpdate((categories) =>
+        categories.map((category) => ({
+          ...category,
+          shoppingItems: category.shoppingItems.filter(
+            (item) => item.id !== id,
+          ),
+        })),
+      ),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
 }

@@ -33,15 +33,13 @@ function Form({
     const formEl = e.currentTarget;
     const formData = new FormData(formEl);
 
-    updateCategoriesMutation.trigger(formData, {
-      onSuccess: () => {
-        toast({ title: "Category updated" });
-        setOpen(false);
-      },
+    updateCategoriesMutation.mutate(formData, {
       onError: () => {
         toast({ title: "Failed to update category", variant: "destructive" });
       },
     });
+
+    setOpen(false);
   }
 
   return (
@@ -67,12 +65,7 @@ function Form({
 
       <AlertDialogFooter>
         <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
-        <Button
-          type="submit"
-          name="_action"
-          value="update"
-          isLoading={updateCategoriesMutation.isMutating}
-        >
+        <Button type="submit" name="_action" value="update">
           Save Changes
         </Button>
       </AlertDialogFooter>

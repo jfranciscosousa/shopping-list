@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   useShoppingListDeleteItem,
   useShoppingListUpdateItem,
@@ -21,41 +20,33 @@ export default function ShoppingListItem({ item }: Props) {
   const [editing, setEditing] = useState(false);
   const updateItemMutation = useShoppingListUpdateItem();
   const deleteItemMutation = useShoppingListDeleteItem();
-  const isMutating =
-    updateItemMutation.isMutating || deleteItemMutation.isMutating;
 
   const saveEditItem = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newItem = new FormData(event.currentTarget).get("item") as string;
 
     if (!newItem.trim()) {
-      deleteItemMutation.trigger(item.id);
+      deleteItemMutation.mutate(item.id);
       return;
     }
 
-    try {
-      const result = await updateItemMutation.trigger({
-        itemId: item.id,
-        newItem: newItem,
-      });
+    updateItemMutation.mutate(
+      {
+        id: item.id,
+        newName: newItem,
+      },
+      {
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description: (error as Error).message || "Failed to edit item",
+            variant: "destructive",
+          });
+        },
+      },
+    );
 
-      if (result.success && result.item) {
-        setEditing(false);
-      } else {
-        toast({
-          title: "Error",
-          description: result.error || "Failed to edit item",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Error editing item:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-    }
+    setEditing(false);
   };
 
   return (
@@ -70,14 +61,8 @@ export default function ShoppingListItem({ item }: Props) {
             defaultValue={item.name}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
-            disabled={isMutating}
           />
-          <Button
-            type="submit"
-            size="icon"
-            variant="ghost"
-            disabled={isMutating}
-          >
+          <Button type="submit" size="icon" variant="ghost">
             <Save className="h-4 w-4" />
           </Button>
           <Button
@@ -85,16 +70,13 @@ export default function ShoppingListItem({ item }: Props) {
             size="icon"
             variant="ghost"
             onClick={() => setEditing(false)}
-            disabled={isMutating}
           >
             <X className="h-4 w-4" />
           </Button>
         </form>
       ) : (
         <>
-          <span className="flex-1">
-            {isMutating ? <Skeleton className="h-6 w-full" /> : item.name}
-          </span>
+          <span className="flex-1">{item.name}</span>
           <div className="flex gap-1">
             <Button
               size="icon"
@@ -106,7 +88,7 @@ export default function ShoppingListItem({ item }: Props) {
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => deleteItemMutation.trigger(item.id)}
+              onClick={() => deleteItemMutation.mutate(item.id)}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

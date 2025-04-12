@@ -6,50 +6,119 @@ import {
   deleteCategory,
   getCategories,
   updateCategory,
+  updateCategoryBulk,
 } from "@/server/categories.actions";
 import { Category } from "@prisma/client";
-import useSWR from "swr";
-import useSWRMutation from "swr/mutation";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import useOptimisticUpdate from "./use-optimistic-update";
 
-const KEY = "categories";
+export const CATEGORIES_QUERY_KEY = ["categories"];
 
 export function useCategories(initialCategories: Category[]) {
-  return useSWR(KEY, getCategories, {
-    fallbackData: initialCategories,
-    refreshInterval: 300,
-    refreshWhenHidden: false,
-    revalidateOnFocus: true,
+  return useQuery({
+    queryKey: CATEGORIES_QUERY_KEY,
+    queryFn: getCategories,
+    initialData: initialCategories,
   });
 }
 
-type CategoryAddArgs = {
-  arg: FormData;
-};
-
 export function useCategoriesAdd() {
-  const fn = (_url: string, { arg }: CategoryAddArgs) => addCategory(arg);
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
-  return useSWRMutation(KEY, fn);
+  return useMutation({
+    mutationFn: addCategory,
+    onMutate: async (newCategory) =>
+      optimisticUpdate((old: Category[]) => [
+        {
+          id: new Date().getTime(),
+          userId: 0,
+          name: newCategory.get("name") as string,
+          description: newCategory.get("description") as string,
+          sortIndex: Infinity,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        ...old,
+      ]),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
 }
 
-type CategoryUpdateArgs = {
-  arg: FormData;
-};
-
 export function useCategoriesUpdate() {
-  const fn = (_url: string, { arg }: CategoryUpdateArgs) => updateCategory(arg);
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
-  return useSWRMutation(KEY, fn);
+  return useMutation({
+    mutationFn: updateCategory,
+    onMutate: async (newCategory) =>
+      optimisticUpdate((old: Category[]) =>
+        old.map((category) =>
+          category.id === Number(newCategory.get("id"))
+            ? {
+                ...category,
+                name: newCategory.get("name") as string,
+                description: newCategory.get("description") as string,
+              }
+            : category,
+        ),
+      ),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
+}
+
+export function useCategoriesUpdateBulk() {
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
+
+  return useMutation({
+    mutationFn: updateCategoryBulk,
+    onMutate: async (newCategories) =>
+      optimisticUpdate((old: Category[]) =>
+        old.map((category) => {
+          const newCategory = newCategories.find(
+            (newCategory) => newCategory.get("id") === category.id.toString(),
+          );
+
+          if (!newCategory) return category;
+
+          return category.id === Number(newCategory.get("id"))
+            ? {
+                ...category,
+                name: newCategory.get("name") as string,
+                description: newCategory.get("description") as string,
+              }
+            : category;
+        }),
+      ),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
 }
 
 export function useCategoriesDeleteAll() {
-  return useSWRMutation(KEY, deleteAllCategories);
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
+
+  return useMutation({
+    mutationFn: deleteAllCategories,
+    onMutate: async () => optimisticUpdate(() => []),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
 }
 
-type CategoryDeleteArg = { arg: number };
-
 export function useCategoriesDelete() {
-  const fn = (_url: string, { arg }: CategoryDeleteArg) => deleteCategory(arg);
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
-  return useSWRMutation(KEY, fn);
+  return useMutation({
+    mutationFn: deleteCategory,
+    onMutate: async (id) =>
+      optimisticUpdate((old) => old.filter((c) => c.id !== id)),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
 }
