@@ -85,12 +85,14 @@ export function useShoppingListDeleteItem() {
     mutationFn: deleteItem,
     onMutate: async (id) =>
       optimisticUpdate((categories) =>
-        categories.map((category) => ({
-          ...category,
-          shoppingItems: category.shoppingItems.filter(
-            (item) => item.id !== id,
-          ),
-        })),
+        categories
+          .map((category) => ({
+            ...category,
+            shoppingItems: category.shoppingItems.filter(
+              (item) => item.id !== id,
+            ),
+          }))
+          .filter((category) => category.shoppingItems.length > 0),
       ),
     onError: handleError,
     onSettled: handleSettled,
