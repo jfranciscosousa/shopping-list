@@ -8,6 +8,7 @@ import { z } from "zod";
 import { hashPassword, verifyPassword } from "./password";
 import prisma from "./prisma";
 import { validateFormData } from "./utils";
+import { cache } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -55,34 +56,38 @@ export async function clearAuthCookie() {
   cookieStore.delete("auth-token");
 }
 
+const getCurrentUserInner = cache(async (authToken: string) => {
+  const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
+  const { payload } = await jwtVerify(authToken, secret);
+
+  const userId = (payload as { id?: number }).id;
+  if (!userId) return null;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: Number(userId),
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+
+  return user;
+});
+
 // Get the current user from the cookie
 export async function getCurrentUser() {
   try {
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth-token");
 
-    if (!authToken) return null;
+    if (!authToken?.value) return null;
 
-    const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
-    const { payload } = await jwtVerify(authToken.value, secret);
-
-    const userId = (payload as { id?: number }).id;
-    if (!userId) return null;
-
-    const user = await prisma.user.findUnique({
-      where: {
-        id: Number(userId),
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return user;
+    return getCurrentUserInner(authToken.value);
   } catch (error) {
     console.error(error);
     return null;

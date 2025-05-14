@@ -5,7 +5,7 @@ import { logout } from "@/server/auth.actions";
 import { LogOut, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 
-export default function Navbar({ user }: { user: { id: number } | null }) {
+export default function Navbar({ user }: { user?: { id: number } | null }) {
   async function handleLogout() {
     await logout();
   }
