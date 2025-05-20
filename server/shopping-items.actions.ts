@@ -1,7 +1,7 @@
 "use server";
 
 import { generateObject, generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
+import { gateway } from "@vercel/ai-sdk-gateway";
 import { revalidatePath } from "next/cache";
 import prisma from "./prisma";
 import { Category } from "@prisma/client";
@@ -19,7 +19,7 @@ async function categoryFromAI(
   });
 
   const { text } = await generateText({
-    model: openai("gpt-4o-mini"),
+    model: gateway("openai/gpt-4.1-mini"),
     prompt: `
       Categorize this grocery item: "${item}"
 
@@ -28,7 +28,6 @@ async function categoryFromAI(
       Categories: ${JSON.stringify(categories)}
     `,
     temperature: 0.1,
-    maxTokens: 10,
   });
 
   const category = await prisma.category.findUnique({
@@ -49,7 +48,7 @@ async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
   const items = await getItems();
 
   const { object } = await generateObject({
-    model: openai("gpt-4o"),
+    model: gateway("openai/gpt-4.1-mini"),
     prompt: `
       Build categorized shopping items from this prompt ${prompt}
 
