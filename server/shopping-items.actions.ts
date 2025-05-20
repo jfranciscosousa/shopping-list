@@ -19,7 +19,7 @@ async function categoryFromAI(
   });
 
   const { text } = await generateText({
-    model: gateway("openai/gpt-4.1-mini"),
+    model: gateway("mistral/mistral-small"),
     prompt: `
       Categorize this grocery item: "${item}"
 
@@ -48,7 +48,7 @@ async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
   const items = await getItems();
 
   const { object } = await generateObject({
-    model: gateway("openai/gpt-4.1-mini"),
+    model: gateway("mistral/mistral-small"),
     prompt: `
       Build categorized shopping items from this prompt ${prompt}
 
