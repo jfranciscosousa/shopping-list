@@ -83,7 +83,7 @@ export async function addItem(item: string): Promise<void> {
         },
       });
 
-      revalidatePath("/list");
+      revalidatePath("/");
     } catch (error) {
       console.error("Error with OpenAI API:", error);
       throw error;
@@ -113,7 +113,7 @@ export async function addMultiItem(prompt: string): Promise<void> {
     console.error("Error while saving multi prompt:", error);
   }
 
-  revalidatePath("/list");
+  revalidatePath("/");
 }
 
 export async function editItem(id: number, newName: string) {
@@ -131,7 +131,7 @@ export async function editItem(id: number, newName: string) {
       },
     });
 
-    revalidatePath("/list");
+    revalidatePath("/");
 
     return {
       success: true,
@@ -150,7 +150,7 @@ export async function deleteItem(id: number) {
     where: { id, userId: user.id },
   });
 
-  revalidatePath("/list");
+  revalidatePath("/");
 }
 
 export async function deleteAllItems() {
@@ -160,7 +160,7 @@ export async function deleteAllItems() {
     where: { userId: user.id },
   });
 
-  revalidatePath("/list");
+  revalidatePath("/");
 }
 
 export async function getItems() {

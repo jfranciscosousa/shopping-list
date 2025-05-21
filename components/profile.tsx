@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileForm from "@/components/user-profile-form";
@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import CategoryList from "./category-list";
 import useTabs from "@/hooks/use-tabs";
+import { cn } from "@/lib/utils";
 
 type Props = { user: Omit<User, "password">; initialCategories: Category[] };
 
@@ -18,11 +19,15 @@ export default function Profile({ user, initialCategories }: Props) {
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="flex justify-between items-center mb-6">
-        <Button variant="ghost" asChild>
-          <Link href="/list" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back to Shopping List
-          </Link>
-        </Button>
+        <Link
+          href="/"
+          className={cn(
+            "flex items-center gap-2",
+            buttonVariants({ variant: "ghost" }),
+          )}
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to Shopping List
+        </Link>
       </div>
 
       <Card>

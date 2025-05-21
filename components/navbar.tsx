@@ -13,7 +13,7 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
   return (
     <nav className="border-b bg-background/95 backdrop-blur-xs supports-backdrop-filter:bg-background/60 px-2">
       <div className="flex h-14 items-center justify-between p-4 md:p-8">
-        <Link href="/list" className="flex items-center gap-2 font-semibold">
+        <Link href="/" className="flex items-center gap-2 font-semibold">
           <ShoppingCart className="h-5 w-5" />
           <span>Smart Shopping</span>
         </Link>

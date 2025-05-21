@@ -79,8 +79,12 @@ const getCurrentUserInner = cache(async (authToken: string) => {
   return user;
 });
 
-// Get the current user from the cookie
-export async function getCurrentUser() {
+type UserWithoutPassword = Pick<
+  User,
+  "id" | "email" | "name" | "createdAt" | "updatedAt"
+>;
+
+export async function getCurrentUserOptional(): Promise<UserWithoutPassword | null> {
   try {
     const cookieStore = await cookies();
     const authToken = cookieStore.get("auth-token");
@@ -92,6 +96,14 @@ export async function getCurrentUser() {
     console.error(error);
     return null;
   }
+}
+
+export async function getCurrentUser(): Promise<UserWithoutPassword> {
+  const user = await getCurrentUserOptional();
+
+  if (!user) throw new Error("unauthorized");
+
+  return user;
 }
 
 export async function login(formData: FormData) {
@@ -115,7 +127,7 @@ export async function login(formData: FormData) {
 
   await setAuthCookie(user, rememberMe);
 
-  redirect("/list");
+  return { success: true };
 }
 
 const DEFAULT_CATEGORIES = [
@@ -196,7 +208,7 @@ export async function signup(formData: FormData) {
 
   await setAuthCookie(newUser, rememberMe);
 
-  redirect("/list");
+  return { success: true };
 }
 
 // Server action for logout

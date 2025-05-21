@@ -1,14 +1,21 @@
+import LoginForm from "@/components/login-form";
 import Navbar from "@/components/navbar";
-import { getCurrentUser } from "@/server/auth.actions";
+import { getCurrentUserOptional } from "@/server/auth.actions";
 import { Suspense } from "react";
 import Loading from "./loading";
 
 export const runtime = "edge";
 
-async function NavbarWithUser() {
-  const user = await getCurrentUser();
+async function LayoutWithUser({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUserOptional();
 
-  return <Navbar user={user} />;
+  return (
+    <>
+      <Navbar user={user} />
+
+      {user ? children : <LoginForm />}
+    </>
+  );
 }
 
 export default function LoggedInLayout({
@@ -26,8 +33,7 @@ export default function LoggedInLayout({
         </>
       }
     >
-      <NavbarWithUser />
-      {children}
+      <LayoutWithUser>{children}</LayoutWithUser>
     </Suspense>
   );
 }
