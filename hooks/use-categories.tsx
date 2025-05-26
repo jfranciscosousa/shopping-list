@@ -87,8 +87,7 @@ export function useCategoriesUpdateBulk() {
           return category.id === Number(newCategory.get("id"))
             ? {
                 ...category,
-                name: newCategory.get("name") as string,
-                description: newCategory.get("description") as string,
+                sortIndex: Number(newCategory.get("sortIndex") as string),
               }
             : category;
         }),
