@@ -1,6 +1,6 @@
 "use server";
 
-import { compareSync, genSaltSync, hashSync } from "bcrypt-edge";
+import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
 
 export async function hashPassword(password: string) {
   const salt = genSaltSync(12);

@@ -45,17 +45,17 @@ importers:
         specifier: ^1.2.14
         version: 1.2.14(@types/react-dom@19.1.5(@types/react@19.1.5))(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@tanstack/react-query':
-        specifier: ^5.76.1
-        version: 5.76.1(react@19.1.0)
+        specifier: ^5.77.2
+        version: 5.77.2(react@19.1.0)
       '@vercel/ai-sdk-gateway':
-        specifier: ^0.1.3
-        version: 0.1.3(zod@3.25.17)
+        specifier: ^0.1.7
+        version: 0.1.7(zod@3.25.28)
       ai:
         specifier: 5.0.0-alpha.3
-        version: 5.0.0-alpha.3(zod@3.25.17)
-      bcrypt-edge:
-        specifier: ^0.1.1
-        version: 0.1.1
+        version: 5.0.0-alpha.3(zod@3.25.28)
+      bcrypt-ts:
+        specifier: ^7.0.0
+        version: 7.0.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -93,8 +93,8 @@ importers:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.7)
       zod:
-        specifier: ^3.25.17
-        version: 3.25.17
+        specifier: ^3.25.28
+        version: 3.25.28
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.9
@@ -165,8 +165,18 @@ packages:
     peerDependencies:
       zod: ^3.23.8
 
+  '@ai-sdk/provider-utils@3.0.0-alpha.4':
+    resolution: {integrity: sha512-edEnOh8i676TLX8ibWD69gHTaU6btJ9uCN+7/8vXWlMHZJo2ST4mgjRP5f6xC4rH8XXVMYK0rVPwbnuyR/PGzA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.23.8
+
   '@ai-sdk/provider@2.0.0-alpha.3':
     resolution: {integrity: sha512-PXZhPV5CV6DbPgZVaoukvyw5mLj3+npagfH7G11/NOlxrNQafOcofHPP2e9ZriSWmVSSSY5gGacRPz0yY40mmA==}
+    engines: {node: '>=18'}
+
+  '@ai-sdk/provider@2.0.0-alpha.4':
+    resolution: {integrity: sha512-g6IVjm0iGasiv4fAv6TtPIDTfeMTqFRQt3J6Jz8skm/Tb2r48qKEtcKNrDSpspDIFrQJ4fuC1Xw/aAPrVCs7tQ==}
     engines: {node: '>=18'}
 
   '@alloc/quick-lru@5.2.0':
@@ -1105,11 +1115,11 @@ packages:
   '@tailwindcss/postcss@4.1.7':
     resolution: {integrity: sha512-88g3qmNZn7jDgrrcp3ZXEQfp9CVox7xjP1HN2TFKI03CltPVd/c61ydn5qJJL8FYunn0OqBaW5HNUga0kmPVvw==}
 
-  '@tanstack/query-core@5.76.0':
-    resolution: {integrity: sha512-FN375hb8ctzfNAlex5gHI6+WDXTNpe0nbxp/d2YJtnP+IBM6OUm7zcaoCW6T63BawGOYZBbKC0iPvr41TteNVg==}
+  '@tanstack/query-core@5.77.2':
+    resolution: {integrity: sha512-1lqJwPsR6GX6nZFw06erRt518O19tWU6Q+x0fJUygl4lxHCYF2nhzBPwLKk2NPjYOrpR0K567hxPc5K++xDe9Q==}
 
-  '@tanstack/react-query@5.76.1':
-    resolution: {integrity: sha512-YxdLZVGN4QkT5YT1HKZQWiIlcgauIXEIsMOTSjvyD5wLYK8YVvKZUPAysMqossFJJfDpJW3pFn7WNZuPOqq+fw==}
+  '@tanstack/react-query@5.77.2':
+    resolution: {integrity: sha512-BRHxWdy1mHmgAcYA/qy2IPLylT81oebLgkm9K85viN2Qol/Vq48t1dzDFeDIVQjTWDV96AmqsLNPlH5HjyKCxA==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -1271,8 +1281,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@vercel/ai-sdk-gateway@0.1.3':
-    resolution: {integrity: sha512-0qDkllUyExcdevY/NdmpJZi50m0UBhaL7x9rcX+5wRjU8S4N5MMLAXmFw5Y3CX5QnxGs3r4wmYgVb3qUJjTLmA==}
+  '@vercel/ai-sdk-gateway@0.1.7':
+    resolution: {integrity: sha512-YWlSA0j8wD4qW2BpdkWHI2uVHFDOcfvkTPmx4xu7hS78ybP9cGcfbjsklzRpgeK6BBg3POW96At7hVr3y9H7Cg==}
     engines: {node: '>=20'}
     peerDependencies:
       zod: ^3.23.8
@@ -1365,9 +1375,9 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  bcrypt-edge@0.1.1:
-    resolution: {integrity: sha512-3lX8sOl0ObPJv+Qby8Xf9ROy6jqhtKSYtq64jRHNk7WmUr7glMChsSitz+uCvPf0OOcqTX3i+ig3j8qcqtqJkQ==}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+  bcrypt-ts@7.0.0:
+    resolution: {integrity: sha512-JMr30sbKPwF+2TccaNOYJuDx+nCmnTvHGB2rwkj+To/xZhBTX9f8zpTqGy3kpkS26KWOEYPsQlOJ5MVD00RHQQ==}
+    engines: {node: '>=20'}
 
   brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
@@ -2646,19 +2656,30 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.25.17:
-    resolution: {integrity: sha512-8hQzQ/kMOIFbwOgPrm9Sf9rtFHpFUMy4HvN0yEB0spw14aYi0uT5xG5CE2DB9cd51GWNsz+DNO7se1kztHMKnw==}
+  zod@3.25.28:
+    resolution: {integrity: sha512-/nt/67WYKnr5by3YS7LroZJbtcCBurDKKPBPWWzaxvVCGuG/NOsiKkrjoOhI8mJ+SQUXEbUzeB3S+6XDUEEj7Q==}
 
 snapshots:
 
-  '@ai-sdk/provider-utils@3.0.0-alpha.3(zod@3.25.17)':
+  '@ai-sdk/provider-utils@3.0.0-alpha.3(zod@3.25.28)':
     dependencies:
       '@ai-sdk/provider': 2.0.0-alpha.3
       '@standard-schema/spec': 1.0.0
-      zod: 3.25.17
-      zod-to-json-schema: 3.24.5(zod@3.25.17)
+      zod: 3.25.28
+      zod-to-json-schema: 3.24.5(zod@3.25.28)
+
+  '@ai-sdk/provider-utils@3.0.0-alpha.4(zod@3.25.28)':
+    dependencies:
+      '@ai-sdk/provider': 2.0.0-alpha.4
+      '@standard-schema/spec': 1.0.0
+      zod: 3.25.28
+      zod-to-json-schema: 3.24.5(zod@3.25.28)
 
   '@ai-sdk/provider@2.0.0-alpha.3':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/provider@2.0.0-alpha.4':
     dependencies:
       json-schema: 0.4.0
 
@@ -3417,11 +3438,11 @@ snapshots:
       postcss: 8.5.3
       tailwindcss: 4.1.7
 
-  '@tanstack/query-core@5.76.0': {}
+  '@tanstack/query-core@5.77.2': {}
 
-  '@tanstack/react-query@5.76.1(react@19.1.0)':
+  '@tanstack/react-query@5.77.2(react@19.1.0)':
     dependencies:
-      '@tanstack/query-core': 5.76.0
+      '@tanstack/query-core': 5.77.2
       react: 19.1.0
 
   '@tybys/wasm-util@0.9.0':
@@ -3579,11 +3600,11 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.7.2':
     optional: true
 
-  '@vercel/ai-sdk-gateway@0.1.3(zod@3.25.17)':
+  '@vercel/ai-sdk-gateway@0.1.7(zod@3.25.28)':
     dependencies:
-      '@ai-sdk/provider': 2.0.0-alpha.3
-      '@ai-sdk/provider-utils': 3.0.0-alpha.3(zod@3.25.17)
-      zod: 3.25.17
+      '@ai-sdk/provider': 2.0.0-alpha.4
+      '@ai-sdk/provider-utils': 3.0.0-alpha.4(zod@3.25.28)
+      zod: 3.25.28
 
   acorn-jsx@5.3.2(acorn@8.14.1):
     dependencies:
@@ -3591,12 +3612,12 @@ snapshots:
 
   acorn@8.14.1: {}
 
-  ai@5.0.0-alpha.3(zod@3.25.17):
+  ai@5.0.0-alpha.3(zod@3.25.28):
     dependencies:
       '@ai-sdk/provider': 2.0.0-alpha.3
-      '@ai-sdk/provider-utils': 3.0.0-alpha.3(zod@3.25.17)
+      '@ai-sdk/provider-utils': 3.0.0-alpha.3(zod@3.25.28)
       '@opentelemetry/api': 1.9.0
-      zod: 3.25.17
+      zod: 3.25.28
 
   ajv@6.12.6:
     dependencies:
@@ -3696,7 +3717,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bcrypt-edge@0.1.1: {}
+  bcrypt-ts@7.0.0: {}
 
   brace-expansion@1.1.11:
     dependencies:
@@ -5225,8 +5246,8 @@ snapshots:
 
   yocto-queue@0.1.0: {}
 
-  zod-to-json-schema@3.24.5(zod@3.25.17):
+  zod-to-json-schema@3.24.5(zod@3.25.28):
     dependencies:
-      zod: 3.25.17
+      zod: 3.25.28
 
-  zod@3.25.17: {}
+  zod@3.25.28: {}
