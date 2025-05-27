@@ -68,7 +68,33 @@ export async function updateCategory(formData: FormData) {
 }
 
 export async function updateCategoryBulk(formDatas: FormData[]) {
-  return Promise.all(formDatas.map((formData) => updateCategory(formData)));
+  const user = await requireAuth();
+  const parsedParams = await Promise.all(
+    formDatas.map((p) => validateFormData(p, categoryUpdateSchema)),
+  );
+
+  if (parsedParams.some((p) => !p.success)) {
+    throw new Error(
+      parsedParams.find((p) => !p.success)?.error.errors[0].message,
+    );
+  }
+
+  const validParams = parsedParams.filter((p) => p.success).map((p) => p.data);
+
+  await prisma.$transaction((tx) => {
+    return Promise.all(
+      validParams.map((p) =>
+        tx.category.update({
+          where: { id: p.id, userId: user.id },
+          data: {
+            name: p.name,
+            description: p.description,
+            sortIndex: p.sortIndex,
+          },
+        }),
+      ),
+    );
+  });
 }
 
 export async function deleteAllCategories() {
