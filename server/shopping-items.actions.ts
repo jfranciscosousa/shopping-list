@@ -8,6 +8,8 @@ import { Category } from "@prisma/client";
 import { requireAuth } from "./utils";
 import { z } from "zod";
 
+const model = gateway("anthropic/claude-3.5-haiku");
+
 async function categoryFromAI(
   item: string,
   user: { id: number },
@@ -19,7 +21,9 @@ async function categoryFromAI(
   });
 
   const { text } = await generateText({
-    model: gateway("mistral/mistral-small"),
+    model,
+    system:
+      "You are a tool that categorizes items that go into a shopping list.",
     prompt: `
       Categorize this grocery item: "${item}"
 
@@ -48,7 +52,9 @@ async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
   const items = await getItems();
 
   const { object } = await generateObject({
-    model: gateway("mistral/mistral-small"),
+    model,
+    system:
+      "You are a tool that categorizes items that go into a shopping list.",
     prompt: `
       Build categorized shopping items from this prompt ${prompt}
 
