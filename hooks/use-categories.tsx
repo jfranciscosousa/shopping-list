@@ -19,6 +19,7 @@ export function useCategories(initialCategories: Category[]) {
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: getCategories,
     initialData: initialCategories,
+    refetchInterval: 500,
   });
 }
 
