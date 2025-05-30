@@ -20,6 +20,8 @@ model User {
   name          String?
   shoppingItems ShoppingItem[]
   categories    Category[]
+  pantryAreas   PantryArea[]
+  pantryItems   PantryItem[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -45,4 +47,27 @@ model Category {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   shoppingItems ShoppingItem[]
+}
+
+model PantryArea {
+  id           Int            @id @default(autoincrement())
+  name         String
+  userId       Int
+  user         User           @relation(fields: [userId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  pantryItems  PantryItem[]
+}
+
+model PantryItem {
+  id           Int            @id @default(autoincrement())
+  name         String
+  producedAt   DateTime       @default(now())
+  expiresAt    DateTime
+  pantryArea   PantryArea?    @relation(fields: [pantryAreaId], references: [id])
+  pantryAreaId Int
+  userId       Int
+  user         User           @relation(fields: [userId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 }

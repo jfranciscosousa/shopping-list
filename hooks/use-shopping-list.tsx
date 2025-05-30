@@ -22,7 +22,7 @@ export function useShoppingListItems(
     queryKey: SHOPPING_QUERY_KEY,
     queryFn: getItems,
     initialData: initialShoppingItems,
-    refetchInterval: 500,
+    refetchInterval: process.env.NODE_ENV === "production" ? 500 : false,
   });
 }
 

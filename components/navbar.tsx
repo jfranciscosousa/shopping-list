@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { logout } from "@/server/auth.actions";
-import { LogOut, ShoppingCart, User } from "lucide-react";
+import { LogOut, ShoppingBasket, ShoppingCart, User } from "lucide-react";
 import Link from "next/link";
 
 export default function Navbar({ user }: { user?: { id: number } | null }) {
@@ -21,10 +21,23 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
         {user && (
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" asChild className="p-0">
+              <Link href="/" className="contents">
+                <ShoppingCart className="mr-0.5 h-4 w-4" /> Shopping list
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild className="p-0">
+              <Link href="/pantry" className="contents">
+                <ShoppingBasket className="mr-0.5 h-4 w-4" /> Pantry
+              </Link>
+            </Button>
+
+            <Button variant="ghost" size="sm" asChild className="p-0">
               <Link href="/profile" className="contents">
                 <User className="mr-0.5 h-4 w-4" /> Profile
               </Link>
             </Button>
+
             <Button
               variant="ghost"
               size="sm"
