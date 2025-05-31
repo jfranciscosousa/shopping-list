@@ -19,14 +19,13 @@ import {
 import { PantryAreaWithItems } from "@/server/pantry.actions";
 import { usePantryAreasDelete, usePantryItemsDelete } from "@/hooks/use-pantry";
 import { PantryItem } from "@prisma/client";
+import { getDaysUntilExpiry, isExpired } from "./helpers";
 
 interface PantryAreaCardProps {
   area: PantryAreaWithItems;
   onEditArea: () => void;
   onAddItem: () => void;
   onEditItem: (item: PantryItem) => void;
-  getDaysUntilExpiry: (expiryDate: Date) => number;
-  isExpired: (expiryDate: Date) => boolean;
 }
 
 export default function PantryAreaCard({
@@ -34,8 +33,6 @@ export default function PantryAreaCard({
   onEditArea,
   onAddItem,
   onEditItem,
-  getDaysUntilExpiry,
-  isExpired,
 }: PantryAreaCardProps) {
   const deleteAreaMutation = usePantryAreasDelete();
   const deleteItemMutation = usePantryItemsDelete();

@@ -10,17 +10,7 @@ import PantryAreaCard from "./pantry-area-card";
 import { usePantryAreas } from "@/hooks/use-pantry";
 import { PantryAreaWithItems } from "@/server/pantry.actions";
 import { PantryArea, PantryItem } from "@prisma/client";
-
-function isExpired(expiryDate: Date): boolean {
-  return expiryDate < new Date();
-}
-
-function getDaysUntilExpiry(expiryDate: Date): number {
-  const today = new Date();
-  const expiry = new Date(expiryDate);
-  const diffTime = expiry.getTime() - today.getTime();
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-}
+import { isExpired } from "./helpers";
 
 type Props = {
   initialAreas: PantryAreaWithItems[];
@@ -38,7 +28,6 @@ export default function PantryManager({ initialAreas }: Props) {
     PantryArea | boolean | undefined
   >(undefined);
 
-  // Get expired items for alert
   const expiredItems = areas
     .flatMap((area) => area.pantryItems)
     .filter((item) => isExpired(item.expiresAt));
@@ -97,8 +86,6 @@ export default function PantryManager({ initialAreas }: Props) {
             onEditArea={() => openEditAreaDialog(area)}
             onAddItem={() => openAddItemDialog(area.id)}
             onEditItem={openEditItemDialog}
-            getDaysUntilExpiry={getDaysUntilExpiry}
-            isExpired={isExpired}
           />
         ))}
 
