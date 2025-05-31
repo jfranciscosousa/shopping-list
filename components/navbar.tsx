@@ -63,7 +63,7 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
 
   if (!user) {
     return (
-      <nav className="border-b bg-background/95 backdrop-blur-xs supports-backdrop-filter:bg-background/60 px-2">
+      <nav className="border-b bg-background/95 backdrop-blur-xs supports-backdrop-filter:bg-background/60">
         <div className="flex h-14 items-center justify-between p-4 md:px-8">
           <Link href="/" className="flex items-center gap-2 font-semibold">
             <ShoppingCart className="h-5 w-5" />
@@ -79,7 +79,7 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
       <div className="flex h-14 items-center justify-between p-4 md:px-8">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <ShoppingCart className="h-5 w-5" />
-          <span className="hidden sm:inline">Smart Shopping</span>
+          <span>Smart Shopping</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-4">
