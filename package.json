@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vercel env pull .env && next dev --turbo",
+    "dev": "vercel env pull .env && next dev",
     "build": "prisma db push && next build",
     "start": "next start",
     "lint": "eslint ."
@@ -49,6 +49,7 @@
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.5",
     "@types/react-dom": "^19.1.5",
+    "code-inspector-plugin": "^0.20.12",
     "eslint": "^9.27.0",
     "eslint-config-next": "15.3.2",
     "eslint-config-prettier": "^10.1.5",

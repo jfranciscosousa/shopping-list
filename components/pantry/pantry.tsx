@@ -59,14 +59,15 @@ export default function PantryManager({ initialAreas }: Props) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 sm:flex-row flex-col text-center sm:text-left">
         <div>
           <h1 className="text-3xl font-bold">Pantry Manager</h1>
           <p className="text-muted-foreground">
-            Keep track of your food items and their expiry dates
+            Keep track of pantry items and their expiry dates
           </p>
         </div>
-        <div className="flex gap-2">
+
+        <div className="flex gap-2 mt-4 sm:mt-0 text-nowrap">
           <Button onClick={() => setAreaDialog(true)}>
             <Plus className="mr-2 h-4 w-4" /> Add Area
           </Button>
