@@ -1,14 +1,14 @@
 "use server";
 
 import { generateObject, generateText } from "ai";
-import { gateway } from "@vercel/ai-sdk-gateway";
+import { openai } from "@ai-sdk/openai";
 import { revalidatePath } from "next/cache";
 import prisma from "./prisma";
 import { Category } from "@prisma/client";
 import { requireAuth } from "./utils";
 import { z } from "zod";
 
-const model = gateway("anthropic/claude-3.5-haiku");
+const model = openai("gpt-4.1-mini");
 
 async function categoryFromAI(
   item: string,
