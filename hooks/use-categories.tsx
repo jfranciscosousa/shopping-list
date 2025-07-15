@@ -76,21 +76,17 @@ export function useCategoriesUpdateBulk() {
 
   return useMutation({
     mutationFn: updateCategoryBulk,
-    onMutate: async (newCategories) =>
+    onMutate: async (formData) =>
       optimisticUpdate((old: Category[]) =>
         old.map((category) => {
-          const newCategory = newCategories.find(
-            (newCategory) => newCategory.get("id") === category.id.toString(),
-          );
+          const newSortIndex = formData.get(String(category.id));
 
-          if (!newCategory) return category;
+          if (!newSortIndex) return category;
 
-          return category.id === Number(newCategory.get("id"))
-            ? {
-                ...category,
-                sortIndex: Number(newCategory.get("sortIndex") as string),
-              }
-            : category;
+          return {
+            ...category,
+            sortIndex: Number(newSortIndex),
+          };
         }),
       ),
     onError: handleError,

@@ -44,15 +44,17 @@ export default function CategoryListItem({ id, category }: Props) {
   return (
     <li className="touch-none" ref={setNodeRef} style={style}>
       <div className="flex items-center justify-between">
-        <div
-          className={cn("p-4 grow cursor-grab", {
-            "cursor-grabbing": isDragging,
-          })}
-          {...attributes}
-          {...listeners}
-        >
+        <div>
           <div className="flex items-center gap-1">
-            <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+            <div
+              className={cn("p-4 grow cursor-grab", {
+                "cursor-grabbing": isDragging,
+              })}
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+            </div>
             <div className="font-medium">{category.name}</div>
           </div>
         </div>

@@ -85,20 +85,15 @@ export default function CategoryList({ initialCategories }: Props) {
 
       queryClient.setQueryData(CATEGORIES_QUERY_KEY, newCategories);
 
+      const formData = new FormData();
       // Update sortIndex on the server
-      const formDatas = newCategories
-        .map((category, index) => {
-          if (category.sortIndex !== index) {
-            const formData = new FormData();
-            formData.set("id", category.id.toString());
-            formData.set("sortIndex", index.toString());
+      newCategories.forEach((category, index) => {
+        if (category.sortIndex !== index) {
+          formData.append(String(category.id), index.toString());
+        }
+      });
 
-            return formData;
-          }
-        })
-        .filter((o) => !!o);
-
-      updateCategoriesBulkMutation.mutate(formDatas);
+      updateCategoriesBulkMutation.mutate(formData);
     }
   }
 
