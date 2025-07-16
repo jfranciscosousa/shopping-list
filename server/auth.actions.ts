@@ -9,9 +9,10 @@ import { hashPassword, verifyPassword } from "./password";
 import prisma from "./prisma";
 import { validateFormData } from "./utils";
 import { cache } from "react";
+import { withErrorHandling } from "./error-handler";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  email: z.email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
   rememberMe: z.preprocess((v) => v === "on", z.boolean().optional()),
 });
@@ -87,7 +88,9 @@ const getCurrentUserInner = cache(async (authToken: string) => {
   return user;
 });
 
-type UserWithoutPassword = Awaited<ReturnType<typeof getCurrentUserInner>>;
+export type UserWithoutPassword = NonNullable<
+  Awaited<ReturnType<typeof getCurrentUserInner>>
+>;
 
 export async function getCurrentUserOptional(): Promise<UserWithoutPassword | null> {
   try {
@@ -111,14 +114,11 @@ export async function getCurrentUser(): Promise<UserWithoutPassword> {
   return user;
 }
 
-export async function login(formData: FormData) {
-  const result = validateFormData(formData, loginSchema);
-
-  if (!result.success) {
-    return { success: false, error: result.error.message };
-  }
-
-  const { email, password, rememberMe } = result.data;
+export const login = withErrorHandling(async (formData: FormData) => {
+  const { email, password, rememberMe } = validateFormData(
+    formData,
+    loginSchema,
+  );
 
   const user = await prisma.user.findUnique({
     where: {
@@ -133,7 +133,7 @@ export async function login(formData: FormData) {
   await setAuthCookie(user, rememberMe);
 
   return { success: true };
-}
+});
 
 const DEFAULT_CATEGORIES = [
   {
@@ -173,14 +173,11 @@ const DEFAULT_CATEGORIES = [
   },
 ];
 
-export async function signup(formData: FormData) {
-  const result = validateFormData(formData, signupSchema);
-
-  if (!result.success) {
-    return { success: false, error: result.error.message };
-  }
-
-  const { name, email, password, inviteToken, rememberMe } = result.data;
+export const signup = withErrorHandling(async (formData: FormData) => {
+  const { name, email, password, inviteToken, rememberMe } = validateFormData(
+    formData,
+    signupSchema,
+  );
 
   if (process.env.INVITE_TOKEN && inviteToken !== process.env.INVITE_TOKEN) {
     return { success: false, error: "Invalid invite token" };
@@ -214,7 +211,7 @@ export async function signup(formData: FormData) {
   await setAuthCookie(newUser, rememberMe);
 
   return { success: true };
-}
+});
 
 // Server action for logout
 export async function logout() {

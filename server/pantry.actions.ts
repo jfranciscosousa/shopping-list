@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireAuth, validateFormData } from "./utils";
 import prisma from "./prisma";
 import { PantryArea, PantryItem } from "@prisma/client";
+import { withErrorHandling } from "./error-handler";
 
 export type PantryAreaWithItems = PantryArea & {
   pantryItems: PantryItem[];
@@ -29,12 +30,8 @@ const areaSchema = z.object({
   name: z.string().min(1, "Area name is required"),
 });
 
-export async function createArea(formData: FormData) {
-  const result = validateFormData(formData, areaSchema);
-
-  if (!result.success) throw new Error(result.error.message);
-
-  const { name } = result.data;
+export const createArea = withErrorHandling(async (formData: FormData) => {
+  const { name } = validateFormData(formData, areaSchema);
   const user = await requireAuth();
 
   return prisma.pantryArea.create({
@@ -43,20 +40,14 @@ export async function createArea(formData: FormData) {
       userId: user.id,
     },
   });
-}
+});
 
-const updateAreaSchema = areaSchema.partial().merge(
-  z.object({
-    id: z.preprocess(Number, z.number().int().positive()),
-  }),
-);
+const updateAreaSchema = areaSchema.partial().extend({
+  id: z.preprocess(Number, z.number().int().positive()),
+});
 
-export async function updateArea(formData: FormData) {
-  const result = validateFormData(formData, updateAreaSchema);
-
-  if (!result.success) throw new Error(result.error.message);
-
-  const { name, id } = result.data;
+export const updateArea = withErrorHandling(async (formData: FormData) => {
+  const { name, id } = validateFormData(formData, updateAreaSchema);
   const user = await requireAuth();
 
   return prisma.pantryArea.update({
@@ -65,15 +56,15 @@ export async function updateArea(formData: FormData) {
       name,
     },
   });
-}
+});
 
-export async function deleteArea(id: number) {
+export const deleteArea = withErrorHandling(async (id: number) => {
   const user = await requireAuth();
 
   return prisma.pantryArea.delete({
     where: { id, userId: user.id },
   });
-}
+});
 
 const itemSchema = z.object({
   name: z.string().min(1, "Item name is required"),
@@ -90,12 +81,11 @@ const itemSchema = z.object({
   pantryAreaId: z.preprocess(Number, z.number().int().positive()),
 });
 
-export async function createItem(formData: FormData) {
-  const result = validateFormData(formData, itemSchema);
-
-  if (!result.success) throw new Error(result.error.message);
-
-  const { name, pantryAreaId, producedAt, expiresAt } = result.data;
+export const createItem = withErrorHandling(async (formData: FormData) => {
+  const { name, pantryAreaId, producedAt, expiresAt } = validateFormData(
+    formData,
+    itemSchema,
+  );
   const user = await requireAuth();
 
   return prisma.pantryItem.create({
@@ -107,20 +97,17 @@ export async function createItem(formData: FormData) {
       userId: user.id,
     },
   });
-}
+});
 
-const updateItemSchema = itemSchema.partial().merge(
-  z.object({
-    id: z.preprocess(Number, z.number().int().positive()),
-  }),
-);
+const updateItemSchema = itemSchema.partial().extend({
+  id: z.preprocess(Number, z.number().int().positive()),
+});
 
-export async function updateItem(formData: FormData) {
-  const result = validateFormData(formData, updateItemSchema);
-
-  if (!result.success) throw new Error(result.error.message);
-
-  const { name, pantryAreaId, producedAt, expiresAt, id } = result.data;
+export const updateItem = withErrorHandling(async (formData: FormData) => {
+  const { name, pantryAreaId, producedAt, expiresAt, id } = validateFormData(
+    formData,
+    updateItemSchema,
+  );
   const user = await requireAuth();
 
   return prisma.pantryItem.update({
@@ -132,12 +119,12 @@ export async function updateItem(formData: FormData) {
       pantryAreaId,
     },
   });
-}
+});
 
-export async function deleteItem(id: number) {
+export const deleteItem = withErrorHandling(async (id: number) => {
   const user = await requireAuth();
 
   return prisma.pantryItem.delete({
     where: { id, userId: user.id },
   });
-}
+});

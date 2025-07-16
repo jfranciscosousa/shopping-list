@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
   Card,
   CardContent,
@@ -107,16 +108,14 @@ export default function LoginForm() {
                   <Checkbox id="login-remember" name="rememberMe" />
                   <Label htmlFor="login-remember">Remember me</Label>
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></div>
-                      <span>Logging in...</span>
-                    </div>
-                  ) : (
-                    "Login"
-                  )}
-                </Button>
+                <LoadingButton
+                  type="submit"
+                  className="w-full"
+                  isLoading={isLoading}
+                  loadingText="Logging in..."
+                >
+                  Login
+                </LoadingButton>
               </form>
             </TabsContent>
 
@@ -169,16 +168,14 @@ export default function LoginForm() {
                   <Label htmlFor="signup-remember">Remember me</Label>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></div>
-                      <span>Creating account...</span>
-                    </div>
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
+                <LoadingButton
+                  type="submit"
+                  className="w-full"
+                  isLoading={isLoading}
+                  loadingText="Creating account..."
+                >
+                  Create Account
+                </LoadingButton>
               </form>
             </TabsContent>
           </Tabs>

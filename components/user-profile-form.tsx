@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import {
   CardContent,
   CardDescription,
@@ -118,16 +118,13 @@ export default function UserProfileForm({
       </CardContent>
 
       <CardFooter className="px-0">
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></div>
-              <span>Saving...</span>
-            </div>
-          ) : (
-            "Save Changes"
-          )}
-        </Button>
+        <LoadingButton
+          type="submit"
+          isLoading={isLoading}
+          loadingText="Saving..."
+        >
+          Save Changes
+        </LoadingButton>
       </CardFooter>
     </form>
   );

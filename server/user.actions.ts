@@ -8,7 +8,7 @@ import { requireAuth, validateFormData } from "./utils";
 const updateUserSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters").optional(),
-    email: z.string().email("Invalid email address").optional(),
+    email: z.email("Invalid email address").optional(),
     currentPassword: z.string(),
     newPassword: z
       .string()
@@ -29,14 +29,8 @@ export async function updateUser(formData: FormData) {
 
   if (!user) return { success: false, error: "Must be logged in" };
 
-  const result = validateFormData(formData, updateUserSchema);
-
-  if (!result.success) {
-    return { success: false, error: result.error.message };
-  }
-
   const { name, email, currentPassword, newPassword, confirmPassword } =
-    result.data;
+    validateFormData(formData, updateUserSchema);
 
   const userWithPassword = await prisma.user.findUnique({
     where: { id: user.id },

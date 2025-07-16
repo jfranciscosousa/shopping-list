@@ -6,12 +6,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileForm from "@/components/user-profile-form";
 import useTabs from "@/hooks/use-tabs";
 import { cn } from "@/lib/utils";
-import { Category, User } from "@prisma/client";
+import { UserWithoutPassword } from "@/server/auth.actions";
+import { Category } from "@prisma/client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import CategoryList from "./category-list";
 
-type Props = { user: Omit<User, "password">; initialCategories: Category[] };
+type Props = { user: UserWithoutPassword; initialCategories: Category[] };
 
 export default function Profile({ user, initialCategories }: Props) {
   const { activeTab, setActiveTab } = useTabs("profile");

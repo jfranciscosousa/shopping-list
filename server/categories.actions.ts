@@ -3,6 +3,7 @@
 import { z } from "zod";
 import prisma from "./prisma";
 import { requireAuth, validateFormData } from "./utils";
+import { withErrorHandling } from "./error-handler";
 
 export async function getCategories() {
   const user = await requireAuth();
@@ -22,12 +23,8 @@ const categorySchema = z.object({
   description: z.string().optional(),
 });
 
-export async function addCategory(formData: FormData) {
-  const result = validateFormData(formData, categorySchema);
-
-  if (!result.success) throw new Error(result.error.message);
-
-  const { name, description } = result.data;
+export const addCategory = withErrorHandling(async (formData: FormData) => {
+  const { name, description } = validateFormData(formData, categorySchema);
   const user = await requireAuth();
 
   return prisma.category.create({
@@ -40,21 +37,18 @@ export async function addCategory(formData: FormData) {
         -1,
     },
   });
-}
+});
 
-const categoryUpdateSchema = categorySchema.partial().merge(
-  z.object({
-    id: z.preprocess(Number, z.number().int().positive()),
-    sortIndex: z.preprocess(Number, z.number().int().optional()).optional(),
-  }),
-);
+const categoryUpdateSchema = categorySchema.partial().extend({
+  id: z.preprocess(Number, z.number().int().positive()),
+  sortIndex: z.preprocess(Number, z.number().int().optional()).optional(),
+});
 
-export async function updateCategory(formData: FormData) {
-  const result = validateFormData(formData, categoryUpdateSchema);
-
-  if (!result.success) throw new Error(result.error.message);
-
-  const { name, description, id, sortIndex } = result.data;
+export const updateCategory = withErrorHandling(async (formData: FormData) => {
+  const { name, description, id, sortIndex } = validateFormData(
+    formData,
+    categoryUpdateSchema,
+  );
   const user = await requireAuth();
 
   return prisma.category.update({
@@ -65,38 +59,44 @@ export async function updateCategory(formData: FormData) {
       sortIndex,
     },
   });
-}
+});
 
 // Only updates sort index
-export async function updateCategoryBulk(formData: FormData) {
-  const user = await requireAuth();
+export const updateCategoryBulk = withErrorHandling(
+  async (formData: FormData): Promise<void> => {
+    const user = await requireAuth();
 
-  await prisma.$transaction((tx) => {
-    return Promise.all(
-      formData.entries().map(([key, value]) =>
-        tx.category.update({
-          where: { id: Number(key), userId: user.id },
-          data: {
-            sortIndex: Number(value),
-          },
-        }),
-      ),
-    );
-  });
-}
+    await prisma.$transaction((tx) => {
+      return Promise.all(
+        formData.entries().map(([key, value]) =>
+          tx.category.update({
+            where: { id: Number(key), userId: user.id },
+            data: {
+              sortIndex: Number(value),
+            },
+          }),
+        ),
+      );
+    });
+  },
+);
 
-export async function deleteAllCategories() {
-  const user = await requireAuth();
+export const deleteAllCategories = withErrorHandling(
+  async (): Promise<void> => {
+    const user = await requireAuth();
 
-  await prisma.category.deleteMany({
-    where: { userId: user.id },
-  });
-}
+    await prisma.category.deleteMany({
+      where: { userId: user.id },
+    });
+  },
+);
 
-export async function deleteCategory(id: number) {
-  const user = await requireAuth();
+export const deleteCategory = withErrorHandling(
+  async (id: number): Promise<void> => {
+    const user = await requireAuth();
 
-  await prisma.category.delete({
-    where: { id, userId: user.id },
-  });
-}
+    await prisma.category.delete({
+      where: { id, userId: user.id },
+    });
+  },
+);
