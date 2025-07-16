@@ -29,10 +29,10 @@ export async function updateUser(formData: FormData) {
 
   if (!user) return { success: false, error: "Must be logged in" };
 
-  const result = await validateFormData(formData, updateUserSchema);
+  const result = validateFormData(formData, updateUserSchema);
 
   if (!result.success) {
-    return { success: false, error: result.error.errors[0].message };
+    return { success: false, error: result.error.message };
   }
 
   const { name, email, currentPassword, newPassword, confirmPassword } =

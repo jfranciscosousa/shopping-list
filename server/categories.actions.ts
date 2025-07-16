@@ -23,9 +23,9 @@ const categorySchema = z.object({
 });
 
 export async function addCategory(formData: FormData) {
-  const result = await validateFormData(formData, categorySchema);
+  const result = validateFormData(formData, categorySchema);
 
-  if (!result.success) throw new Error(result.error.errors[0].message);
+  if (!result.success) throw new Error(result.error.message);
 
   const { name, description } = result.data;
   const user = await requireAuth();
@@ -50,9 +50,9 @@ const categoryUpdateSchema = categorySchema.partial().merge(
 );
 
 export async function updateCategory(formData: FormData) {
-  const result = await validateFormData(formData, categoryUpdateSchema);
+  const result = validateFormData(formData, categoryUpdateSchema);
 
-  if (!result.success) throw new Error(result.error.errors[0].message);
+  if (!result.success) throw new Error(result.error.message);
 
   const { name, description, id, sortIndex } = result.data;
   const user = await requireAuth();

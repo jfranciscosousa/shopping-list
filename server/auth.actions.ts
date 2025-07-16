@@ -107,10 +107,10 @@ export async function getCurrentUser(): Promise<UserWithoutPassword> {
 }
 
 export async function login(formData: FormData) {
-  const result = await validateFormData(formData, loginSchema);
+  const result = validateFormData(formData, loginSchema);
 
   if (!result.success) {
-    return { success: false, error: result.error.errors[0].message };
+    return { success: false, error: result.error.message };
   }
 
   const { email, password, rememberMe } = result.data;
@@ -169,10 +169,10 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export async function signup(formData: FormData) {
-  const result = await validateFormData(formData, signupSchema);
+  const result = validateFormData(formData, signupSchema);
 
   if (!result.success) {
-    return { success: false, error: result.error.errors[0].message };
+    return { success: false, error: result.error.message };
   }
 
   const { name, email, password, inviteToken, rememberMe } = result.data;

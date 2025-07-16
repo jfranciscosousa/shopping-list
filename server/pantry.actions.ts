@@ -30,9 +30,9 @@ const areaSchema = z.object({
 });
 
 export async function createArea(formData: FormData) {
-  const result = await validateFormData(formData, areaSchema);
+  const result = validateFormData(formData, areaSchema);
 
-  if (!result.success) throw new Error(result.error.errors[0].message);
+  if (!result.success) throw new Error(result.error.message);
 
   const { name } = result.data;
   const user = await requireAuth();
@@ -52,9 +52,9 @@ const updateAreaSchema = areaSchema.partial().merge(
 );
 
 export async function updateArea(formData: FormData) {
-  const result = await validateFormData(formData, updateAreaSchema);
+  const result = validateFormData(formData, updateAreaSchema);
 
-  if (!result.success) throw new Error(result.error.errors[0].message);
+  if (!result.success) throw new Error(result.error.message);
 
   const { name, id } = result.data;
   const user = await requireAuth();
@@ -91,9 +91,9 @@ const itemSchema = z.object({
 });
 
 export async function createItem(formData: FormData) {
-  const result = await validateFormData(formData, itemSchema);
+  const result = validateFormData(formData, itemSchema);
 
-  if (!result.success) throw new Error(result.error.errors[0].message);
+  if (!result.success) throw new Error(result.error.message);
 
   const { name, pantryAreaId, producedAt, expiresAt } = result.data;
   const user = await requireAuth();
@@ -116,9 +116,9 @@ const updateItemSchema = itemSchema.partial().merge(
 );
 
 export async function updateItem(formData: FormData) {
-  const result = await validateFormData(formData, updateItemSchema);
+  const result = validateFormData(formData, updateItemSchema);
 
-  if (!result.success) throw new Error(result.error as unknown as string);
+  if (!result.success) throw new Error(result.error.message);
 
   const { name, pantryAreaId, producedAt, expiresAt, id } = result.data;
   const user = await requireAuth();

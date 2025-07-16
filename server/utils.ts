@@ -11,10 +11,10 @@ export async function requireAuth() {
   return user;
 }
 
-export async function validateFormData<T extends z.ZodType>(
+export function validateFormData<T extends z.ZodType>(
   formData: FormData,
   schema: T,
-): Promise<z.SafeParseReturnType<T["_input"], T["_output"]>> {
+): z.ZodSafeParseResult<z.core.output<T>> {
   const obj = Object.fromEntries(formData);
 
   return schema.safeParse(obj);
