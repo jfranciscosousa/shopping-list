@@ -56,16 +56,22 @@ export async function clearAuthCookie() {
   cookieStore.delete("auth-token");
 }
 
+const jwtPayloadSchema = z.object({
+  id: z.number().int().positive(),
+});
+
 const getCurrentUserInner = cache(async (authToken: string) => {
   const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
   const { payload } = await jwtVerify(authToken, secret);
 
-  const userId = (payload as { id?: number }).id;
-  if (!userId) return null;
+  const validatedPayload = jwtPayloadSchema.safeParse(payload);
+  if (!validatedPayload.success) return null;
+
+  const userId = validatedPayload.data.id;
 
   const user = await prisma.user.findUnique({
     where: {
-      id: Number(userId),
+      id: userId,
     },
     select: {
       id: true,
@@ -76,13 +82,12 @@ const getCurrentUserInner = cache(async (authToken: string) => {
     },
   });
 
+  if (!user) return null;
+
   return user;
 });
 
-type UserWithoutPassword = Pick<
-  User,
-  "id" | "email" | "name" | "createdAt" | "updatedAt"
->;
+type UserWithoutPassword = Awaited<ReturnType<typeof getCurrentUserInner>>;
 
 export async function getCurrentUserOptional(): Promise<UserWithoutPassword | null> {
   try {
