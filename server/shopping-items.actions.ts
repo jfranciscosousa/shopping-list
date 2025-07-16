@@ -39,7 +39,7 @@ IMPORTANT INSTRUCTIONS:
 - The response must be a single integer that exists in the categories list
 
 Available categories:
-${categories.map(cat => `ID: ${cat.id} - ${cat.name} (${cat.description || 'No description'})`).join('\n')}
+${categories.map((cat) => `ID: ${cat.id} - ${cat.name} (${cat.description || "No description"})`).join("\n")}
 
 Item to categorize: "${item}"
 Response format: [category_id_number_only]`,
@@ -94,7 +94,7 @@ EXISTING ITEMS TO AVOID:
 ${JSON.stringify(items.flatMap((item) => item.shoppingItems.map((item) => item.name)))}
 
 AVAILABLE CATEGORIES:
-${categories.map(cat => `ID: ${cat.id} - ${cat.name} (${cat.description || 'No description'})`).join('\n')}
+${categories.map((cat) => `ID: ${cat.id} - ${cat.name} (${cat.description || "No description"})`).join("\n")}
 
 User request: "${prompt}"
 
@@ -103,8 +103,14 @@ Please generate a structured list of new shopping items with their category assi
     schema: z.object({
       items: z.array(
         z.object({
-          name: z.string().describe("Specific grocery item name (e.g., 'organic bananas', '2% milk', 'whole grain bread')"),
-          categoryId: z.number().describe("The ID of the most appropriate category for this item"),
+          name: z
+            .string()
+            .describe(
+              "Specific grocery item name (e.g., 'organic bananas', '2% milk', 'whole grain bread')",
+            ),
+          categoryId: z
+            .number()
+            .describe("The ID of the most appropriate category for this item"),
         }),
       ),
     }),
