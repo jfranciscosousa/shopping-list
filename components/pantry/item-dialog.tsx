@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { datetimeToDateString } from "@/lib/date-utils";
 
 import {
   AlertDialog,
@@ -144,7 +145,9 @@ export default function EditItemDialog({
                 <Input
                   name="producedAt"
                   type="date"
-                  defaultValue={item?.producedAt.toISOString().split("T")[0]}
+                  defaultValue={
+                    item?.producedAt ? datetimeToDateString(item.producedAt) : ""
+                  }
                   required
                 />
               </div>
@@ -154,7 +157,9 @@ export default function EditItemDialog({
                 <Input
                   name="expiresAt"
                   type="date"
-                  defaultValue={item?.expiresAt.toISOString().split("T")[0]}
+                  defaultValue={
+                    item?.expiresAt ? datetimeToDateString(item.expiresAt) : ""
+                  }
                   required
                 />
               </div>

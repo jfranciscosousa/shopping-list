@@ -8,6 +8,7 @@ import {
   updateArea,
   updateItem,
 } from "@/server/pantry.actions";
+import { parseDateFromInput } from "@/lib/date-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import useOptimisticUpdate from "./use-optimistic-update";
 
@@ -99,10 +100,10 @@ export function usePantryItemsUpdate() {
                     ? {
                         ...item,
                         name: newItem.get("name") as string,
-                        producedAt: new Date(
-                          newItem.get("producedAt") as string,
+                        producedAt: parseDateFromInput(
+                          newItem.get("producedAt"),
                         ),
-                        expiresAt: new Date(newItem.get("expiresAt") as string),
+                        expiresAt: parseDateFromInput(newItem.get("expiresAt")),
                       }
                     : item,
                 ),
