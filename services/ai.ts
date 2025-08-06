@@ -1,11 +1,8 @@
 "use server";
 
 import { generateObject, generateText } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { Category } from "@prisma/client";
 import { z } from "zod";
-
-const model = openai("gpt-4.1-mini");
 
 export interface ShoppingItem {
   name: string;
@@ -24,7 +21,7 @@ export async function categorizeItem(
   categories: Category[],
 ): Promise<Category> {
   const { text } = await generateText({
-    model,
+    model: "openai/gpt-oss-120b",
     system: `You are an expert shopping list categorization assistant. Your role is to analyze grocery items and assign them to the most appropriate category from a user's predefined categories.
 
 Guidelines:
@@ -68,7 +65,7 @@ export async function generateShoppingList(
   existingItems: string[],
 ): Promise<ShoppingListGenerationResult> {
   const { object } = await generateObject({
-    model,
+    model: "openai/gpt-oss-120b",
     system: `You are an expert shopping list assistant. Your role is to interpret user requests and generate a well-organized shopping list with properly categorized items.
 
 Core responsibilities:

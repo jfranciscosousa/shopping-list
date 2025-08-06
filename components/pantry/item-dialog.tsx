@@ -146,7 +146,9 @@ export default function EditItemDialog({
                   name="producedAt"
                   type="date"
                   defaultValue={
-                    item?.producedAt ? datetimeToDateString(item.producedAt) : ""
+                    item?.producedAt
+                      ? datetimeToDateString(item.producedAt)
+                      : ""
                   }
                   required
                 />
