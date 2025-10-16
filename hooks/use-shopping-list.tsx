@@ -5,6 +5,7 @@ import {
   addMultiItem,
   deleteAllItems,
   deleteItem,
+  deleteItemsByCategory,
   editItem,
   getItems,
 } from "@/server/shopping-items.actions";
@@ -94,6 +95,21 @@ export function useShoppingListDeleteItem() {
             ),
           }))
           .filter((category) => category.shoppingItems.length > 0),
+      ),
+    onError: handleError,
+    onSettled: handleSettled,
+  });
+}
+
+export function useShoppingListDeleteItemsByCategory() {
+  const { optimisticUpdate, handleError, handleSettled } =
+    useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
+
+  return useMutation({
+    mutationFn: deleteItemsByCategory,
+    onMutate: async (categoryId) =>
+      optimisticUpdate((categories) =>
+        categories.filter((category) => category.id !== categoryId),
       ),
     onError: handleError,
     onSettled: handleSettled,

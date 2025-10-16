@@ -108,6 +108,21 @@ export const deleteAllItems = withErrorHandling(async (): Promise<void> => {
   revalidatePath("/");
 });
 
+export const deleteItemsByCategory = withErrorHandling(
+  async (categoryId: number): Promise<void> => {
+    const user = await requireAuth();
+
+    await prisma.shoppingItem.deleteMany({
+      where: {
+        userId: user.id,
+        categoryId: categoryId,
+      },
+    });
+
+    revalidatePath("/");
+  },
+);
+
 export async function getItems() {
   const user = await requireAuth();
 
