@@ -29,8 +29,14 @@ export async function updateUser(formData: FormData) {
 
   if (!user) return { success: false, error: "Must be logged in" };
 
+  const validateResult = validateFormData(formData, updateUserSchema);
+
+  if (!validateResult.success) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
   const { name, email, currentPassword, newPassword, confirmPassword } =
-    validateFormData(formData, updateUserSchema);
+    validateResult.data;
 
   const userWithPassword = await prisma.user.findUnique({
     where: { id: user.id },

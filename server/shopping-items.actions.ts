@@ -30,47 +30,45 @@ async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
   return await generateShoppingList(prompt, categories, existingItems);
 }
 
-export const addItem = withErrorHandling(
-  async (item: string): Promise<void> => {
-    const user = await requireAuth();
+export const addItem = withErrorHandling(async (item: string) => {
+  const user = await requireAuth();
 
-    const category = await categoryFromAI(item, user);
+  const category = await categoryFromAI(item, user);
 
-    await prisma.shoppingItem.create({
-      data: {
-        name: item,
-        categoryId: category.id,
-        userId: user.id,
-      },
-    });
+  const newItem = await prisma.shoppingItem.create({
+    data: {
+      name: item,
+      categoryId: category.id,
+      userId: user.id,
+    },
+  });
 
-    revalidatePath("/");
-  },
-);
+  revalidatePath("/");
+  return { success: true, data: newItem };
+});
 
-export const addMultiItem = withErrorHandling(
-  async (prompt: string): Promise<void> => {
-    const user = await requireAuth();
-    const list = await buildItemsFromPrompt(prompt, user);
+export const addMultiItem = withErrorHandling(async (prompt: string) => {
+  const user = await requireAuth();
+  const list = await buildItemsFromPrompt(prompt, user);
 
-    await prisma.shoppingItem.createMany({
-      data: list.items.map((item) => ({
-        name: item.name,
-        categoryId: item.categoryId,
-        userId: user.id,
-      })),
-    });
+  const result = await prisma.shoppingItem.createMany({
+    data: list.items.map((item) => ({
+      name: item.name,
+      categoryId: item.categoryId,
+      userId: user.id,
+    })),
+  });
 
-    revalidatePath("/");
-  },
-);
+  revalidatePath("/");
+  return { success: true, data: result };
+});
 
 export const editItem = withErrorHandling(
   async (id: number, newName: string) => {
     const user = await requireAuth();
 
     if (!newName || !newName.trim()) {
-      throw new Error("Item name is required");
+      return { success: false, error: "Item name is required" };
     }
 
     const item = await prisma.shoppingItem.update({
@@ -82,23 +80,22 @@ export const editItem = withErrorHandling(
 
     revalidatePath("/");
 
-    return item;
+    return { success: true, data: item };
   },
 );
 
-export const deleteItem = withErrorHandling(
-  async (id: number): Promise<void> => {
-    const user = await requireAuth();
+export const deleteItem = withErrorHandling(async (id: number) => {
+  const user = await requireAuth();
 
-    await prisma.shoppingItem.delete({
-      where: { id, userId: user.id },
-    });
+  await prisma.shoppingItem.delete({
+    where: { id, userId: user.id },
+  });
 
-    revalidatePath("/");
-  },
-);
+  revalidatePath("/");
+  return { success: true };
+});
 
-export const deleteAllItems = withErrorHandling(async (): Promise<void> => {
+export const deleteAllItems = withErrorHandling(async () => {
   const user = await requireAuth();
 
   await prisma.shoppingItem.deleteMany({
@@ -106,10 +103,11 @@ export const deleteAllItems = withErrorHandling(async (): Promise<void> => {
   });
 
   revalidatePath("/");
+  return { success: true };
 });
 
 export const deleteItemsByCategory = withErrorHandling(
-  async (categoryId: number): Promise<void> => {
+  async (categoryId: number) => {
     const user = await requireAuth();
 
     await prisma.shoppingItem.deleteMany({
@@ -120,6 +118,7 @@ export const deleteItemsByCategory = withErrorHandling(
     });
 
     revalidatePath("/");
+    return { success: true };
   },
 );
 

@@ -31,15 +31,23 @@ const areaSchema = z.object({
 });
 
 export const createArea = withErrorHandling(async (formData: FormData) => {
-  const { name } = validateFormData(formData, areaSchema);
+  const validateResult = validateFormData(formData, areaSchema);
+
+  if (!validateResult.success) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { name } = validateResult.data;
   const user = await requireAuth();
 
-  return prisma.pantryArea.create({
+  const area = await prisma.pantryArea.create({
     data: {
       name,
       userId: user.id,
     },
   });
+
+  return { success: true, data: area };
 });
 
 const updateAreaSchema = areaSchema.partial().extend({
@@ -47,23 +55,33 @@ const updateAreaSchema = areaSchema.partial().extend({
 });
 
 export const updateArea = withErrorHandling(async (formData: FormData) => {
-  const { name, id } = validateFormData(formData, updateAreaSchema);
+  const validateResult = validateFormData(formData, updateAreaSchema);
+
+  if (!validateResult.success) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { name, id } = validateResult.data;
   const user = await requireAuth();
 
-  return prisma.pantryArea.update({
+  const area = await prisma.pantryArea.update({
     where: { id, userId: user.id },
     data: {
       name,
     },
   });
+
+  return { success: true, data: area };
 });
 
 export const deleteArea = withErrorHandling(async (id: number) => {
   const user = await requireAuth();
 
-  return prisma.pantryArea.delete({
+  await prisma.pantryArea.delete({
     where: { id, userId: user.id },
   });
+
+  return { success: true };
 });
 
 const itemSchema = z.object({
@@ -82,13 +100,16 @@ const itemSchema = z.object({
 });
 
 export const createItem = withErrorHandling(async (formData: FormData) => {
-  const { name, pantryAreaId, producedAt, expiresAt } = validateFormData(
-    formData,
-    itemSchema,
-  );
+  const validateResult = validateFormData(formData, itemSchema);
+
+  if (!validateResult.success) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { name, pantryAreaId, producedAt, expiresAt } = validateResult.data;
   const user = await requireAuth();
 
-  return prisma.pantryItem.create({
+  const item = await prisma.pantryItem.create({
     data: {
       name,
       producedAt,
@@ -97,6 +118,8 @@ export const createItem = withErrorHandling(async (formData: FormData) => {
       userId: user.id,
     },
   });
+
+  return { success: true, data: item };
 });
 
 const updateItemSchema = itemSchema.partial().extend({
@@ -104,13 +127,16 @@ const updateItemSchema = itemSchema.partial().extend({
 });
 
 export const updateItem = withErrorHandling(async (formData: FormData) => {
-  const { name, pantryAreaId, producedAt, expiresAt, id } = validateFormData(
-    formData,
-    updateItemSchema,
-  );
+  const validateResult = validateFormData(formData, updateItemSchema);
+
+  if (!validateResult.success) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { name, pantryAreaId, producedAt, expiresAt, id } = validateResult.data;
   const user = await requireAuth();
 
-  return prisma.pantryItem.update({
+  const item = await prisma.pantryItem.update({
     where: { id, userId: user.id },
     data: {
       name,
@@ -119,12 +145,16 @@ export const updateItem = withErrorHandling(async (formData: FormData) => {
       pantryAreaId,
     },
   });
+
+  return { success: true, data: item };
 });
 
 export const deleteItem = withErrorHandling(async (id: number) => {
   const user = await requireAuth();
 
-  return prisma.pantryItem.delete({
+  await prisma.pantryItem.delete({
     where: { id, userId: user.id },
   });
+
+  return { success: true };
 });

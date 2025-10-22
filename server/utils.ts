@@ -14,8 +14,8 @@ export async function requireAuth() {
 export function validateFormData<T extends z.ZodType>(
   formData: FormData,
   schema: T,
-): z.core.output<T> {
+): z.ZodSafeParseResult<z.core.output<T>> {
   const obj = Object.fromEntries(formData);
 
-  return schema.parse(obj);
+  return schema.safeParse(obj);
 }

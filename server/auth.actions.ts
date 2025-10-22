@@ -115,11 +115,13 @@ export async function getCurrentUser(): Promise<UserWithoutPassword> {
 }
 
 export const login = withErrorHandling(async (formData: FormData) => {
-  const { email, password, rememberMe } = validateFormData(
-    formData,
-    loginSchema,
-  );
+  const validateResult = validateFormData(formData, loginSchema);
 
+  if (validateResult.error) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { email, password, rememberMe } = validateResult.data;
   const user = await prisma.user.findUnique({
     where: {
       email,
@@ -174,10 +176,14 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export const signup = withErrorHandling(async (formData: FormData) => {
-  const { name, email, password, inviteToken, rememberMe } = validateFormData(
-    formData,
-    signupSchema,
-  );
+  const validateResult = validateFormData(formData, signupSchema);
+
+  if (validateResult.error) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { inviteToken, email, name, password, rememberMe } =
+    validateResult.data;
 
   if (process.env.INVITE_TOKEN && inviteToken !== process.env.INVITE_TOKEN) {
     return { success: false, error: "Invalid invite token" };

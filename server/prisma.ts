@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Prisma from "@prisma/client/edge";
 
 function buildClient() {
@@ -14,24 +13,6 @@ function buildClient() {
  */
 export type PrismaClientType = ReturnType<typeof buildClient>;
 
-let prisma: PrismaClientType;
-
-declare global {
-  let __prisma: PrismaClientType | undefined;
-}
-
-// This is needed because in development we don't want to restart
-// the server with every change, but we want to make sure we don't
-// create a new connection to the DB with every change either.
-if (process.env.NODE_ENV === "production") {
-  prisma = buildClient();
-  prisma.$connect();
-} else {
-  if (!(global as any).__prisma) {
-    (global as any).__prisma = buildClient();
-    (global as any).__prisma.$connect();
-  }
-  prisma = (global as any).__prisma;
-}
+const prisma = buildClient();
 
 export default prisma;

@@ -1,5 +1,3 @@
-import { codeInspectorPlugin } from "code-inspector-plugin";
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
@@ -24,14 +22,6 @@ const nextConfig = {
     ];
   },
 
-  webpack: (config) => {
-    config.plugins.push(codeInspectorPlugin({ bundler: "webpack" }));
-    return config;
-  },
-
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
