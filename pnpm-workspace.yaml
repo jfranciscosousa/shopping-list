@@ -1,2 +1,7 @@
 autoInstallPeers: false
+
+onlyBuiltDependencies:
+  - '@prisma/engines'
+  - prisma
+
 shamefullyHoist: true

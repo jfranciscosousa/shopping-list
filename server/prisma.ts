@@ -1,7 +1,8 @@
-import Prisma from "@prisma/client/edge";
+import { PrismaClient } from "@/generated/prisma";
 
 function buildClient() {
-  const client = new Prisma.PrismaClient({
+  const client = new PrismaClient({
+    accelerateUrl: process.env.DATABASE_URL,
     log: ["query", "info", "warn", "error"],
   });
 
