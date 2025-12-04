@@ -4,7 +4,7 @@ import { getCurrentUserOptional } from "@/server/auth.actions";
 import { Suspense } from "react";
 import Loading from "./loading";
 
-export const runtime = "edge";
+export const dynamic = "force-dynamic";
 
 async function LayoutWithUser({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUserOptional();
