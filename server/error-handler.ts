@@ -14,7 +14,9 @@ export function withErrorHandling<T extends unknown[], R>(
 
       // Handle Zod validation errors
       if (error instanceof ZodError) {
-        throw new Error(error.issues[0]?.message || "Validation failed");
+        throw new Error(error.issues[0]?.message || "Validation failed", {
+          cause: error,
+        });
       }
 
       // Handle known error types
@@ -23,7 +25,7 @@ export function withErrorHandling<T extends unknown[], R>(
       }
 
       // Handle unknown errors
-      throw new Error("An unexpected error occurred");
+      throw new Error("An unexpected error occurred", { cause: error });
     }
   };
 }

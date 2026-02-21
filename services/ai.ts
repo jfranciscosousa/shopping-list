@@ -1,6 +1,6 @@
 "use server";
 
-import { generateObject, generateText } from "ai";
+import { generateText, Output } from "ai";
 import { Category } from "@prisma/client";
 import { z } from "zod";
 
@@ -21,7 +21,7 @@ export async function categorizeItem(
   categories: Category[],
 ): Promise<Category> {
   const { text } = await generateText({
-    model: "openai/gpt-oss-120b",
+    model: "gpt-oss-120b",
     system: `You are an expert shopping list categorization assistant. Your role is to analyze grocery items and assign them to the most appropriate category from a user's predefined categories.
 
 Guidelines:
@@ -64,8 +64,10 @@ export async function generateShoppingList(
   categories: Category[],
   existingItems: string[],
 ): Promise<ShoppingListGenerationResult> {
-  const { object } = await generateObject({
-    model: "openai/gpt-oss-120b",
+  const {
+    output: { items },
+  } = await generateText({
+    model: "gpt-oss-120b",
     system: `You are an expert shopping list assistant. Your role is to interpret user requests and generate a well-organized shopping list with properly categorized items.
 
 Core responsibilities:
@@ -101,21 +103,25 @@ User request: "${prompt}"
 
 Please generate a structured list of new shopping items with their category assignments.`,
     temperature: 0.1,
-    schema: z.object({
-      items: z.array(
-        z.object({
-          name: z
-            .string()
-            .describe(
-              "Specific grocery item name (e.g., 'organic bananas', '2% milk', 'whole grain bread')",
-            ),
-          categoryId: z
-            .number()
-            .describe("The ID of the most appropriate category for this item"),
-        }),
-      ),
+    output: Output.object({
+      schema: z.object({
+        items: z.array(
+          z.object({
+            name: z
+              .string()
+              .describe(
+                "Specific grocery item name (e.g., 'organic bananas', '2% milk', 'whole grain bread')",
+              ),
+            categoryId: z
+              .number()
+              .describe(
+                "The ID of the most appropriate category for this item",
+              ),
+          }),
+        ),
+      }),
     }),
   });
 
-  return object;
+  return { items };
 }
