@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read .tool-versions
+        uses: marocchino/tool-versions-action@v2
+        id: versions
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ steps.versions.outputs.pnpm }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ steps.versions.outputs.nodejs }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build:ci
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/shopping_list
+          JWT_SECRET: ci-secret
+          OPENAI_API_KEY: sk-mock-key
