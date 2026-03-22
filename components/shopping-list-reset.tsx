@@ -27,15 +27,13 @@ export default function ShoppingListReset() {
         <AlertDialogHeader>
           <AlertDialogTitle>Reset Shopping List</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to reset your shopping list? This will remove
-            all items and cannot be undone.
+            Are you sure you want to reset your shopping list? This will remove all items and cannot
+            be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => mutation.mutate({})}>
-            Reset
-          </AlertDialogAction>
+          <AlertDialogAction onClick={() => mutation.mutate({})}>Reset</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -3,14 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/server/auth.actions";
-import {
-  LogOut,
-  Menu,
-  ShoppingBasket,
-  ShoppingCart,
-  User,
-  X,
-} from "lucide-react";
+import { LogOut, Menu, ShoppingBasket, ShoppingCart, User, X } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 

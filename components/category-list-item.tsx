@@ -19,14 +19,9 @@ export default function CategoryListItem({ id, category }: Props) {
   const { toast } = useToast();
   const deleteCategoriesMutation = useCategoriesDelete();
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -36,8 +31,7 @@ export default function CategoryListItem({ id, category }: Props) {
   function handleRemoveCategory() {
     deleteCategoriesMutation.mutate(category.id, {
       onSuccess: () => toast({ title: "Category deleted" }),
-      onError: () =>
-        toast({ title: "Failed to delete category", variant: "destructive" }),
+      onError: () => toast({ title: "Failed to delete category", variant: "destructive" }),
     });
   }
 
@@ -68,9 +62,7 @@ export default function CategoryListItem({ id, category }: Props) {
       </div>
 
       {category.description && (
-        <div className="text-sm text-muted-foreground px-6 pb-4">
-          {category.description}
-        </div>
+        <div className="text-sm text-muted-foreground px-6 pb-4">{category.description}</div>
       )}
     </li>
   );

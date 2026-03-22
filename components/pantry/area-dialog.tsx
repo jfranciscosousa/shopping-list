@@ -23,11 +23,7 @@ interface AreaDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function AreaDialog({
-  open,
-  area,
-  onOpenChange,
-}: AreaDialogProps) {
+export default function AreaDialog({ open, area, onOpenChange }: AreaDialogProps) {
   const addAreaMutation = usePantryAreasAdd();
   const updateAreaMutation = usePantryAreasUpdate();
 
@@ -72,13 +68,9 @@ export default function AreaDialog({
       <AlertDialogContent>
         <form onSubmit={handleSubmit}>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {area ? "Edit Area" : "Add New Area"}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{area ? "Edit Area" : "Add New Area"}</AlertDialogTitle>
             <AlertDialogDescription>
-              {area
-                ? "Update the area name."
-                : "Create a new storage area for your pantry items."}
+              {area ? "Update the area name." : "Create a new storage area for your pantry items."}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -101,17 +93,13 @@ export default function AreaDialog({
               type="button"
               variant="secondary"
               onClick={handleCancel}
-              isLoading={
-                addAreaMutation.isPending || updateAreaMutation.isPending
-              }
+              isLoading={addAreaMutation.isPending || updateAreaMutation.isPending}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              isLoading={
-                addAreaMutation.isPending || updateAreaMutation.isPending
-              }
+              isLoading={addAreaMutation.isPending || updateAreaMutation.isPending}
             >
               {area ? "Save Changes" : "Add Area"}
             </Button>

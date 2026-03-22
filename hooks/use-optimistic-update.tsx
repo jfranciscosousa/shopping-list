@@ -10,9 +10,7 @@ export default function useOptimisticUpdate<T>(queryKey: string[]) {
     async (updateFn: UpdateFn) => {
       await queryClient.cancelQueries({ queryKey });
 
-      const previousCategories = queryClient.getQueryData(queryKey) as
-        | T[]
-        | undefined;
+      const previousCategories = queryClient.getQueryData(queryKey) as T[] | undefined;
 
       queryClient.setQueryData(queryKey, updateFn);
 

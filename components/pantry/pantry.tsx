@@ -18,15 +18,9 @@ type Props = {
 
 export default function PantryManager({ initialAreas }: Props) {
   const { data: areas = [] } = usePantryAreas(initialAreas);
-  const [itemDialog, setItemDialog] = useState<
-    PantryItem | boolean | undefined
-  >();
-  const [selectedAreaId, setSelectedAreaId] = useState<number | undefined>(
-    undefined,
-  );
-  const [areaDialog, setAreaDialog] = useState<
-    PantryArea | boolean | undefined
-  >(undefined);
+  const [itemDialog, setItemDialog] = useState<PantryItem | boolean | undefined>();
+  const [selectedAreaId, setSelectedAreaId] = useState<number | undefined>(undefined);
+  const [areaDialog, setAreaDialog] = useState<PantryArea | boolean | undefined>(undefined);
 
   const expiredItems = areas
     .flatMap((area) => area.pantryItems)
@@ -51,9 +45,7 @@ export default function PantryManager({ initialAreas }: Props) {
       <div className="flex justify-between items-center mb-6 sm:flex-row flex-col text-center sm:text-left">
         <div>
           <h1 className="text-3xl font-bold">Pantry Manager</h1>
-          <p className="text-muted-foreground">
-            Keep track of pantry items and their expiry dates
-          </p>
+          <p className="text-muted-foreground">Keep track of pantry items and their expiry dates</p>
         </div>
 
         <div className="flex gap-2 mt-4 sm:mt-0 text-nowrap">
@@ -71,9 +63,8 @@ export default function PantryManager({ initialAreas }: Props) {
         <Alert className="mb-6 border-destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            <strong>Warning:</strong> You have {expiredItems.length} expired
-            item{expiredItems.length > 1 ? "s" : ""}:{" "}
-            {expiredItems.map((item) => item.name).join(", ")}
+            <strong>Warning:</strong> You have {expiredItems.length} expired item
+            {expiredItems.length > 1 ? "s" : ""}: {expiredItems.map((item) => item.name).join(", ")}
           </AlertDescription>
         </Alert>
       )}

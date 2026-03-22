@@ -2,10 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  useShoppingListAddItem,
-  useShoppingListAddMultiItem,
-} from "@/hooks/use-shopping-list";
+import { useShoppingListAddItem, useShoppingListAddMultiItem } from "@/hooks/use-shopping-list";
 import useTabs from "@/hooks/use-tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader, Plus } from "lucide-react";
@@ -28,9 +25,7 @@ export default function ShoppingListInput() {
 
     const itemToSubmit = singleInput;
     setSingleInput("");
-    (
-      event.currentTarget.querySelector("input[name=item]") as HTMLInputElement
-    ).focus();
+    (event.currentTarget.querySelector("input[name=item]") as HTMLInputElement).focus();
 
     addItemMutation.mutate(itemToSubmit, {
       onError: (error) => {
@@ -49,9 +44,7 @@ export default function ShoppingListInput() {
 
     const itemToSubmit = multiInput;
     setMultiInput("");
-    (
-      event.currentTarget.querySelector("input[name=item]") as HTMLInputElement
-    ).focus();
+    (event.currentTarget.querySelector("input[name=item]") as HTMLInputElement).focus();
 
     addMultiItemMutation.mutate(itemToSubmit, {
       onError: (error) => {
@@ -68,11 +61,7 @@ export default function ShoppingListInput() {
   return (
     <Card className="mb-8">
       <CardContent>
-        <Tabs
-          defaultValue="login"
-          value={activeTab}
-          onValueChange={setActiveTab}
-        >
+        <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="single">Single</TabsTrigger>
             <TabsTrigger value="multi">Multiple</TabsTrigger>

@@ -14,14 +14,7 @@ export interface InputFieldProps extends ComponentPropsWithRef<"input"> {
 
 const InputField = forwardRef(
   (
-    {
-      errors,
-      name,
-      label,
-      className,
-      inputClassName,
-      ...props
-    }: InputFieldProps,
+    { errors, name, label, className, inputClassName, ...props }: InputFieldProps,
     ref: Ref<HTMLInputElement>,
   ) => {
     const reactId = useId();

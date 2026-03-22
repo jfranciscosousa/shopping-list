@@ -63,8 +63,7 @@ export function usePantryAreasDelete() {
 
   return useMutation({
     mutationFn: deleteArea,
-    onMutate: async (id) =>
-      optimisticUpdate((old) => old.filter((area) => area.id !== id)),
+    onMutate: async (id) => optimisticUpdate((old) => old.filter((area) => area.id !== id)),
     onError: handleError,
     onSettled: handleSettled,
   });
@@ -100,9 +99,7 @@ export function usePantryItemsUpdate() {
                     ? {
                         ...item,
                         name: newItem.get("name") as string,
-                        producedAt: parseDateFromInput(
-                          newItem.get("producedAt"),
-                        ),
+                        producedAt: parseDateFromInput(newItem.get("producedAt")),
                         expiresAt: parseDateFromInput(newItem.get("expiresAt")),
                       }
                     : item,
@@ -128,9 +125,7 @@ export function usePantryItemsDelete() {
           area.id === Number(id)
             ? {
                 ...area,
-                pantryItems: area.pantryItems.filter(
-                  (item) => item.id !== Number(id),
-                ),
+                pantryItems: area.pantryItems.filter((item) => item.id !== Number(id)),
               }
             : area,
         ),

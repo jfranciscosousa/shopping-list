@@ -45,9 +45,7 @@ export function getCurrentDate(): Date {
 /**
  * Safely parses a date string from form data, returns null if invalid
  */
-export function safeParseDate(
-  dateString: string | null | undefined,
-): Date | null {
+export function safeParseDate(dateString: string | null | undefined): Date | null {
   if (!dateString) return null;
 
   try {

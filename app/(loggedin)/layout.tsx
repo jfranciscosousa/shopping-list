@@ -18,11 +18,7 @@ async function LayoutWithUser({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function LoggedInLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function LoggedInLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense
       fallback={

@@ -1,12 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   CATEGORIES_QUERY_KEY,
@@ -29,11 +24,7 @@ import {
   useSensors,
   DragEndEvent,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
@@ -48,10 +39,7 @@ export default function CategoryList({ initialCategories }: Props) {
   const addCategoriesMutation = useCategoriesAdd();
   const updateCategoriesBulkMutation = useCategoriesUpdateBulk();
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor),
-  );
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
   function handleAddCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -75,12 +63,8 @@ export default function CategoryList({ initialCategories }: Props) {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = categories.findIndex(
-        (category) => category.id === active.id,
-      );
-      const newIndex = categories.findIndex(
-        (category) => category.id === over?.id,
-      );
+      const oldIndex = categories.findIndex((category) => category.id === active.id);
+      const newIndex = categories.findIndex((category) => category.id === over?.id);
       const newCategories = arrayMove(categories, oldIndex, newIndex);
 
       queryClient.setQueryData(CATEGORIES_QUERY_KEY, newCategories);
@@ -122,10 +106,7 @@ export default function CategoryList({ initialCategories }: Props) {
           </div>
 
           <div>
-            <label
-              htmlFor="new-category-description"
-              className="text-sm font-medium"
-            >
+            <label htmlFor="new-category-description" className="text-sm font-medium">
               Description (helps the AI categorize items)
             </label>
             <Textarea
@@ -148,10 +129,7 @@ export default function CategoryList({ initialCategories }: Props) {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext
-            items={categories}
-            strategy={verticalListSortingStrategy}
-          >
+          <SortableContext items={categories} strategy={verticalListSortingStrategy}>
             <div className="border rounded-md">
               {categories.length === 0 ? (
                 <div className="p-4 text-center text-muted-foreground">
@@ -160,11 +138,7 @@ export default function CategoryList({ initialCategories }: Props) {
               ) : (
                 <ul className="divide-y">
                   {categories.map((category) => (
-                    <CategoryListItem
-                      key={category.id}
-                      id={category.id}
-                      category={category}
-                    />
+                    <CategoryListItem key={category.id} id={category.id} category={category} />
                   ))}
                 </ul>
               )}

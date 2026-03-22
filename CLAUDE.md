@@ -57,6 +57,7 @@ This is a Next.js-based shopping list application with AI-powered categorization
 ## Key Features
 
 ### 1. Shopping List Management
+
 - Add items individually or via AI-powered bulk input
 - Edit item names inline
 - Delete individual items
@@ -65,17 +66,20 @@ This is a Next.js-based shopping list application with AI-powered categorization
 - Real-time updates with optimistic UI
 
 ### 2. Category Management
+
 - Create custom categories with descriptions
 - Drag-and-drop reordering
 - AI uses category descriptions for better item categorization
 - Delete entire categories (affects categorization only)
 
 ### 3. Pantry Management
+
 - Track items in different pantry areas
 - Set expiration dates
 - Manage quantities
 
 ### 4. AI Integration
+
 - Automatic item categorization using category descriptions
 - Bulk item generation from natural language prompts
 - Uses Vercel AI SDK for LLM integration
@@ -100,6 +104,7 @@ npx prisma studio           # Open Prisma Studio
 ## Recent Implementation: Category Group Delete Button
 
 ### What was added:
+
 - Delete button in the top-right corner of each category group
 - Server action `deleteItemsByCategory` to delete all items in a specific category
 - Hook `useShoppingListDeleteItemsByCategory` for optimistic updates
@@ -107,11 +112,13 @@ npx prisma studio           # Open Prisma Studio
 - Proper loading states and error handling
 
 ### Files modified:
+
 1. `server/shopping-items.actions.ts:111-124` - Added `deleteItemsByCategory` server action
 2. `hooks/use-shopping-list.tsx:8,104-117` - Added import and hook for category deletion
 3. `components/shopping-list.tsx:4,7-10,21-41,67-84` - Added UI button and delete functionality
 
 ### Technical details:
+
 - Uses Trash2 icon from Lucide React
 - Button is positioned absolute in top-right corner of category header
 - Includes hover effects (text-muted-foreground → text-destructive)
@@ -170,6 +177,7 @@ All hooks include optimistic updates for immediate UI feedback.
 ## Authentication
 
 Custom JWT-based authentication using the `jose` library:
+
 - Server-side session validation in `server/utils.ts:requireAuth()`
 - Protected routes wrapped in `(loggedin)` group
 - Authentication actions in `server/auth.actions.ts`
@@ -177,6 +185,7 @@ Custom JWT-based authentication using the `jose` library:
 ## AI Integration
 
 The AI service (`services/ai.ts`) provides:
+
 - Item categorization based on category descriptions
 - Bulk shopping list generation from natural language
 - Integration with Vercel AI SDK
@@ -184,6 +193,7 @@ The AI service (`services/ai.ts`) provides:
 ## Deployment
 
 The app is deployed on Vercel with:
+
 - Automatic builds on push
 - Environment variables for database and AI API keys
 - PWA support with manifest and service worker
@@ -191,6 +201,7 @@ The app is deployed on Vercel with:
 ## Environment Variables
 
 Required environment variables:
+
 ```
 DATABASE_URL="postgresql://..."
 JWT_SECRET="your-jwt-secret"

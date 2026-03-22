@@ -68,19 +68,13 @@ export default function LoginForm() {
     <div className="flex items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">
-            Smart Shopping List
-          </CardTitle>
+          <CardTitle className="text-2xl text-center">Smart Shopping List</CardTitle>
           <CardDescription className="text-center">
             Sign in to manage your shopping list
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs
-            defaultValue="login"
-            value={activeTab}
-            onValueChange={setActiveTab}
-          >
+          <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -89,20 +83,10 @@ export default function LoginForm() {
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    required
-                  />
+                  <Input type="email" name="email" placeholder="Email" required />
                 </div>
                 <div className="space-y-2">
-                  <Input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    required
-                  />
+                  <Input type="password" name="password" placeholder="Password" required />
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox id="login-remember" name="rememberMe" />
@@ -120,25 +104,10 @@ export default function LoginForm() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form
-                onSubmit={handleSignup}
-                className="space-y-4 flex flex-col gap-2"
-              >
-                <Input
-                  type="text"
-                  name="name"
-                  placeholder="Name"
-                  required
-                  aria-label="Name"
-                />
+              <form onSubmit={handleSignup} className="space-y-4 flex flex-col gap-2">
+                <Input type="text" name="name" placeholder="Name" required aria-label="Name" />
 
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  required
-                  aria-label="Email"
-                />
+                <Input type="email" name="email" placeholder="Email" required aria-label="Email" />
 
                 <Input
                   type="password"
@@ -184,22 +153,14 @@ export default function LoginForm() {
           {activeTab === "login" ? (
             <p>
               Don&apos;t have an account?{" "}
-              <Button
-                variant="link"
-                className="p-0 h-auto"
-                onClick={() => setActiveTab("signup")}
-              >
+              <Button variant="link" className="p-0 h-auto" onClick={() => setActiveTab("signup")}>
                 Sign up
               </Button>
             </p>
           ) : (
             <p>
               Already have an account?{" "}
-              <Button
-                variant="link"
-                className="p-0 h-auto"
-                onClick={() => setActiveTab("login")}
-              >
+              <Button variant="link" className="p-0 h-auto" onClick={() => setActiveTab("login")}>
                 Login
               </Button>
             </p>

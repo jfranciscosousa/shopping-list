@@ -112,8 +112,7 @@ export function useCategoriesDelete() {
 
   return useMutation({
     mutationFn: deleteCategory,
-    onMutate: async (id) =>
-      optimisticUpdate((old) => old.filter((c) => c.id !== id)),
+    onMutate: async (id) => optimisticUpdate((old) => old.filter((c) => c.id !== id)),
     onError: handleError,
     onSettled: handleSettled,
   });

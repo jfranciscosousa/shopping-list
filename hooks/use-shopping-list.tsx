@@ -16,9 +16,7 @@ export const SHOPPING_QUERY_KEY = ["shopping-items"];
 
 type ShoppingItem = Awaited<ReturnType<typeof getItems>>[number];
 
-export function useShoppingListItems(
-  initialShoppingItems: Awaited<ReturnType<typeof getItems>>,
-) {
+export function useShoppingListItems(initialShoppingItems: Awaited<ReturnType<typeof getItems>>) {
   return useQuery({
     queryKey: SHOPPING_QUERY_KEY,
     queryFn: getItems,
@@ -32,8 +30,7 @@ export function useShoppingListAddItem() {
 
   return useMutation({
     mutationFn: addItem,
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
   });
 }
 
@@ -41,8 +38,7 @@ export function useShoppingListAddMultiItem() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addMultiItem,
-    onSettled: () =>
-      queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
   });
 }
 
@@ -51,8 +47,7 @@ export function useShoppingListUpdateItem() {
     useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
   return useMutation({
-    mutationFn: ({ id, newName }: { id: number; newName: string }) =>
-      editItem(id, newName),
+    mutationFn: ({ id, newName }: { id: number; newName: string }) => editItem(id, newName),
     onMutate: async ({ id, newName }) =>
       optimisticUpdate((categories) =>
         categories.map((category) => ({
@@ -90,9 +85,7 @@ export function useShoppingListDeleteItem() {
         categories
           .map((category) => ({
             ...category,
-            shoppingItems: category.shoppingItems.filter(
-              (item) => item.id !== id,
-            ),
+            shoppingItems: category.shoppingItems.filter((item) => item.id !== id),
           }))
           .filter((category) => category.shoppingItems.length > 0),
       ),
@@ -108,9 +101,7 @@ export function useShoppingListDeleteItemsByCategory() {
   return useMutation({
     mutationFn: deleteItemsByCategory,
     onMutate: async (categoryId) =>
-      optimisticUpdate((categories) =>
-        categories.filter((category) => category.id !== categoryId),
-      ),
+      optimisticUpdate((categories) => categories.filter((category) => category.id !== categoryId)),
     onError: handleError,
     onSettled: handleSettled,
   });

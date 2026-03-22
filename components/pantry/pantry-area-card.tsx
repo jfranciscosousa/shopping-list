@@ -65,16 +65,13 @@ export default function PantryAreaCard({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Area</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to delete &quot;{area.name}&quot;?
-                    This will also delete all items in this area. This action
-                    cannot be undone.
+                    Are you sure you want to delete &quot;{area.name}&quot;? This will also delete
+                    all items in this area. This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => deleteAreaMutation.mutate(area.id)}
-                  >
+                  <AlertDialogAction onClick={() => deleteAreaMutation.mutate(area.id)}>
                     Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -105,10 +102,7 @@ export default function PantryAreaCard({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-medium truncate">{item.name}</span>
-                    <Badge
-                      variant={getExpiryBadgeVariant(item.expiresAt)}
-                      className="text-xs"
-                    >
+                    <Badge variant={getExpiryBadgeVariant(item.expiresAt)} className="text-xs">
                       {isExpired(item.expiresAt)
                         ? "Expired"
                         : `${getDaysUntilExpiry(item.expiresAt)}d left`}
@@ -117,9 +111,7 @@ export default function PantryAreaCard({
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      <span>
-                        Expires: {item.expiresAt.toLocaleDateString()}
-                      </span>
+                      <span>Expires: {item.expiresAt.toLocaleDateString()}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />

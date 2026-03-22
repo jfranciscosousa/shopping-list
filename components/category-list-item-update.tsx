@@ -21,10 +21,7 @@ interface UpdateMealModalProps {
   category: Category;
 }
 
-function Form({
-  category,
-  setOpen,
-}: UpdateMealModalProps & { setOpen: (open: boolean) => void }) {
+function Form({ category, setOpen }: UpdateMealModalProps & { setOpen: (open: boolean) => void }) {
   const updateCategoriesMutation = useCategoriesUpdate();
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -79,18 +76,11 @@ export function CategoryListItemUpdate(props: UpdateMealModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          onClick={() => setOpen(true)}
-        >
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpen(true)}>
           <Edit2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        {open && <Form {...props} setOpen={setOpen} />}
-      </AlertDialogContent>
+      <AlertDialogContent>{open && <Form {...props} setOpen={setOpen} />}</AlertDialogContent>
     </AlertDialog>
   );
 }

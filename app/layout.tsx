@@ -7,15 +7,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Smart Shopping List",
-  description:
-    "AI-powered shopping list that automatically categorizes your items",
+  description: "AI-powered shopping list that automatically categorizes your items",
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>

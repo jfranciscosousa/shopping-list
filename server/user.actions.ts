@@ -10,19 +10,13 @@ const updateUserSchema = z
     name: z.string().min(2, "Name must be at least 2 characters").optional(),
     email: z.email("Invalid email address").optional(),
     currentPassword: z.string(),
-    newPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .or(z.literal("")),
+    newPassword: z.string().min(8, "Password must be at least 8 characters").or(z.literal("")),
     confirmPassword: z.string().optional(),
   })
-  .refine(
-    (data) => !data.newPassword || data.newPassword === data.confirmPassword,
-    {
-      message: "Confirm password must match password",
-      path: ["confirmPassword"],
-    },
-  );
+  .refine((data) => !data.newPassword || data.newPassword === data.confirmPassword, {
+    message: "Confirm password must match password",
+    path: ["confirmPassword"],
+  });
 
 export async function updateUser(formData: FormData) {
   const user = await requireAuth();
@@ -35,18 +29,14 @@ export async function updateUser(formData: FormData) {
     return { success: false, error: validateResult.error.issues[0].message };
   }
 
-  const { name, email, currentPassword, newPassword, confirmPassword } =
-    validateResult.data;
+  const { name, email, currentPassword, newPassword, confirmPassword } = validateResult.data;
 
   const userWithPassword = await prisma.user.findUnique({
     where: { id: user.id },
     select: { password: true },
   });
 
-  if (
-    newPassword &&
-    !(await verifyPassword(userWithPassword!.password, currentPassword))
-  ) {
+  if (newPassword && !(await verifyPassword(userWithPassword!.password, currentPassword))) {
     return { success: false, error: "Current password is incorrect" };
   }
 
@@ -59,9 +49,7 @@ export async function updateUser(formData: FormData) {
     data: {
       email,
       name,
-      password: newPassword
-        ? await hashPassword(newPassword)
-        : userWithPassword!.password,
+      password: newPassword ? await hashPassword(newPassword) : userWithPassword!.password,
     },
   });
 

@@ -22,10 +22,7 @@ export default function Profile({ user, initialCategories }: Props) {
       <div className="flex justify-between items-center mb-6">
         <Link
           href="/"
-          className={cn(
-            "flex items-center gap-2",
-            buttonVariants({ variant: "ghost" }),
-          )}
+          className={cn("flex items-center gap-2", buttonVariants({ variant: "ghost" }))}
         >
           <ArrowLeft className="h-4 w-4" /> Back to Shopping List
         </Link>

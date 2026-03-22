@@ -3,9 +3,7 @@ import { useState } from "react";
 
 export default function useTabs(defaultValue: string) {
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState(
-    searchParams.get("tab") ?? defaultValue,
-  );
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") ?? defaultValue);
 
   function wrappedSetActiveTab(newActiveTab: string) {
     setActiveTab(newActiveTab);

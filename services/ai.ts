@@ -16,10 +16,7 @@ export interface ShoppingListGenerationResult {
 /**
  * Categorizes a single grocery item using AI
  */
-export async function categorizeItem(
-  item: string,
-  categories: Category[],
-): Promise<Category> {
+export async function categorizeItem(item: string, categories: Category[]): Promise<Category> {
   const { text } = await generateText({
     model: "gpt-oss-120b",
     system: `You are an expert shopping list categorization assistant. Your role is to analyze grocery items and assign them to the most appropriate category from a user's predefined categories.
@@ -114,9 +111,7 @@ Please generate a structured list of new shopping items with their category assi
               ),
             categoryId: z
               .number()
-              .describe(
-                "The ID of the most appropriate category for this item",
-              ),
+              .describe("The ID of the most appropriate category for this item"),
           }),
         ),
       }),

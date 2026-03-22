@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -139,4 +139,3 @@
     @apply bg-background text-foreground;
   }
 }
-

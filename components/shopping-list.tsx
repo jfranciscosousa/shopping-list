@@ -50,11 +50,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="text-lg">
-            Total entries:{" "}
-            {data.reduce(
-              (acc, { shoppingItems }) => acc + shoppingItems.length,
-              0,
-            )}
+            Total entries: {data.reduce((acc, { shoppingItems }) => acc + shoppingItems.length, 0)}
           </CardTitle>
         </CardHeader>
       </Card>

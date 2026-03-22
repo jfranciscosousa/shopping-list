@@ -85,9 +85,7 @@ export default function EditItemDialog({
       <AlertDialogContent>
         <form onSubmit={handleSubmit}>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {item ? "Edit Item" : "Add Item"}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{item ? "Edit Item" : "Add Item"}</AlertDialogTitle>
             <AlertDialogDescription>
               {item
                 ? "Update the item details and expiry information."
@@ -132,11 +130,7 @@ export default function EditItemDialog({
             )}
 
             {!item && (
-              <input
-                type="hidden"
-                name="pantryAreaId"
-                value={selectedAreaId?.toString() || ""}
-              />
+              <input type="hidden" name="pantryAreaId" value={selectedAreaId?.toString() || ""} />
             )}
 
             <div className="grid grid-cols-2 gap-4">
@@ -145,11 +139,7 @@ export default function EditItemDialog({
                 <Input
                   name="producedAt"
                   type="date"
-                  defaultValue={
-                    item?.producedAt
-                      ? datetimeToDateString(item.producedAt)
-                      : ""
-                  }
+                  defaultValue={item?.producedAt ? datetimeToDateString(item.producedAt) : ""}
                   required
                 />
               </div>
@@ -159,9 +149,7 @@ export default function EditItemDialog({
                 <Input
                   name="expiresAt"
                   type="date"
-                  defaultValue={
-                    item?.expiresAt ? datetimeToDateString(item.expiresAt) : ""
-                  }
+                  defaultValue={item?.expiresAt ? datetimeToDateString(item.expiresAt) : ""}
                   required
                 />
               </div>
@@ -177,10 +165,7 @@ export default function EditItemDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              isLoading={createMutation.isPending || updateMutation.isPending}
-            >
+            <Button type="submit" isLoading={createMutation.isPending || updateMutation.isPending}>
               Save Changes
             </Button>
           </AlertDialogFooter>

@@ -4,8 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "AI Shopping list",
     short_name: "AI Shopping list",
-    description:
-      "A very simple shopping list app that categorizes items with AI",
+    description: "A very simple shopping list app that categorizes items with AI",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

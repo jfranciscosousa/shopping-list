@@ -28,12 +28,7 @@ const TextareaField = ({
     <div className={cn("flex flex-col gap-2", className)}>
       <Label htmlFor={id}>{label}</Label>
 
-      <Textarea
-        id={id}
-        name={name}
-        className={cn("input w-full", inputClassName)}
-        {...props}
-      />
+      <Textarea id={id} name={name} className={cn("input w-full", inputClassName)} {...props} />
 
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
     </div>

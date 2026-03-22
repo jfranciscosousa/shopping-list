@@ -38,9 +38,7 @@ export const addCategory = withErrorHandling(async (formData: FormData) => {
       name,
       description,
       userId: user.id,
-      sortIndex:
-        ((await prisma.category.count({ where: { userId: user.id } })) + 1) *
-        -1,
+      sortIndex: ((await prisma.category.count({ where: { userId: user.id } })) + 1) * -1,
     },
   });
 
@@ -75,26 +73,24 @@ export const updateCategory = withErrorHandling(async (formData: FormData) => {
 });
 
 // Only updates sort index
-export const updateCategoryBulk = withErrorHandling(
-  async (formData: FormData) => {
-    const user = await requireAuth();
+export const updateCategoryBulk = withErrorHandling(async (formData: FormData) => {
+  const user = await requireAuth();
 
-    await prisma.$transaction((tx) => {
-      return Promise.all(
-        formData.entries().map(([key, value]) =>
-          tx.category.update({
-            where: { id: Number(key), userId: user.id },
-            data: {
-              sortIndex: Number(value),
-            },
-          }),
-        ),
-      );
-    });
+  await prisma.$transaction((tx) => {
+    return Promise.all(
+      formData.entries().map(([key, value]) =>
+        tx.category.update({
+          where: { id: Number(key), userId: user.id },
+          data: {
+            sortIndex: Number(value),
+          },
+        }),
+      ),
+    );
+  });
 
-    return { success: true };
-  },
-);
+  return { success: true };
+});
 
 export const deleteAllCategories = withErrorHandling(async () => {
   const user = await requireAuth();

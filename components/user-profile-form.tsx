@@ -15,11 +15,7 @@ import { updateUser } from "@/server/user.actions";
 import { User } from "@prisma/client";
 import { FormEvent, useState } from "react";
 
-export default function UserProfileForm({
-  user,
-}: {
-  user: Omit<User, "password">;
-}) {
+export default function UserProfileForm({ user }: { user: Omit<User, "password"> }) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -65,23 +61,12 @@ export default function UserProfileForm({
       <CardContent className="space-y-4 px-0">
         <div className="space-y-2">
           <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            name="name"
-            defaultValue={user.name || ""}
-            required
-          />
+          <Input id="name" name="name" defaultValue={user.name || ""} required />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            defaultValue={user.email}
-            required
-          />
+          <Input id="email" name="email" type="email" defaultValue={user.email} required />
         </div>
 
         <div className="pt-4">
@@ -93,11 +78,7 @@ export default function UserProfileForm({
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
-              <Input
-                id="currentPassword"
-                name="currentPassword"
-                type="password"
-              />
+              <Input id="currentPassword" name="currentPassword" type="password" />
             </div>
 
             <div className="space-y-2">
@@ -107,22 +88,14 @@ export default function UserProfileForm({
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-              />
+              <Input id="confirmPassword" name="confirmPassword" type="password" />
             </div>
           </div>
         </div>
       </CardContent>
 
       <CardFooter className="px-0">
-        <LoadingButton
-          type="submit"
-          isLoading={isLoading}
-          loadingText="Saving..."
-        >
+        <LoadingButton type="submit" isLoading={isLoading} loadingText="Saving...">
           Save Changes
         </LoadingButton>
       </CardFooter>

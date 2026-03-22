@@ -88,9 +88,7 @@ const getCurrentUserInner = cache(async (authToken: string) => {
   return user;
 });
 
-export type UserWithoutPassword = NonNullable<
-  Awaited<ReturnType<typeof getCurrentUserInner>>
->;
+export type UserWithoutPassword = NonNullable<Awaited<ReturnType<typeof getCurrentUserInner>>>;
 
 export async function getCurrentUserOptional(): Promise<UserWithoutPassword | null> {
   try {
@@ -182,8 +180,7 @@ export const signup = withErrorHandling(async (formData: FormData) => {
     return { success: false, error: validateResult.error.issues[0].message };
   }
 
-  const { inviteToken, email, name, password, rememberMe } =
-    validateResult.data;
+  const { inviteToken, email, name, password, rememberMe } = validateResult.data;
 
   if (process.env.INVITE_TOKEN && inviteToken !== process.env.INVITE_TOKEN) {
     return { success: false, error: "Invalid invite token" };

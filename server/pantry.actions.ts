@@ -87,15 +87,9 @@ export const deleteArea = withErrorHandling(async (id: number) => {
 const itemSchema = z.object({
   name: z.string().min(1, "Item name is required"),
   producedAt: z
-    .preprocess(
-      (v) => (typeof v === "string" ? new Date(v) : undefined),
-      z.date(),
-    )
+    .preprocess((v) => (typeof v === "string" ? new Date(v) : undefined), z.date())
     .optional(),
-  expiresAt: z.preprocess(
-    (v) => (typeof v === "string" ? new Date(v) : undefined),
-    z.date(),
-  ),
+  expiresAt: z.preprocess((v) => (typeof v === "string" ? new Date(v) : undefined), z.date()),
   pantryAreaId: z.preprocess(Number, z.number().int().positive()),
 });
 
