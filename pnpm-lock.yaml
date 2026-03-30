@@ -54,7 +54,7 @@ importers:
         specifier: 6.0.141
         version: 6.0.141(zod@4.3.6)
       bcrypt-ts:
-        specifier: ^8.0.0
+        specifier: ^8.0.1
         version: 8.0.1
       class-variance-authority:
         specifier: ^0.7.1
