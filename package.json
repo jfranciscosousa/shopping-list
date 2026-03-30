@@ -62,7 +62,7 @@
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vercel": "^50.35.0"
+    "vercel": "^50.37.3"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
