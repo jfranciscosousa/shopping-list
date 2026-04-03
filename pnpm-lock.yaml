@@ -72,7 +72,7 @@ importers:
         specifier: ^6.2.2
         version: 6.2.2
       lodash:
-        specifier: ^4.17.23
+        specifier: ^4.18.1
         version: 4.18.1
       lucide-react:
         specifier: ^1.7.0
