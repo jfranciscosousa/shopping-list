@@ -5,7 +5,8 @@
   "schedule": ["* 0-3 * * *"],
   "automerge": true,
   "automergeType": "pr",
-  "automergeSchedule": ["* 0-5 * * *"],
+  "automergeSchedule": "at any time",
+  "prConcurrentLimit": 0,
   "packageRules": [
     {
       "matchManagers": ["github-actions"],
