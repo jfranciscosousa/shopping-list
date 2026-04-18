@@ -19,7 +19,7 @@ importers:
         version: 3.2.2(react@19.2.5)
       '@prisma/client':
         specifier: 7.7.0
-        version: 7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)
+        version: 7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3))(typescript@6.0.3)
       '@radix-ui/react-alert-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -51,8 +51,8 @@ importers:
         specifier: ^5.99.0
         version: 5.99.0(react@19.2.5)
       ai:
-        specifier: 6.0.162
-        version: 6.0.162(zod@4.3.6)
+        specifier: 6.0.168
+        version: 6.0.168(zod@4.3.6)
       bcrypt-ts:
         specifier: ^8.0.1
         version: 8.0.1
@@ -137,7 +137,7 @@ importers:
         version: 8.5.10
       prisma:
         specifier: ^7.7.0
-        version: 7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2)
+        version: 7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
       tailwindcss:
         specifier: ^4.2.2
         version: 4.2.2
@@ -145,13 +145,13 @@ importers:
         specifier: ^4.21.0
         version: 4.21.0
       typescript:
-        specifier: ^6.0.2
-        version: 6.0.2
+        specifier: ^6.0.3
+        version: 6.0.3
 
 packages:
 
-  '@ai-sdk/gateway@3.0.99':
-    resolution: {integrity: sha512-8/UuzFY8p+T8j4XP/9m841pUb5bhnFt8cecSnJpd2zhBttNZ6GbfjZTmsqnvM/RwJOvzIsdFULZrU+E9QFREsQ==}
+  '@ai-sdk/gateway@3.0.104':
+    resolution: {integrity: sha512-ZKX5n74io8VIRlhIMSLWVlvT3sXC8Z7cZ9GHuWBWZDVi96+62AIsWuLGvMfcBA1STYuSoDrp6rIziZmvrTq0TA==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -218,8 +218,8 @@ packages:
   '@electric-sql/pglite@0.4.1':
     resolution: {integrity: sha512-mZ9NzzUSYPOCnxHH1oAHPRzoMFJHY472raDKwXl/+6oPbpdJ7g8LsCN4FSaIIfkiCKHhb3iF/Zqo3NYxaIhU7Q==}
 
-  '@emnapi/runtime@1.9.2':
-    resolution: {integrity: sha512-3U4+MIWHImeyu1wnmVygh5WlgfYDtyf0k8AbLhMFxOipihf6nrWC4syIm/SwEeec0mNSafiiNnMJwbza/Is6Lw==}
+  '@emnapi/runtime@1.10.0':
+    resolution: {integrity: sha512-ewvYlk86xUoGI0zQRNq/mC+16R1QeDlKQy21Ki3oSYXNgLb45GV1P6A0M+/s6nyCuNDqe5VpaY84BzXGwVbwFA==}
 
   '@esbuild/aix-ppc64@0.27.7':
     resolution: {integrity: sha512-EKX3Qwmhz1eMdEJokhALr0YiD0lhQNwDqkPYyPhiSwKrh7/4KRjQc04sZ8db+5DVVnZ1LmbNDI1uAMPEUBnQPg==}
@@ -1470,12 +1470,12 @@ packages:
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
 
-  '@vercel/oidc@3.1.0':
-    resolution: {integrity: sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w==}
+  '@vercel/oidc@3.2.0':
+    resolution: {integrity: sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug==}
     engines: {node: '>= 20'}
 
-  ai@6.0.162:
-    resolution: {integrity: sha512-1PSvNEK1PEbpUXahnFrcey6l7DJXMVWmg0ibQ8h8oMSe9V1Vx5d+R3xNu0hzBtwqfxYj21ddZo+EUYVs6GOEyA==}
+  ai@6.0.168:
+    resolution: {integrity: sha512-2HqCJuO+1V2aV7vfYs5LFEUfxbkGX+5oa54q/gCCTL7KLTdbxcCu5D7TdLA5kwsrs3Szgjah9q6D9tpjHM3hUQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -1645,8 +1645,8 @@ packages:
   eventemitter3@5.0.4:
     resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
 
-  eventsource-parser@3.0.6:
-    resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
+  eventsource-parser@3.0.7:
+    resolution: {integrity: sha512-zwxwiQqexizSXFZV13zMiEtW1E3lv7RlUv+1f5FBiR4x7wFhEjm3aFTyYkZQWzyN08WnPdox015GoRH5D/E5YA==}
     engines: {node: '>=18.0.0'}
 
   exsolve@1.0.8:
@@ -2176,8 +2176,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  typescript@6.0.2:
-    resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -2238,18 +2238,18 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/gateway@3.0.99(zod@4.3.6)':
+  '@ai-sdk/gateway@3.0.104(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
       '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
-      '@vercel/oidc': 3.1.0
+      '@vercel/oidc': 3.2.0
       zod: 4.3.6
 
   '@ai-sdk/provider-utils@4.0.23(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
       '@standard-schema/spec': 1.1.0
-      eventsource-parser: 3.0.6
+      eventsource-parser: 3.0.7
       zod: 4.3.6
 
   '@ai-sdk/provider@3.0.8':
@@ -2302,7 +2302,7 @@ snapshots:
 
   '@electric-sql/pglite@0.4.1': {}
 
-  '@emnapi/runtime@1.9.2':
+  '@emnapi/runtime@1.10.0':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -2491,7 +2491,7 @@ snapshots:
 
   '@img/sharp-wasm32@0.34.5':
     dependencies:
-      '@emnapi/runtime': 1.9.2
+      '@emnapi/runtime': 1.10.0
     optional: true
 
   '@img/sharp-win32-arm64@0.34.5':
@@ -2668,12 +2668,12 @@ snapshots:
 
   '@prisma/client-runtime-utils@7.7.0': {}
 
-  '@prisma/client@7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)':
+  '@prisma/client@7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3))(typescript@6.0.3)':
     dependencies:
       '@prisma/client-runtime-utils': 7.7.0
     optionalDependencies:
-      prisma: 7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2)
-      typescript: 6.0.2
+      prisma: 7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
+      typescript: 6.0.3
 
   '@prisma/config@7.7.0':
     dependencies:
@@ -2688,7 +2688,7 @@ snapshots:
 
   '@prisma/debug@7.7.0': {}
 
-  '@prisma/dev@0.24.3(typescript@6.0.2)':
+  '@prisma/dev@0.24.3(typescript@6.0.3)':
     dependencies:
       '@electric-sql/pglite': 0.4.1
       '@electric-sql/pglite-socket': 0.1.1(@electric-sql/pglite@0.4.1)
@@ -2705,7 +2705,7 @@ snapshots:
       proper-lockfile: 4.1.2
       remeda: 2.33.4
       std-env: 3.10.0
-      valibot: 1.2.0(typescript@6.0.2)
+      valibot: 1.2.0(typescript@6.0.3)
       zeptomatch: 2.1.0
     transitivePeerDependencies:
       - typescript
@@ -3248,11 +3248,11 @@ snapshots:
     dependencies:
       csstype: 3.2.3
 
-  '@vercel/oidc@3.1.0': {}
+  '@vercel/oidc@3.2.0': {}
 
-  ai@6.0.162(zod@4.3.6):
+  ai@6.0.168(zod@4.3.6):
     dependencies:
-      '@ai-sdk/gateway': 3.0.99(zod@4.3.6)
+      '@ai-sdk/gateway': 3.0.104(zod@4.3.6)
       '@ai-sdk/provider': 3.0.8
       '@ai-sdk/provider-utils': 4.0.23(zod@4.3.6)
       '@opentelemetry/api': 1.9.0
@@ -3420,7 +3420,7 @@ snapshots:
 
   eventemitter3@5.0.4: {}
 
-  eventsource-parser@3.0.6: {}
+  eventsource-parser@3.0.7: {}
 
   exsolve@1.0.8: {}
 
@@ -3747,16 +3747,16 @@ snapshots:
 
   postgres@3.4.7: {}
 
-  prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2):
+  prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.3):
     dependencies:
       '@prisma/config': 7.7.0
-      '@prisma/dev': 0.24.3(typescript@6.0.2)
+      '@prisma/dev': 0.24.3(typescript@6.0.3)
       '@prisma/engines': 7.7.0
       '@prisma/studio-core': 0.27.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       mysql2: 3.15.3
       postgres: 3.4.7
     optionalDependencies:
-      typescript: 6.0.2
+      typescript: 6.0.3
     transitivePeerDependencies:
       - '@types/react'
       - '@types/react-dom'
@@ -3940,7 +3940,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  typescript@6.0.2: {}
+  typescript@6.0.3: {}
 
   undici-types@7.19.2: {}
 
@@ -3959,9 +3959,9 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
-  valibot@1.2.0(typescript@6.0.2):
+  valibot@1.2.0(typescript@6.0.3):
     optionalDependencies:
-      typescript: 6.0.2
+      typescript: 6.0.3
 
   which@2.0.2:
     dependencies:
