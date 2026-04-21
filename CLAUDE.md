@@ -97,8 +97,8 @@ npm run build                 # Build for production (includes DB push)
 npm run lint                  # Run ESLint checks
 
 # Database
-npx prisma db push           # Push schema changes to database
-npx prisma studio           # Open Prisma Studio
+pnpm dlx prisma db push           # Push schema changes to database
+pnpm dlx prisma studio            # Open Prisma Studio
 ```
 
 ## Recent Implementation: Category Group Delete Button
