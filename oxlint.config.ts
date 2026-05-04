@@ -45,5 +45,5 @@ export default defineConfig({
       },
     ],
   },
-  ignorePatterns: [".next", "node_modules", "dist", "build"],
+  ignorePatterns: [".next", "node_modules", "dist", "build", "eslint.config.mjs"],
 });
