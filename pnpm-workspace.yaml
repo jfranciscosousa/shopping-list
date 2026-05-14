@@ -8,3 +8,4 @@ onlyBuiltDependencies:
   - unrs-resolver
 
 shamefullyHoist: true
+minimumReleaseAge: 7200
