@@ -6,7 +6,8 @@ import { useShoppingListAddItem, useShoppingListAddMultiItem } from "@/hooks/use
 import useTabs from "@/hooks/use-tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader, Plus } from "lucide-react";
-import { FormEvent, useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import ShoppingListReset from "./shopping-list-reset";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
@@ -20,7 +21,7 @@ export default function ShoppingListInput() {
   const addMultiItemMutation = useShoppingListAddMultiItem();
   const isLoading = addItemMutation.isPending || addMultiItemMutation.isPending;
 
-  async function handleSingle(event: FormEvent<HTMLFormElement>) {
+  async function handleSingle(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const itemToSubmit = singleInput;
@@ -39,7 +40,7 @@ export default function ShoppingListInput() {
     });
   }
 
-  async function handleMultiSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleMultiSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const itemToSubmit = multiInput;

@@ -7,7 +7,7 @@ import UserProfileForm from "@/components/user-profile-form";
 import useTabs from "@/hooks/use-tabs";
 import { cn } from "@/lib/utils";
 import { UserWithoutPassword } from "@/server/auth.actions";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import CategoryList from "./category-list";

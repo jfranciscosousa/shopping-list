@@ -12,14 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/server/user.actions";
-import { User } from "@prisma/client";
-import { FormEvent, useState } from "react";
+import { User } from "@/generated/prisma";
+import type React from "react";
+import { useState } from "react";
 
 export default function UserProfileForm({ user }: { user: Omit<User, "password"> }) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
 

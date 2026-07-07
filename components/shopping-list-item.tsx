@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useShoppingListDeleteItem, useShoppingListUpdateItem } from "@/hooks/use-shopping-list";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingItem } from "@prisma/client";
+import { ShoppingItem } from "@/generated/prisma";
 import { Edit, Save, Trash2, X } from "lucide-react";
-import { FormEvent, useState } from "react";
+import type React from "react";
+import { useState } from "react";
 
 type Props = {
   item: ShoppingItem;
@@ -18,7 +19,7 @@ export default function ShoppingListItem({ item }: Props) {
   const updateItemMutation = useShoppingListUpdateItem();
   const deleteItemMutation = useShoppingListDeleteItem();
 
-  const saveEditItem = async (event: FormEvent<HTMLFormElement>) => {
+  const saveEditItem = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const newItem = new FormData(event.currentTarget).get("item") as string;
 

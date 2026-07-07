@@ -11,9 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCategoriesUpdate } from "@/hooks/use-categories";
 import { toast } from "@/hooks/use-toast";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma";
 import { Edit2 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { InputField } from "./ui/input-field";
 import { TextareaField } from "./ui/textarea-field";
 
@@ -24,7 +25,7 @@ interface UpdateMealModalProps {
 function Form({ category, setOpen }: UpdateMealModalProps & { setOpen: (open: boolean) => void }) {
   const updateCategoriesMutation = useCategoriesUpdate();
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const formEl = e.currentTarget;

@@ -1,16 +1,8 @@
 autoInstallPeers: false
-
-onlyBuiltDependencies:
-  - "@prisma/engines"
-  - esbuild
-  - prisma
-  - sharp
-  - unrs-resolver
-
 shamefullyHoist: true
 minimumReleaseAge: 7200
 allowBuilds:
-  '@prisma/engines': true
+  "@prisma/engines": true
   esbuild: true
   prisma: true
   sharp: true

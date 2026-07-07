@@ -1,6 +1,6 @@
 "use client";
 
-import type { FormEvent } from "react";
+import type React from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import {
 import { usePantryAreasAdd, usePantryAreasUpdate } from "@/hooks/use-pantry";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { PantryArea } from "@prisma/client";
+import { PantryArea } from "@/generated/prisma";
 
 interface AreaDialogProps {
   open: boolean;
@@ -27,7 +27,7 @@ export default function AreaDialog({ open, area, onOpenChange }: AreaDialogProps
   const addAreaMutation = usePantryAreasAdd();
   const updateAreaMutation = usePantryAreasUpdate();
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formEl = e.currentTarget;

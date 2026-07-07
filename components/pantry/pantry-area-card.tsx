@@ -18,7 +18,7 @@ import {
 
 import { PantryAreaWithItems } from "@/server/pantry.actions";
 import { usePantryAreasDelete, usePantryItemsDelete } from "@/hooks/use-pantry";
-import { PantryItem } from "@prisma/client";
+import { PantryItem } from "@/generated/prisma";
 import { getDaysUntilExpiry, isExpired } from "./helpers";
 
 interface PantryAreaCardProps {

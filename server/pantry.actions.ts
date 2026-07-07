@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { requireAuth, validateFormData } from "./utils";
 import prisma from "./prisma";
-import { PantryArea, PantryItem } from "@prisma/client";
+import { PantryArea, PantryItem } from "@/generated/prisma";
 import { withErrorHandling } from "./error-handler";
 
 export type PantryAreaWithItems = PantryArea & {

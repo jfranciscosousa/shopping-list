@@ -10,9 +10,10 @@ import {
   useCategoriesUpdateBulk,
 } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma";
 import { Plus } from "lucide-react";
-import { FormEvent, useId } from "react";
+import type React from "react";
+import { useId } from "react";
 import CategoryListItem from "./category-list-item";
 import { Textarea } from "./ui/textarea";
 import {
@@ -41,7 +42,7 @@ export default function CategoryList({ initialCategories }: Props) {
 
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
-  function handleAddCategory(event: FormEvent<HTMLFormElement>) {
+  function handleAddCategory(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formEl = event.currentTarget;
     const formData = new FormData(formEl);

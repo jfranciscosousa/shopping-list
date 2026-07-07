@@ -1,6 +1,6 @@
 "use server";
 
-import { User } from "@prisma/client";
+import { User } from "@/generated/prisma";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";

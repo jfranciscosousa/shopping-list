@@ -5,7 +5,7 @@ import { useCategoriesDelete } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma";
 import { GripVertical, X } from "lucide-react";
 import { CategoryListItemUpdate } from "./category-list-item-update";
 import { cn } from "@/lib/utils";

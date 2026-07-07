@@ -1,7 +1,7 @@
 "use server";
 
 import { generateText, Output } from "ai";
-import { Category } from "@prisma/client";
+import { Category } from "@/generated/prisma";
 import { z } from "zod";
 
 export interface ShoppingItem {
