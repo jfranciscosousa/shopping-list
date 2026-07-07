@@ -62,46 +62,46 @@ const jwtPayloadSchema = z.object({
 });
 
 const getCurrentUserInner = cache(async (authToken: string) => {
-  const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
-  const { payload } = await jwtVerify(authToken, secret);
+  try {
+    const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
+    const { payload } = await jwtVerify(authToken, secret);
 
-  const validatedPayload = jwtPayloadSchema.safeParse(payload);
-  if (!validatedPayload.success) return null;
+    const validatedPayload = jwtPayloadSchema.safeParse(payload);
+    if (!validatedPayload.success) return null;
 
-  const userId = validatedPayload.data.id;
+    const userId = validatedPayload.data.id;
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
-  if (!user) return null;
+    if (!user) return null;
 
-  return user;
+    return user;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 });
 
 export type UserWithoutPassword = NonNullable<Awaited<ReturnType<typeof getCurrentUserInner>>>;
 
 export async function getCurrentUserOptional(): Promise<UserWithoutPassword | null> {
-  try {
-    const cookieStore = await cookies();
-    const authToken = cookieStore.get("auth-token");
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("auth-token");
 
-    if (!authToken?.value) return null;
+  if (!authToken?.value) return null;
 
-    return getCurrentUserInner(authToken.value);
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+  return getCurrentUserInner(authToken.value);
 }
 
 export async function getCurrentUser(): Promise<UserWithoutPassword> {
