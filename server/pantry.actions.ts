@@ -56,8 +56,6 @@ export const createArea = withErrorHandling(async (formData: FormData) => {
     .values({
       name,
       userId: user.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     })
     .returning();
 
@@ -84,7 +82,6 @@ export const updateArea = withErrorHandling(async (formData: FormData) => {
     .update(pantryAreas)
     .set({
       name,
-      updatedAt: new Date(),
     })
     .where(and(eq(pantryAreas.id, id), eq(pantryAreas.userId, user.id)))
     .returning();
@@ -141,12 +138,10 @@ export const createItem = withErrorHandling(async (formData: FormData) => {
     .insert(pantryItems)
     .values({
       name,
-      producedAt: producedAt ?? new Date(),
+      ...(producedAt ? { producedAt } : {}),
       expiresAt,
       pantryAreaId,
       userId: user.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     })
     .returning();
 
@@ -177,7 +172,6 @@ export const updateItem = withErrorHandling(async (formData: FormData) => {
       producedAt,
       expiresAt,
       pantryAreaId,
-      updatedAt: new Date(),
     })
     .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, user.id)))
     .returning();

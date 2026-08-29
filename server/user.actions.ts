@@ -55,7 +55,6 @@ export async function updateUser(formData: FormData) {
       email,
       name,
       password: newPassword ? await hashPassword(newPassword) : userWithPassword.password,
-      updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
 

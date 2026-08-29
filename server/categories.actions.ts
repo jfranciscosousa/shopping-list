@@ -38,8 +38,6 @@ export const addCategory = withErrorHandling(async (formData: FormData) => {
       name,
       description,
       userId: user.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       sortIndex:
         sql<number>`-((select count(*) from "Category" where "userId" = ${user.id}) + 1)`.mapWith(
           Number,
@@ -73,7 +71,6 @@ export const updateCategory = withErrorHandling(async (formData: FormData) => {
       name,
       description,
       sortIndex,
-      updatedAt: new Date(),
     })
     .where(and(eq(categories.id, id), eq(categories.userId, user.id)))
     .returning();
@@ -94,7 +91,6 @@ export const updateCategoryBulk = withErrorHandling(async (formData: FormData) =
           .update(categories)
           .set({
             sortIndex: Number(value),
-            updatedAt: new Date(),
           })
           .where(and(eq(categories.id, Number(key)), eq(categories.userId, user.id))),
       ),

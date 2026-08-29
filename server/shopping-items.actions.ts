@@ -35,8 +35,6 @@ export const addItem = withErrorHandling(async (item: string) => {
       name: item,
       categoryId: category.id,
       userId: user.id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     })
     .returning();
 
@@ -55,8 +53,6 @@ export const addMultiItem = withErrorHandling(async (prompt: string) => {
         name: item.name,
         categoryId: item.categoryId,
         userId: user.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       })),
     )
     .returning();
@@ -76,7 +72,6 @@ export const editItem = withErrorHandling(async (id: number, newName: string) =>
     .update(shoppingItems)
     .set({
       name: newName,
-      updatedAt: new Date(),
     })
     .where(and(eq(shoppingItems.id, id), eq(shoppingItems.userId, user.id)))
     .returning();

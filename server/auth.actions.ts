@@ -199,8 +199,6 @@ export const signup = withErrorHandling(async (formData: FormData) => {
         name,
         email,
         password: await hashPassword(password),
-        createdAt: new Date(),
-        updatedAt: new Date(),
       })
       .returning();
 
@@ -211,8 +209,6 @@ export const signup = withErrorHandling(async (formData: FormData) => {
         name: category.name,
         description: category.description || "",
         userId: createdUser.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
       })),
     );
 
