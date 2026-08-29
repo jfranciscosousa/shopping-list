@@ -86,7 +86,10 @@ export default function ShoppingListInput() {
           </TabsList>
 
           <TabsContent value="single">
-            <form onSubmit={handleSingle} className="flex flex-col gap-3 sm:flex-row">
+            <form
+              onSubmit={handleSingle}
+              className="grid grid-cols-[minmax(0,1fr)_3rem] gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+            >
               <Input
                 name="item"
                 placeholder="Add an item (e.g., eggs, milk, bread)"
@@ -95,14 +98,22 @@ export default function ShoppingListInput() {
                 className="h-12 flex-1 rounded-xl bg-background/70 px-4"
                 required
               />
-              <Button type="submit" className="h-12 rounded-xl px-6" disabled={isLoading}>
-                <Plus className="size-4" /> Add item
+              <Button
+                type="submit"
+                className="size-12 rounded-xl p-0 sm:w-auto sm:px-5"
+                disabled={isLoading}
+                aria-label="Add item"
+              >
+                <Plus className="size-4" /> <span className="hidden sm:inline">Add item</span>
               </Button>
             </form>
           </TabsContent>
 
           <TabsContent value="multi">
-            <form onSubmit={handleMultiSubmit} className="flex flex-col gap-3 sm:flex-row">
+            <form
+              onSubmit={handleMultiSubmit}
+              className="grid grid-cols-[minmax(0,1fr)_3rem] gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+            >
               <Input
                 name="item"
                 placeholder="Add a recipe, weekly shopping items, etc"
@@ -111,8 +122,13 @@ export default function ShoppingListInput() {
                 className="h-12 flex-1 rounded-xl bg-background/70 px-4"
                 required
               />
-              <Button type="submit" className="h-12 rounded-xl px-6" disabled={isLoading}>
-                <Sparkles className="size-4" /> Organize
+              <Button
+                type="submit"
+                className="size-12 rounded-xl p-0 sm:w-auto sm:px-5"
+                disabled={isLoading}
+                aria-label="Organize smart list"
+              >
+                <Sparkles className="size-4" /> <span className="hidden sm:inline">Organize</span>
               </Button>
             </form>
           </TabsContent>
