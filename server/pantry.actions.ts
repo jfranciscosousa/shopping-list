@@ -56,6 +56,8 @@ export const createArea = withErrorHandling(async (formData: FormData) => {
     .values({
       name,
       userId: user.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     })
     .returning();
 
@@ -139,10 +141,12 @@ export const createItem = withErrorHandling(async (formData: FormData) => {
     .insert(pantryItems)
     .values({
       name,
-      producedAt,
+      producedAt: producedAt ?? new Date(),
       expiresAt,
       pantryAreaId,
       userId: user.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     })
     .returning();
 

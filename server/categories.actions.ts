@@ -38,6 +38,8 @@ export const addCategory = withErrorHandling(async (formData: FormData) => {
       name,
       description,
       userId: user.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       sortIndex:
         sql<number>`-((select count(*) from "Category" where "userId" = ${user.id}) + 1)`.mapWith(
           Number,

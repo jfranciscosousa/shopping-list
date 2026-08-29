@@ -35,6 +35,8 @@ export const addItem = withErrorHandling(async (item: string) => {
       name: item,
       categoryId: category.id,
       userId: user.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     })
     .returning();
 
@@ -53,6 +55,8 @@ export const addMultiItem = withErrorHandling(async (prompt: string) => {
         name: item.name,
         categoryId: item.categoryId,
         userId: user.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })),
     )
     .returning();

@@ -195,7 +195,13 @@ export const signup = withErrorHandling(async (formData: FormData) => {
   const newUser = await db.transaction(async (tx) => {
     const [createdUser] = await tx
       .insert(users)
-      .values({ name, email, password: await hashPassword(password) })
+      .values({
+        name,
+        email,
+        password: await hashPassword(password),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
       .returning();
 
     if (!createdUser) throw new Error("Unable to create user");
@@ -205,6 +211,8 @@ export const signup = withErrorHandling(async (formData: FormData) => {
         name: category.name,
         description: category.description || "",
         userId: createdUser.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })),
     );
 
