@@ -54,49 +54,82 @@ export default function UserProfileForm({ user }: { user: Omit<User, "password">
 
   return (
     <form onSubmit={handleSubmit}>
-      <CardHeader className="px-0">
-        <CardTitle>User Information</CardTitle>
-        <CardDescription>Update your personal information</CardDescription>
+      <CardHeader className="px-0 pt-0">
+        <CardTitle className="font-display text-3xl font-normal">Your profile</CardTitle>
+        <CardDescription>Update the details connected to your account.</CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4 px-0">
-        <div className="space-y-2">
+      <CardContent className="space-y-5 px-0">
+        <div className="space-y-2.5">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" defaultValue={user.name || ""} required />
+          <Input
+            id="name"
+            name="name"
+            defaultValue={user.name || ""}
+            className="h-11 rounded-xl bg-background/60"
+            required
+          />
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" defaultValue={user.email} required />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            defaultValue={user.email}
+            className="h-11 rounded-xl bg-background/60"
+            required
+          />
         </div>
 
-        <div className="pt-4">
-          <CardTitle className="text-lg mb-2">Change Password</CardTitle>
-          <CardDescription className="mb-4">
+        <div className="border-t border-border/70 pt-7">
+          <CardTitle className="mb-2 font-display text-2xl font-normal">Change password</CardTitle>
+          <CardDescription className="mb-5">
             Leave blank to keep your current password
           </CardDescription>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
-              <Input id="currentPassword" name="currentPassword" type="password" />
+              <Input
+                id="currentPassword"
+                name="currentPassword"
+                type="password"
+                className="h-11 rounded-xl bg-background/60"
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="newPassword">New Password</Label>
-              <Input id="newPassword" name="newPassword" type="password" />
+              <Input
+                id="newPassword"
+                name="newPassword"
+                type="password"
+                className="h-11 rounded-xl bg-background/60"
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input id="confirmPassword" name="confirmPassword" type="password" />
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                className="h-11 rounded-xl bg-background/60"
+              />
             </div>
           </div>
         </div>
       </CardContent>
 
-      <CardFooter className="px-0">
-        <LoadingButton type="submit" isLoading={isLoading} loadingText="Saving...">
+      <CardFooter className="px-0 pb-0 pt-6">
+        <LoadingButton
+          type="submit"
+          className="h-11 rounded-xl px-6"
+          isLoading={isLoading}
+          loadingText="Saving..."
+        >
           Save Changes
         </LoadingButton>
       </CardFooter>

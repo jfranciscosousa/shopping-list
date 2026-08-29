@@ -19,8 +19,8 @@ export default function ShoppingListReset() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-          <RefreshCw className="h-4 w-4" /> Reset List
+        <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground">
+          <RefreshCw className="size-3.5" /> Reset list
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

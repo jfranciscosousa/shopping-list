@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { useShoppingListAddItem, useShoppingListAddMultiItem } from "@/hooks/use-shopping-list";
 import useTabs from "@/hooks/use-tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader, Plus } from "lucide-react";
+import { LoaderCircle, Plus, Sparkles } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import ShoppingListReset from "./shopping-list-reset";
-import { Card, CardContent, CardFooter } from "./ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export default function ShoppingListInput() {
@@ -60,48 +60,75 @@ export default function ShoppingListInput() {
   }
 
   return (
-    <Card className="mb-8">
+    <Card className="border-border/80 bg-card/80 shadow-sm backdrop-blur-sm lg:col-span-8">
+      <CardHeader className="pb-3">
+        <div className="flex items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground">
+            <Plus className="size-5" />
+          </span>
+          <div>
+            <CardTitle className="font-display text-2xl font-normal">Build your list</CardTitle>
+            <CardDescription className="mt-1">
+              Add a staple or let AI unpack a whole meal plan.
+            </CardDescription>
+          </div>
+        </div>
+      </CardHeader>
       <CardContent>
-        <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="single">Single</TabsTrigger>
-            <TabsTrigger value="multi">Multiple</TabsTrigger>
+        <Tabs defaultValue="single" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="mb-6 grid h-11 w-full grid-cols-2 rounded-xl bg-muted/70 p-1">
+            <TabsTrigger value="single" className="rounded-lg">
+              Quick item
+            </TabsTrigger>
+            <TabsTrigger value="multi" className="rounded-lg gap-2">
+              <Sparkles className="size-3.5" /> Smart list
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="single">
-            <form onSubmit={handleSingle} className="flex gap-2">
+            <form onSubmit={handleSingle} className="flex flex-col gap-3 sm:flex-row">
               <Input
                 name="item"
                 placeholder="Add an item (e.g., eggs, milk, bread)"
                 value={singleInput}
                 onChange={(e) => setSingleInput(e.target.value)}
-                className="flex-1"
+                className="h-12 flex-1 rounded-xl bg-background/70 px-4"
+                required
               />
-              <Button type="submit">
-                <Plus className="mr-2 h-4 w-4" /> Add
+              <Button type="submit" className="h-12 rounded-xl px-6" disabled={isLoading}>
+                <Plus className="size-4" /> Add item
               </Button>
             </form>
           </TabsContent>
 
           <TabsContent value="multi">
-            <form onSubmit={handleMultiSubmit} className="flex gap-2">
+            <form onSubmit={handleMultiSubmit} className="flex flex-col gap-3 sm:flex-row">
               <Input
                 name="item"
                 placeholder="Add a recipe, weekly shopping items, etc"
                 value={multiInput}
                 onChange={(e) => setMultiInput(e.target.value)}
-                className="flex-1"
+                className="h-12 flex-1 rounded-xl bg-background/70 px-4"
+                required
               />
-              <Button type="submit">
-                <Plus className="mr-2 h-4 w-4" /> Add
+              <Button type="submit" className="h-12 rounded-xl px-6" disabled={isLoading}>
+                <Sparkles className="size-4" /> Organize
               </Button>
             </form>
           </TabsContent>
         </Tabs>
       </CardContent>
 
-      <CardFooter className="flex justify-between">
-        {isLoading ? <Loader className="animate-spin" /> : <div />}
+      <CardFooter className="flex justify-between border-t border-border/60 pt-4">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          {isLoading ? (
+            <>
+              <LoaderCircle className="size-4 animate-spin text-primary" /> Sorting your items...
+            </>
+          ) : (
+            "AI categorizes every item automatically"
+          )}
+        </div>
 
         <ShoppingListReset />
       </CardFooter>

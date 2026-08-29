@@ -77,7 +77,13 @@ export function CategoryListItemUpdate(props: UpdateMealModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setOpen(true)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-8 rounded-full text-muted-foreground"
+          onClick={() => setOpen(true)}
+          aria-label={`Edit ${props.category.name}`}
+        >
           <Edit2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>

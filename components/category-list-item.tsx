@@ -36,33 +36,47 @@ export default function CategoryListItem({ id, category }: Props) {
   }
 
   return (
-    <li className="touch-none" ref={setNodeRef} style={style}>
-      <div className="flex items-center justify-between">
-        <div>
+    <li
+      className={cn("touch-none bg-card/40 transition-colors hover:bg-secondary/25", {
+        "relative z-10 bg-card shadow-lg": isDragging,
+      })}
+      ref={setNodeRef}
+      style={style}
+    >
+      <div className="flex items-center justify-between gap-2 px-2 py-1">
+        <div className="min-w-0">
           <div className="flex items-center gap-1">
             <div
-              className={cn("p-4 grow cursor-grab", {
+              className={cn("cursor-grab p-3", {
                 "cursor-grabbing": isDragging,
               })}
               {...attributes}
               {...listeners}
             >
-              <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+              <GripVertical className="size-4 cursor-move text-muted-foreground" />
             </div>
-            <div className="font-medium">{category.name}</div>
+            <div className="truncate font-medium">{category.name}</div>
           </div>
         </div>
 
         <div className="flex items-center gap-1">
           <CategoryListItemUpdate category={category} />
-          <Button variant="ghost" size="icon" onClick={handleRemoveCategory}>
-            <X className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            onClick={handleRemoveCategory}
+            aria-label={`Delete ${category.name}`}
+          >
+            <X className="size-4" />
           </Button>
         </div>
       </div>
 
       {category.description && (
-        <div className="text-sm text-muted-foreground px-6 pb-4">{category.description}</div>
+        <div className="px-12 pb-4 pr-4 text-sm leading-6 text-muted-foreground">
+          {category.description}
+        </div>
       )}
     </li>
   );
