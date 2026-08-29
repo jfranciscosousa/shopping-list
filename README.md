@@ -5,7 +5,7 @@ A personal shopping list app with AI-powered item categorization.
 ## Stack
 
 - [Next.js](https://nextjs.org/) — framework
-- [Prisma](https://www.prisma.io/) + PostgreSQL — database
+- [Drizzle ORM](https://orm.drizzle.team/) + PostgreSQL — database
 - [TailwindCSS](https://tailwindcss.com/) — styling
 - [TanStack Query](https://tanstack.com/query) — server state
 - [Vercel AI SDK](https://sdk.vercel.ai/) — AI integration
@@ -20,7 +20,7 @@ Set up your environment variables:
 
 ```
 DATABASE_URL="postgresql://..."
-JWT_SECRET="your-jwt-secret"
+ SECRET_KEY_BASE="your-jwt-secret"
 OPENAI_API_KEY="sk-..."
 INVITE_TOKEN="your-secret-token"  # optional, see below
 ```
@@ -34,7 +34,9 @@ It's a single static token shared with whoever you want to give access — no pe
 ## Development
 
 ```bash
-prisma generate && prisma db push
+pnpm db:pull # only when baselining an existing database
+pnpm db:generate
+pnpm db:migrate
 
 pnpm dev
 ```
@@ -43,8 +45,16 @@ pnpm dev
 
 ```bash
 pnpm build      # build for production
+pnpm db:check   # validate committed migrations
+pnpm test:e2e   # run signup and login browser tests
 pnpm lint       # run oxlint
 pnpm lint:fix   # run oxlint with auto-fix
 pnpm fmt        # format with oxfmt
 pnpm fmt:check  # check formatting
+```
+
+Before running E2E tests, install the Chromium browser and its system dependencies:
+
+```bash
+pnpm exec playwright install --with-deps chromium
 ```

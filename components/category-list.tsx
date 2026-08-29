@@ -10,7 +10,7 @@ import {
   useCategoriesUpdateBulk,
 } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
-import { Category } from "@/generated/prisma";
+import type { Category } from "@/server/db/schema";
 import { GripVertical, Plus } from "lucide-react";
 import type React from "react";
 import { useId } from "react";

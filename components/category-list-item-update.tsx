@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCategoriesUpdate } from "@/hooks/use-categories";
 import { toast } from "@/hooks/use-toast";
-import { Category } from "@/generated/prisma";
+import type { Category } from "@/server/db/schema";
 import { Edit2 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";

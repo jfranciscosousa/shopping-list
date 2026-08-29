@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useShoppingListDeleteItem, useShoppingListUpdateItem } from "@/hooks/use-shopping-list";
 import { useToast } from "@/hooks/use-toast";
-import { ShoppingItem } from "@/generated/prisma";
+import type { ShoppingItem } from "@/server/db/schema";
 import { Check, Pencil, Save, Trash2, X } from "lucide-react";
 import type React from "react";
 import { useState } from "react";

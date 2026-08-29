@@ -1,8 +1,10 @@
 "use server";
 
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { hashPassword, verifyPassword } from "./password";
-import prisma from "./prisma";
+import { db } from "./db";
+import { users } from "./db/schema";
 import { requireAuth, validateFormData } from "./utils";
 
 const updateUserSchema = z
@@ -31,10 +33,13 @@ export async function updateUser(formData: FormData) {
 
   const { name, email, currentPassword, newPassword, confirmPassword } = validateResult.data;
 
-  const userWithPassword = await prisma.user.findUnique({
-    where: { id: user.id },
-    select: { password: true },
-  });
+  const [userWithPassword] = await db
+    .select({ password: users.password })
+    .from(users)
+    .where(eq(users.id, user.id))
+    .limit(1);
+
+  if (!userWithPassword) return { success: false, error: "User not found" };
 
   if (newPassword && !(await verifyPassword(userWithPassword!.password, currentPassword))) {
     return { success: false, error: "Current password is incorrect" };
@@ -44,14 +49,14 @@ export async function updateUser(formData: FormData) {
     return { success: false, error: "Passwords do not match" };
   }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: {
+  await db
+    .update(users)
+    .set({
       email,
       name,
-      password: newPassword ? await hashPassword(newPassword) : userWithPassword!.password,
-    },
-  });
+      password: newPassword ? await hashPassword(newPassword) : userWithPassword.password,
+    })
+    .where(eq(users.id, user.id));
 
   return { success: true };
 }

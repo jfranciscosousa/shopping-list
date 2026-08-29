@@ -9,7 +9,7 @@ import ItemDialog from "./item-dialog";
 import PantryAreaCard from "./pantry-area-card";
 import { usePantryAreas } from "@/hooks/use-pantry";
 import { PantryAreaWithItems } from "@/server/pantry.actions";
-import { PantryArea, PantryItem } from "@/generated/prisma";
+import type { PantryArea, PantryItem } from "@/server/db/schema";
 import { isExpired } from "./helpers";
 
 type Props = {

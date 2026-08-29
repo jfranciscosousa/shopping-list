@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { usePantryItemsAdd, usePantryItemsUpdate } from "@/hooks/use-pantry";
-import { PantryArea, PantryItem } from "@/generated/prisma";
+import type { PantryArea, PantryItem } from "@/server/db/schema";
 import { toast } from "@/hooks/use-toast";
 
 interface EditItemDialogProps {

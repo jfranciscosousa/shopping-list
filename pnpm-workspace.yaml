@@ -2,7 +2,5 @@ autoInstallPeers: false
 shamefullyHoist: true
 minimumReleaseAge: 7200
 allowBuilds:
-  "@prisma/engines": true
   esbuild: true
-  prisma: true
   sharp: true

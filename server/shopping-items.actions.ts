@@ -1,33 +1,27 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import prisma from "./prisma";
+import { and, asc, eq } from "drizzle-orm";
+import { db } from "./db";
+import { categories, shoppingItems } from "./db/schema";
 import { requireAuth } from "./utils";
 import { categorizeItem, generateShoppingList } from "../services/ai";
 import { withErrorHandling } from "./error-handler";
 
 async function categoryFromAI(item: string, user: { id: number }) {
-  const categories = await prisma.category.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
+  const userCategories = await db.select().from(categories).where(eq(categories.userId, user.id));
 
-  return await categorizeItem(item, categories);
+  return await categorizeItem(item, userCategories);
 }
 
 async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
-  const categories = await prisma.category.findMany({
-    where: {
-      userId: user.id,
-    },
-  });
+  const userCategories = await db.select().from(categories).where(eq(categories.userId, user.id));
   const items = await getItems();
   const existingItems = items.flatMap((category) =>
     category.shoppingItems.map((item) => item.name),
   );
 
-  return await generateShoppingList(prompt, categories, existingItems);
+  return await generateShoppingList(prompt, userCategories, existingItems);
 }
 
 export const addItem = withErrorHandling(async (item: string) => {
@@ -35,13 +29,14 @@ export const addItem = withErrorHandling(async (item: string) => {
 
   const category = await categoryFromAI(item, user);
 
-  const newItem = await prisma.shoppingItem.create({
-    data: {
+  const [newItem] = await db
+    .insert(shoppingItems)
+    .values({
       name: item,
       categoryId: category.id,
       userId: user.id,
-    },
-  });
+    })
+    .returning();
 
   revalidatePath("/");
   return { success: true, data: newItem };
@@ -51,16 +46,19 @@ export const addMultiItem = withErrorHandling(async (prompt: string) => {
   const user = await requireAuth();
   const list = await buildItemsFromPrompt(prompt, user);
 
-  const result = await prisma.shoppingItem.createMany({
-    data: list.items.map((item) => ({
-      name: item.name,
-      categoryId: item.categoryId,
-      userId: user.id,
-    })),
-  });
+  const createdItems = await db
+    .insert(shoppingItems)
+    .values(
+      list.items.map((item) => ({
+        name: item.name,
+        categoryId: item.categoryId,
+        userId: user.id,
+      })),
+    )
+    .returning();
 
   revalidatePath("/");
-  return { success: true, data: result };
+  return { success: true, data: { count: createdItems.length } };
 });
 
 export const editItem = withErrorHandling(async (id: number, newName: string) => {
@@ -70,12 +68,15 @@ export const editItem = withErrorHandling(async (id: number, newName: string) =>
     return { success: false, error: "Item name is required" };
   }
 
-  const item = await prisma.shoppingItem.update({
-    where: { id, userId: user.id },
-    data: {
+  const [item] = await db
+    .update(shoppingItems)
+    .set({
       name: newName,
-    },
-  });
+    })
+    .where(and(eq(shoppingItems.id, id), eq(shoppingItems.userId, user.id)))
+    .returning();
+
+  if (!item) throw new Error("Shopping item not found");
 
   revalidatePath("/");
 
@@ -85,9 +86,12 @@ export const editItem = withErrorHandling(async (id: number, newName: string) =>
 export const deleteItem = withErrorHandling(async (id: number) => {
   const user = await requireAuth();
 
-  await prisma.shoppingItem.delete({
-    where: { id, userId: user.id },
-  });
+  const deletedItems = await db
+    .delete(shoppingItems)
+    .where(and(eq(shoppingItems.id, id), eq(shoppingItems.userId, user.id)))
+    .returning({ id: shoppingItems.id });
+
+  if (deletedItems.length === 0) throw new Error("Shopping item not found");
 
   revalidatePath("/");
   return { success: true };
@@ -96,9 +100,7 @@ export const deleteItem = withErrorHandling(async (id: number) => {
 export const deleteAllItems = withErrorHandling(async () => {
   const user = await requireAuth();
 
-  await prisma.shoppingItem.deleteMany({
-    where: { userId: user.id },
-  });
+  await db.delete(shoppingItems).where(eq(shoppingItems.userId, user.id));
 
   revalidatePath("/");
   return { success: true };
@@ -107,12 +109,9 @@ export const deleteAllItems = withErrorHandling(async () => {
 export const deleteItemsByCategory = withErrorHandling(async (categoryId: number) => {
   const user = await requireAuth();
 
-  await prisma.shoppingItem.deleteMany({
-    where: {
-      userId: user.id,
-      categoryId: categoryId,
-    },
-  });
+  await db
+    .delete(shoppingItems)
+    .where(and(eq(shoppingItems.userId, user.id), eq(shoppingItems.categoryId, categoryId)));
 
   revalidatePath("/");
   return { success: true };
@@ -121,26 +120,31 @@ export const deleteItemsByCategory = withErrorHandling(async (categoryId: number
 export async function getItems() {
   const user = await requireAuth();
 
-  const items = await prisma.category.findMany({
-    where: {
-      userId: user.id,
-      shoppingItems: {
-        some: {
-          userId: user.id,
-        },
-      },
-    },
-    orderBy: {
-      sortIndex: "asc",
-    },
-    include: {
-      shoppingItems: {
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-    },
-  });
+  const rows = await db
+    .select({ category: categories, shoppingItem: shoppingItems })
+    .from(categories)
+    .innerJoin(
+      shoppingItems,
+      and(eq(shoppingItems.categoryId, categories.id), eq(shoppingItems.userId, user.id)),
+    )
+    .where(eq(categories.userId, user.id))
+    .orderBy(asc(categories.sortIndex), asc(shoppingItems.createdAt));
 
-  return items;
+  const groupedItems = new Map<
+    number,
+    {
+      category: typeof categories.$inferSelect;
+      shoppingItems: (typeof shoppingItems.$inferSelect)[];
+    }
+  >();
+  for (const { category, shoppingItem } of rows) {
+    const group = groupedItems.get(category.id);
+    if (group) group.shoppingItems.push(shoppingItem);
+    else groupedItems.set(category.id, { category, shoppingItems: [shoppingItem] });
+  }
+
+  return Array.from(groupedItems.values()).map(({ category, shoppingItems: categoryItems }) => ({
+    ...category,
+    shoppingItems: categoryItems,
+  }));
 }

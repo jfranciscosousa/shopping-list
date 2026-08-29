@@ -8,7 +8,7 @@ import {
   updateCategory,
   updateCategoryBulk,
 } from "@/server/categories.actions";
-import { Category } from "@/generated/prisma";
+import type { Category } from "@/server/db/schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import useOptimisticUpdate from "./use-optimistic-update";
 
