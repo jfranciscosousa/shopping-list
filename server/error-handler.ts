@@ -1,31 +1,42 @@
-import { ZodError } from "zod";
+const GENERIC_ERROR_MESSAGE = "We couldn't complete that request. Please try again.";
+
+type ActionFailure = {
+  success: false;
+  error: string;
+};
+
+function logServerError(operation: string, error: unknown) {
+  console.error("Server operation failed", { operation, error });
+}
 
 /**
- * Wraps a server action with consistent error handling
+ * Converts unexpected server-action exceptions into a safe serializable result.
  */
-export function withErrorHandling<T extends unknown[], R>(
+export function withActionHandling<T extends unknown[], R>(
+  operation: string,
+  fn: (...args: T) => Promise<R>,
+): (...args: T) => Promise<R | ActionFailure> {
+  return async (...args: T) => {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      logServerError(operation, error);
+      return { success: false, error: GENERIC_ERROR_MESSAGE };
+    }
+  };
+}
+
+/** Logs read/render failures while exposing only a generic error to the client boundary. */
+export function withServerLogging<T extends unknown[], R>(
+  operation: string,
   fn: (...args: T) => Promise<R>,
 ): (...args: T) => Promise<R> {
   return async (...args: T) => {
     try {
-      return fn(...args);
+      return await fn(...args);
     } catch (error) {
-      console.error(`Error in ${fn.name}:`, error);
-
-      // Handle Zod validation errors
-      if (error instanceof ZodError) {
-        throw new Error(error.issues[0]?.message || "Validation failed", {
-          cause: error,
-        });
-      }
-
-      // Handle known error types
-      if (error instanceof Error) {
-        throw error;
-      }
-
-      // Handle unknown errors
-      throw new Error("An unexpected error occurred", { cause: error });
+      logServerError(operation, error);
+      throw new Error(GENERIC_ERROR_MESSAGE, { cause: error });
     }
   };
 }

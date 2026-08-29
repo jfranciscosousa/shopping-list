@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useCategoriesUpdate } from "@/hooks/use-categories";
-import { toast } from "@/hooks/use-toast";
 import type { Category } from "@/server/db/schema";
 import { Edit2 } from "lucide-react";
 import type React from "react";
@@ -32,12 +31,10 @@ function Form({ category, setOpen }: UpdateMealModalProps & { setOpen: (open: bo
     const formData = new FormData(formEl);
 
     updateCategoriesMutation.mutate(formData, {
-      onError: () => {
-        toast({ title: "Failed to update category", variant: "destructive" });
+      onSuccess: () => {
+        setOpen(false);
       },
     });
-
-    setOpen(false);
   }
 
   return (

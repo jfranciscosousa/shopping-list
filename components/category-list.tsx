@@ -9,12 +9,12 @@ import {
   useCategoriesAdd,
   useCategoriesUpdateBulk,
 } from "@/hooks/use-categories";
-import { useToast } from "@/hooks/use-toast";
 import type { Category } from "@/server/db/schema";
 import { GripVertical, Plus } from "lucide-react";
 import type React from "react";
 import { useId } from "react";
 import CategoryListItem from "./category-list-item";
+import QueryErrorAlert from "./query-error-alert";
 import { Textarea } from "./ui/textarea";
 import {
   DndContext,
@@ -35,8 +35,7 @@ type Props = {
 export default function CategoryList({ initialCategories }: Props) {
   const queryClient = useQueryClient();
   const id = useId();
-  const { toast } = useToast();
-  const { data: categories = [] } = useCategories(initialCategories);
+  const { data: categories = [], isError, refetch } = useCategories(initialCategories);
   const addCategoriesMutation = useCategoriesAdd();
   const updateCategoriesBulkMutation = useCategoriesUpdateBulk();
 
@@ -47,15 +46,7 @@ export default function CategoryList({ initialCategories }: Props) {
     const formEl = event.currentTarget;
     const formData = new FormData(formEl);
 
-    addCategoriesMutation.mutate(formData, {
-      onError: (error) => {
-        toast({
-          title: "Failed to add new category",
-          description: (error as Error).message,
-          variant: "destructive",
-        });
-      },
-    });
+    addCategoriesMutation.mutate(formData);
 
     formEl.reset();
   }
@@ -90,6 +81,8 @@ export default function CategoryList({ initialCategories }: Props) {
       </CardHeader>
 
       <CardContent className="px-0">
+        {isError && <QueryErrorAlert retry={() => void refetch()} />}
+
         <form
           className="mb-8 space-y-5 rounded-2xl border border-border/70 bg-secondary/25 p-4 sm:p-5"
           onSubmit={handleAddCategory}

@@ -5,9 +5,9 @@ import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "./db";
 import { categories } from "./db/schema";
 import { requireAuth, validateFormData } from "./utils";
-import { withErrorHandling } from "./error-handler";
+import { withActionHandling, withServerLogging } from "./error-handler";
 
-export async function getCategories() {
+export const getCategories = withServerLogging("getCategories", async () => {
   const user = await requireAuth();
 
   return db
@@ -15,14 +15,14 @@ export async function getCategories() {
     .from(categories)
     .where(eq(categories.userId, user.id))
     .orderBy(asc(categories.sortIndex));
-}
+});
 
 const categorySchema = z.object({
   name: z.string().min(1, "Category name is required"),
   description: z.string().optional(),
 });
 
-export const addCategory = withErrorHandling(async (formData: FormData) => {
+export const addCategory = withActionHandling("addCategory", async (formData: FormData) => {
   const validateResult = validateFormData(formData, categorySchema);
 
   if (!validateResult.success) {
@@ -55,7 +55,7 @@ const categoryUpdateSchema = categorySchema.partial().extend({
   sortIndex: z.preprocess(Number, z.number().int().optional()).optional(),
 });
 
-export const updateCategory = withErrorHandling(async (formData: FormData) => {
+export const updateCategory = withActionHandling("updateCategory", async (formData: FormData) => {
   const validateResult = validateFormData(formData, categoryUpdateSchema);
 
   if (!validateResult.success) {
@@ -81,26 +81,29 @@ export const updateCategory = withErrorHandling(async (formData: FormData) => {
 });
 
 // Only updates sort index
-export const updateCategoryBulk = withErrorHandling(async (formData: FormData) => {
-  const user = await requireAuth();
+export const updateCategoryBulk = withActionHandling(
+  "updateCategoryBulk",
+  async (formData: FormData) => {
+    const user = await requireAuth();
 
-  await db.transaction((tx) => {
-    return Promise.all(
-      formData.entries().map(([key, value]) =>
-        tx
-          .update(categories)
-          .set({
-            sortIndex: Number(value),
-          })
-          .where(and(eq(categories.id, Number(key)), eq(categories.userId, user.id))),
-      ),
-    );
-  });
+    await db.transaction((tx) => {
+      return Promise.all(
+        formData.entries().map(([key, value]) =>
+          tx
+            .update(categories)
+            .set({
+              sortIndex: Number(value),
+            })
+            .where(and(eq(categories.id, Number(key)), eq(categories.userId, user.id))),
+        ),
+      );
+    });
 
-  return { success: true };
-});
+    return { success: true };
+  },
+);
 
-export const deleteAllCategories = withErrorHandling(async () => {
+export const deleteAllCategories = withActionHandling("deleteAllCategories", async () => {
   const user = await requireAuth();
 
   await db.delete(categories).where(eq(categories.userId, user.id));
@@ -108,7 +111,7 @@ export const deleteAllCategories = withErrorHandling(async () => {
   return { success: true };
 });
 
-export const deleteCategory = withErrorHandling(async (id: number) => {
+export const deleteCategory = withActionHandling("deleteCategory", async (id: number) => {
   const user = await requireAuth();
 
   const deletedCategories = await db

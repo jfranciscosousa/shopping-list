@@ -10,6 +10,7 @@ import {
 } from "@/server/pantry.actions";
 import { parseDateFromInput } from "@/lib/date-utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { requireSuccess } from "./action-result";
 import useOptimisticUpdate from "./use-optimistic-update";
 
 export const PANTRY_AREAS_QUERY_KEY = ["pantry-areas"];
@@ -26,7 +27,7 @@ export function usePantryAreas(initialAreas: PantryAreaWithItems[]) {
 export function usePantryAreasAdd() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createArea,
+    mutationFn: (formData: FormData) => requireSuccess(createArea(formData)),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PANTRY_AREAS_QUERY_KEY,
@@ -40,7 +41,7 @@ export function usePantryAreasUpdate() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: updateArea,
+    mutationFn: (formData: FormData) => requireSuccess(updateArea(formData)),
     onMutate: async (newArea) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
         old.map((area) =>
@@ -62,7 +63,7 @@ export function usePantryAreasDelete() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: deleteArea,
+    mutationFn: (id: number) => requireSuccess(deleteArea(id)),
     onMutate: async (id) => optimisticUpdate((old) => old.filter((area) => area.id !== id)),
     onError: handleError,
     onSettled: handleSettled,
@@ -73,7 +74,7 @@ export function usePantryItemsAdd() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createItem,
+    mutationFn: (formData: FormData) => requireSuccess(createItem(formData)),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PANTRY_AREAS_QUERY_KEY,
@@ -87,7 +88,7 @@ export function usePantryItemsUpdate() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: updateItem,
+    mutationFn: (formData: FormData) => requireSuccess(updateItem(formData)),
     onMutate: async (newItem) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
         old.map((area) =>
@@ -118,7 +119,7 @@ export function usePantryItemsDelete() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: deleteItem,
+    mutationFn: (id: number) => requireSuccess(deleteItem(id)),
     onMutate: async (id) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
         old.map((area) =>

@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/select";
 import { usePantryItemsAdd, usePantryItemsUpdate } from "@/hooks/use-pantry";
 import type { PantryArea, PantryItem } from "@/server/db/schema";
-import { toast } from "@/hooks/use-toast";
 
 interface EditItemDialogProps {
   open: boolean;
@@ -54,23 +53,11 @@ export default function EditItemDialog({
         onSuccess: () => {
           onOpenChange(false);
         },
-        onError: () => {
-          toast({
-            title: "Failed to update item",
-            variant: "destructive",
-          });
-        },
       });
     } else {
       createMutation.mutate(formData, {
         onSuccess: () => {
           onOpenChange(false);
-        },
-        onError: () => {
-          toast({
-            title: "Failed to create item",
-            variant: "destructive",
-          });
         },
       });
     }

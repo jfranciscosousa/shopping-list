@@ -10,7 +10,7 @@ import { z } from "zod";
 import { hashPassword, verifyPassword } from "./password";
 import { validateFormData } from "./utils";
 import { cache } from "react";
-import { withErrorHandling } from "./error-handler";
+import { withActionHandling } from "./error-handler";
 
 const loginSchema = z.object({
   email: z.email("Invalid email address"),
@@ -88,7 +88,7 @@ const getCurrentUserInner = cache(async (authToken: string) => {
 
     return user;
   } catch (error) {
-    console.error(error);
+    console.error("Session verification failed", { error });
     return null;
   }
 });
@@ -112,7 +112,7 @@ export async function getCurrentUser(): Promise<UserWithoutPassword> {
   return user;
 }
 
-export const login = withErrorHandling(async (formData: FormData) => {
+export const login = withActionHandling("login", async (formData: FormData) => {
   const validateResult = validateFormData(formData, loginSchema);
 
   if (validateResult.error) {
@@ -169,7 +169,7 @@ const DEFAULT_CATEGORIES = [
   },
 ];
 
-export const signup = withErrorHandling(async (formData: FormData) => {
+export const signup = withActionHandling("signup", async (formData: FormData) => {
   const validateResult = validateFormData(formData, signupSchema);
 
   if (validateResult.error) {

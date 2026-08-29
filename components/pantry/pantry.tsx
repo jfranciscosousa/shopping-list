@@ -11,13 +11,14 @@ import { usePantryAreas } from "@/hooks/use-pantry";
 import { PantryAreaWithItems } from "@/server/pantry.actions";
 import type { PantryArea, PantryItem } from "@/server/db/schema";
 import { isExpired } from "./helpers";
+import QueryErrorAlert from "@/components/query-error-alert";
 
 type Props = {
   initialAreas: PantryAreaWithItems[];
 };
 
 export default function PantryManager({ initialAreas }: Props) {
-  const { data: areas = [] } = usePantryAreas(initialAreas);
+  const { data: areas = [], isError, refetch } = usePantryAreas(initialAreas);
   const [itemDialog, setItemDialog] = useState<PantryItem | boolean | undefined>();
   const [selectedAreaId, setSelectedAreaId] = useState<number | undefined>(undefined);
   const [areaDialog, setAreaDialog] = useState<PantryArea | boolean | undefined>(undefined);
@@ -57,6 +58,8 @@ export default function PantryManager({ initialAreas }: Props) {
           </Button>
         </div>
       </div>
+
+      {isError && <QueryErrorAlert retry={() => void refetch()} />}
 
       {/* Expired Items Alert */}
       {expiredItems.length > 0 && (

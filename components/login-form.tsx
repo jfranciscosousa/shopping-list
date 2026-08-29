@@ -33,17 +33,25 @@ export default function LoginForm() {
 
     const formData = new FormData(e.currentTarget);
 
-    const data = await login(formData);
+    try {
+      const data = await login(formData);
 
-    if (!data.success) {
+      if (!data.success) {
+        toast({
+          title: "Error",
+          description: data.error || "Invalid email or password",
+          variant: "destructive",
+        });
+      }
+    } catch {
       toast({
         title: "Error",
-        description: data.error || "Invalid email or password",
+        description: "We couldn't log you in. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }
 
   async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
@@ -52,17 +60,25 @@ export default function LoginForm() {
 
     const formData = new FormData(e.currentTarget);
 
-    const data = await signup(formData);
+    try {
+      const data = await signup(formData);
 
-    if (!data.success) {
+      if (!data.success) {
+        toast({
+          title: "Error",
+          description: data.error || "Failed to create account",
+          variant: "destructive",
+        });
+      }
+    } catch {
       toast({
         title: "Error",
-        description: data.error || "Failed to create account",
+        description: "We couldn't create your account. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }
 
   return (

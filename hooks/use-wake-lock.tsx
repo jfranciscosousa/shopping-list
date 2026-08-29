@@ -16,8 +16,8 @@ export default function useWakeLock(enabled?: boolean) {
 
       try {
         wakeLock.current = await navigator.wakeLock.request();
-      } catch (error) {
-        console.error(error);
+      } catch {
+        // Wake Lock is optional and may be denied by the browser or user.
       }
     }
 

@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useShoppingListDeleteItem, useShoppingListUpdateItem } from "@/hooks/use-shopping-list";
-import { useToast } from "@/hooks/use-toast";
 import type { ShoppingItem } from "@/server/db/schema";
 import { Check, Pencil, Save, Trash2, X } from "lucide-react";
 import type React from "react";
@@ -14,7 +13,6 @@ type Props = {
 };
 
 export default function ShoppingListItem({ item }: Props) {
-  const { toast } = useToast();
   const [editing, setEditing] = useState(false);
   const updateItemMutation = useShoppingListUpdateItem();
   const deleteItemMutation = useShoppingListDeleteItem();
@@ -28,21 +26,7 @@ export default function ShoppingListItem({ item }: Props) {
       return;
     }
 
-    updateItemMutation.mutate(
-      {
-        id: item.id,
-        newName: newItem,
-      },
-      {
-        onError: (error) => {
-          toast({
-            title: "Error",
-            description: (error as Error).message || "Failed to edit item",
-            variant: "destructive",
-          });
-        },
-      },
-    );
+    updateItemMutation.mutate({ id: item.id, newName: newItem });
 
     setEditing(false);
   };

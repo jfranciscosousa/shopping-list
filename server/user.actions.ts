@@ -6,6 +6,7 @@ import { hashPassword, verifyPassword } from "./password";
 import { db } from "./db";
 import { users } from "./db/schema";
 import { requireAuth, validateFormData } from "./utils";
+import { withActionHandling } from "./error-handler";
 
 const updateUserSchema = z
   .object({
@@ -20,7 +21,7 @@ const updateUserSchema = z
     path: ["confirmPassword"],
   });
 
-export async function updateUser(formData: FormData) {
+export const updateUser = withActionHandling("updateUser", async (formData: FormData) => {
   const user = await requireAuth();
 
   if (!user) return { success: false, error: "Must be logged in" };
@@ -59,4 +60,4 @@ export async function updateUser(formData: FormData) {
     .where(eq(users.id, user.id));
 
   return { success: true };
-}
+});

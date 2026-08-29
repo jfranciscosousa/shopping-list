@@ -10,6 +10,7 @@ import {
 } from "@/server/categories.actions";
 import type { Category } from "@/server/db/schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { requireSuccess } from "./action-result";
 import useOptimisticUpdate from "./use-optimistic-update";
 
 export const CATEGORIES_QUERY_KEY = ["categories"];
@@ -28,7 +29,7 @@ export function useCategoriesAdd() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: addCategory,
+    mutationFn: (formData: FormData) => requireSuccess(addCategory(formData)),
     onMutate: async (newCategory) =>
       optimisticUpdate((old: Category[]) => [
         {
@@ -52,7 +53,7 @@ export function useCategoriesUpdate() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: updateCategory,
+    mutationFn: (formData: FormData) => requireSuccess(updateCategory(formData)),
     onMutate: async (newCategory) =>
       optimisticUpdate((old: Category[]) =>
         old.map((category) =>
@@ -75,7 +76,7 @@ export function useCategoriesUpdateBulk() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: updateCategoryBulk,
+    mutationFn: (formData: FormData) => requireSuccess(updateCategoryBulk(formData)),
     onMutate: async (formData) =>
       optimisticUpdate((old: Category[]) =>
         old.map((category) => {
@@ -99,7 +100,7 @@ export function useCategoriesDeleteAll() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: deleteAllCategories,
+    mutationFn: () => requireSuccess(deleteAllCategories()),
     onMutate: async () => optimisticUpdate(() => []),
     onError: handleError,
     onSettled: handleSettled,
@@ -111,7 +112,7 @@ export function useCategoriesDelete() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: deleteCategory,
+    mutationFn: (id: number) => requireSuccess(deleteCategory(id)),
     onMutate: async (id) => optimisticUpdate((old) => old.filter((c) => c.id !== id)),
     onError: handleError,
     onSettled: handleSettled,

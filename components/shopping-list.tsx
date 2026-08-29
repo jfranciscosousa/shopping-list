@@ -15,6 +15,7 @@ import { Leaf, ShoppingBasket, Trash2, X } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
+import QueryErrorAlert from "./query-error-alert";
 
 const INTRO_DISMISSED_KEY = "smart-shopping:intro-dismissed";
 const INTRO_PREFERENCE_EVENT = "smart-shopping:intro-preference-change";
@@ -40,7 +41,7 @@ type Props = {
 export default function ShoppingList({ initialShoppingItems }: Props) {
   useWakeLock(useIsMobile());
   const { toast } = useToast();
-  const { data = [] } = useShoppingListItems(initialShoppingItems);
+  const { data = [], isError, refetch } = useShoppingListItems(initialShoppingItems);
   const deleteItemsByCategoryMutation = useShoppingListDeleteItemsByCategory();
   const showIntro = useSyncExternalStore(
     subscribeToIntroPreference,
@@ -55,13 +56,6 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
 
   const handleDeleteCategory = (categoryId: number, categoryName: string) => {
     deleteItemsByCategoryMutation.mutate(categoryId, {
-      onError: (error) => {
-        toast({
-          title: "Failed to delete items",
-          description: (error as Error).message,
-          variant: "destructive",
-        });
-      },
       onSuccess: () => {
         toast({
           title: "Items deleted",
@@ -102,6 +96,8 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
       <div className="mb-12">
         <ShoppingListInput />
       </div>
+
+      {isError && <QueryErrorAlert retry={() => void refetch()} />}
 
       {Object.keys(data).length === 0 ? (
         <div className="rounded-[2rem] border border-dashed border-border bg-card/40 px-6 py-16 text-center">

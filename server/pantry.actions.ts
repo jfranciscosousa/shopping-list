@@ -5,43 +5,46 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import { requireAuth, validateFormData } from "./utils";
 import { db } from "./db";
 import { pantryAreas, pantryItems, type PantryArea, type PantryItem } from "./db/schema";
-import { withErrorHandling } from "./error-handler";
+import { withActionHandling, withServerLogging } from "./error-handler";
 
 export type PantryAreaWithItems = PantryArea & {
   pantryItems: PantryItem[];
 };
 
-export async function getAreasAndItems(): Promise<PantryAreaWithItems[]> {
-  const user = await requireAuth();
+export const getAreasAndItems = withServerLogging(
+  "getAreasAndItems",
+  async (): Promise<PantryAreaWithItems[]> => {
+    const user = await requireAuth();
 
-  const rows = await db
-    .select({ area: pantryAreas, pantryItem: pantryItems })
-    .from(pantryAreas)
-    .leftJoin(
-      pantryItems,
-      and(eq(pantryItems.pantryAreaId, pantryAreas.id), eq(pantryItems.userId, user.id)),
-    )
-    .where(eq(pantryAreas.userId, user.id))
-    .orderBy(desc(pantryAreas.createdAt), asc(pantryItems.createdAt));
+    const rows = await db
+      .select({ area: pantryAreas, pantryItem: pantryItems })
+      .from(pantryAreas)
+      .leftJoin(
+        pantryItems,
+        and(eq(pantryItems.pantryAreaId, pantryAreas.id), eq(pantryItems.userId, user.id)),
+      )
+      .where(eq(pantryAreas.userId, user.id))
+      .orderBy(desc(pantryAreas.createdAt), asc(pantryItems.createdAt));
 
-  const groupedAreas = new Map<number, PantryAreaWithItems>();
-  for (const { area, pantryItem } of rows) {
-    const group = groupedAreas.get(area.id);
-    if (group) {
-      if (pantryItem) group.pantryItems.push(pantryItem);
-    } else {
-      groupedAreas.set(area.id, { ...area, pantryItems: pantryItem ? [pantryItem] : [] });
+    const groupedAreas = new Map<number, PantryAreaWithItems>();
+    for (const { area, pantryItem } of rows) {
+      const group = groupedAreas.get(area.id);
+      if (group) {
+        if (pantryItem) group.pantryItems.push(pantryItem);
+      } else {
+        groupedAreas.set(area.id, { ...area, pantryItems: pantryItem ? [pantryItem] : [] });
+      }
     }
-  }
 
-  return Array.from(groupedAreas.values());
-}
+    return Array.from(groupedAreas.values());
+  },
+);
 
 const areaSchema = z.object({
   name: z.string().min(1, "Area name is required"),
 });
 
-export const createArea = withErrorHandling(async (formData: FormData) => {
+export const createArea = withActionHandling("createArea", async (formData: FormData) => {
   const validateResult = validateFormData(formData, areaSchema);
 
   if (!validateResult.success) {
@@ -68,7 +71,7 @@ const updateAreaSchema = areaSchema.partial().extend({
   id: z.preprocess(Number, z.number().int().positive()),
 });
 
-export const updateArea = withErrorHandling(async (formData: FormData) => {
+export const updateArea = withActionHandling("updateArea", async (formData: FormData) => {
   const validateResult = validateFormData(formData, updateAreaSchema);
 
   if (!validateResult.success) {
@@ -91,7 +94,7 @@ export const updateArea = withErrorHandling(async (formData: FormData) => {
   return { success: true, data: area };
 });
 
-export const deleteArea = withErrorHandling(async (id: number) => {
+export const deleteArea = withActionHandling("deleteArea", async (id: number) => {
   const user = await requireAuth();
 
   const deletedAreas = await db
@@ -123,7 +126,7 @@ async function assertAreaOwnership(areaId: number, userId: number) {
   if (!area) throw new Error("Pantry area not found");
 }
 
-export const createItem = withErrorHandling(async (formData: FormData) => {
+export const createItem = withActionHandling("createItem", async (formData: FormData) => {
   const validateResult = validateFormData(formData, itemSchema);
 
   if (!validateResult.success) {
@@ -154,7 +157,7 @@ const updateItemSchema = itemSchema.partial().extend({
   id: z.preprocess(Number, z.number().int().positive()),
 });
 
-export const updateItem = withErrorHandling(async (formData: FormData) => {
+export const updateItem = withActionHandling("updateItem", async (formData: FormData) => {
   const validateResult = validateFormData(formData, updateItemSchema);
 
   if (!validateResult.success) {
@@ -181,7 +184,7 @@ export const updateItem = withErrorHandling(async (formData: FormData) => {
   return { success: true, data: item };
 });
 
-export const deleteItem = withErrorHandling(async (id: number) => {
+export const deleteItem = withActionHandling("deleteItem", async (id: number) => {
   const user = await requireAuth();
 
   const deletedItems = await db

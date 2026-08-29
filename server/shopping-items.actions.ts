@@ -6,7 +6,7 @@ import { db } from "./db";
 import { categories, shoppingItems } from "./db/schema";
 import { requireAuth } from "./utils";
 import { categorizeItem, generateShoppingList } from "../services/ai";
-import { withErrorHandling } from "./error-handler";
+import { withActionHandling, withServerLogging } from "./error-handler";
 
 async function categoryFromAI(item: string, user: { id: number }) {
   const userCategories = await db.select().from(categories).where(eq(categories.userId, user.id));
@@ -24,7 +24,7 @@ async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
   return await generateShoppingList(prompt, userCategories, existingItems);
 }
 
-export const addItem = withErrorHandling(async (item: string) => {
+export const addItem = withActionHandling("addItem", async (item: string) => {
   const user = await requireAuth();
 
   const category = await categoryFromAI(item, user);
@@ -42,7 +42,7 @@ export const addItem = withErrorHandling(async (item: string) => {
   return { success: true, data: newItem };
 });
 
-export const addMultiItem = withErrorHandling(async (prompt: string) => {
+export const addMultiItem = withActionHandling("addMultiItem", async (prompt: string) => {
   const user = await requireAuth();
   const list = await buildItemsFromPrompt(prompt, user);
 
@@ -61,7 +61,7 @@ export const addMultiItem = withErrorHandling(async (prompt: string) => {
   return { success: true, data: { count: createdItems.length } };
 });
 
-export const editItem = withErrorHandling(async (id: number, newName: string) => {
+export const editItem = withActionHandling("editItem", async (id: number, newName: string) => {
   const user = await requireAuth();
 
   if (!newName || !newName.trim()) {
@@ -83,7 +83,7 @@ export const editItem = withErrorHandling(async (id: number, newName: string) =>
   return { success: true, data: item };
 });
 
-export const deleteItem = withErrorHandling(async (id: number) => {
+export const deleteItem = withActionHandling("deleteItem", async (id: number) => {
   const user = await requireAuth();
 
   const deletedItems = await db
@@ -97,7 +97,7 @@ export const deleteItem = withErrorHandling(async (id: number) => {
   return { success: true };
 });
 
-export const deleteAllItems = withErrorHandling(async () => {
+export const deleteAllItems = withActionHandling("deleteAllItems", async () => {
   const user = await requireAuth();
 
   await db.delete(shoppingItems).where(eq(shoppingItems.userId, user.id));
@@ -106,18 +106,21 @@ export const deleteAllItems = withErrorHandling(async () => {
   return { success: true };
 });
 
-export const deleteItemsByCategory = withErrorHandling(async (categoryId: number) => {
-  const user = await requireAuth();
+export const deleteItemsByCategory = withActionHandling(
+  "deleteItemsByCategory",
+  async (categoryId: number) => {
+    const user = await requireAuth();
 
-  await db
-    .delete(shoppingItems)
-    .where(and(eq(shoppingItems.userId, user.id), eq(shoppingItems.categoryId, categoryId)));
+    await db
+      .delete(shoppingItems)
+      .where(and(eq(shoppingItems.userId, user.id), eq(shoppingItems.categoryId, categoryId)));
 
-  revalidatePath("/");
-  return { success: true };
-});
+    revalidatePath("/");
+    return { success: true };
+  },
+);
 
-export async function getItems() {
+export const getItems = withServerLogging("getItems", async () => {
   const user = await requireAuth();
 
   const rows = await db
@@ -147,4 +150,4 @@ export async function getItems() {
     ...category,
     shoppingItems: categoryItems,
   }));
-}
+});

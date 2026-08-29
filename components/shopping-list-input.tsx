@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useShoppingListAddItem, useShoppingListAddMultiItem } from "@/hooks/use-shopping-list";
 import useTabs from "@/hooks/use-tabs";
-import { useToast } from "@/hooks/use-toast";
 import { LoaderCircle, Plus, Sparkles } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
@@ -13,7 +12,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export default function ShoppingListInput() {
-  const { toast } = useToast();
   const { activeTab, setActiveTab } = useTabs("single");
   const [singleInput, setSingleInput] = useState("");
   const [multiInput, setMultiInput] = useState("");
@@ -28,16 +26,7 @@ export default function ShoppingListInput() {
     setSingleInput("");
     (event.currentTarget.querySelector("input[name=item]") as HTMLInputElement).focus();
 
-    addItemMutation.mutate(itemToSubmit, {
-      onError: (error) => {
-        console.error("Error adding single item:", error);
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-      },
-    });
+    addItemMutation.mutate(itemToSubmit);
   }
 
   async function handleMultiSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -47,16 +36,7 @@ export default function ShoppingListInput() {
     setMultiInput("");
     (event.currentTarget.querySelector("input[name=item]") as HTMLInputElement).focus();
 
-    addMultiItemMutation.mutate(itemToSubmit, {
-      onError: (error) => {
-        console.error("Error adding multi item:", error);
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-      },
-    });
+    addMultiItemMutation.mutate(itemToSubmit);
   }
 
   return (

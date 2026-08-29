@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { usePantryAreasAdd, usePantryAreasUpdate } from "@/hooks/use-pantry";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
 import type { PantryArea } from "@/server/db/schema";
 
 interface AreaDialogProps {
@@ -38,23 +37,11 @@ export default function AreaDialog({ open, area, onOpenChange }: AreaDialogProps
         onSuccess: () => {
           onOpenChange(false);
         },
-        onError: () => {
-          toast({
-            title: "Failed to update area",
-            variant: "destructive",
-          });
-        },
       });
     } else {
       addAreaMutation.mutate(formData, {
         onSuccess: () => {
           onOpenChange(false);
-        },
-        onError: () => {
-          toast({
-            title: "Failed to add area",
-            variant: "destructive",
-          });
         },
       });
     }
