@@ -51,11 +51,11 @@ test("signs up", async ({ page }) => {
   createdEmails.push(email);
 
   await page.goto("/");
-  await page.getByRole("tab", { name: "Sign Up" }).click();
-  await page.getByLabel("Name").fill(name);
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByLabel("Confirm password").fill(password);
+  await page.getByRole("tab", { name: "Create account" }).click();
+  await page.locator("#signup-name").fill(name);
+  await page.locator("#signup-email").fill(email);
+  await page.locator("#signup-password").fill(password);
+  await page.locator("#signup-confirm-password").fill(password);
   await page.getByRole("button", { name: "Create Account" }).click();
 
   await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
@@ -66,9 +66,9 @@ test("logs in", async ({ page }) => {
   await createUser(email, name);
 
   await page.goto("/");
-  await page.getByPlaceholder("Email").fill(email);
-  await page.getByPlaceholder("Password").fill(password);
-  await page.getByRole("button", { name: "Login", exact: true }).click();
+  await page.locator("#login-email").fill(email);
+  await page.locator("#login-password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
 
   await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 });
