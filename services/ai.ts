@@ -1,7 +1,7 @@
 "use server";
 
 import { generateText, Output } from "ai";
-import { Category } from "@/generated/prisma";
+import type { Category } from "@/server/db/schema";
 import { z } from "zod";
 
 export interface ShoppingItem {

@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { updateUser } from "@/server/user.actions";
-import { User } from "@/generated/prisma";
+import type { User } from "@/server/db/schema";
 import type React from "react";
 import { useState } from "react";
 

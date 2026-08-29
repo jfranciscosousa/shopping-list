@@ -15,7 +15,7 @@ import {
 import { usePantryAreasAdd, usePantryAreasUpdate } from "@/hooks/use-pantry";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { PantryArea } from "@/generated/prisma";
+import type { PantryArea } from "@/server/db/schema";
 
 interface AreaDialogProps {
   open: boolean;

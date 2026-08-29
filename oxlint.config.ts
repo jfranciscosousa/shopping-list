@@ -52,5 +52,7 @@ export default defineConfig({
     "build",
     "eslint.config.mjs",
     "components/ui/use-toast.ts",
+    "playwright-report",
+    "test-results",
   ],
 });

@@ -30,3 +30,7 @@ next-env.d.ts
 .claude
 
 generated
+
+# Playwright
+/playwright-report/
+/test-results/

@@ -1,12 +1,13 @@
 "use server";
 
-import { User } from "@/generated/prisma";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
+import { categories, users, type User } from "./db/schema";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { hashPassword, verifyPassword } from "./password";
-import prisma from "./prisma";
 import { validateFormData } from "./utils";
 import { cache } from "react";
 import { withErrorHandling } from "./error-handler";
@@ -71,18 +72,17 @@ const getCurrentUserInner = cache(async (authToken: string) => {
 
     const userId = validatedPayload.data.id;
 
-    const user = await prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const [user] = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
     if (!user) return null;
 
@@ -120,11 +120,7 @@ export const login = withErrorHandling(async (formData: FormData) => {
   }
 
   const { email, password, rememberMe } = validateResult.data;
-  const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (!user || !(await verifyPassword(user.password, password))) {
     return { success: false, error: "Invalid email or password" };
@@ -186,29 +182,33 @@ export const signup = withErrorHandling(async (formData: FormData) => {
     return { success: false, error: "Invalid invite token" };
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      email,
-    },
-  });
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
 
   if (user) {
     return { success: false, error: "Email already exists" };
   }
 
-  const newUser = await prisma.user.create({
-    data: {
-      name,
-      email,
-      password: await hashPassword(password),
-    },
-  });
-  await prisma.category.createMany({
-    data: DEFAULT_CATEGORIES.map((category) => ({
-      name: category.name,
-      description: category.description || "",
-      userId: newUser.id,
-    })),
+  const newUser = await db.transaction(async (tx) => {
+    const [createdUser] = await tx
+      .insert(users)
+      .values({ name, email, password: await hashPassword(password) })
+      .returning();
+
+    if (!createdUser) throw new Error("Unable to create user");
+
+    await tx.insert(categories).values(
+      DEFAULT_CATEGORIES.map((category) => ({
+        name: category.name,
+        description: category.description || "",
+        userId: createdUser.id,
+      })),
+    );
+
+    return createdUser;
   });
 
   await setAuthCookie(newUser, rememberMe);

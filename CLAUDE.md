@@ -2,13 +2,13 @@
 
 ## Project Overview
 
-This is a Next.js-based shopping list application with AI-powered categorization, built with TypeScript, Prisma, and TailwindCSS. The app allows users to manage shopping items organized by categories, with features for adding, editing, deleting, and AI-assisted categorization.
+This is a Next.js-based shopping list application with AI-powered categorization, built with TypeScript, Drizzle ORM, and TailwindCSS. The app allows users to manage shopping items organized by categories, with features for adding, editing, deleting, and AI-assisted categorization.
 
 ## Tech Stack
 
 - **Framework**: Next.js 15.5.5 (App Router)
 - **Language**: TypeScript 5.9.3
-- **Database**: Prisma ORM with PostgreSQL
+- **Database**: Drizzle ORM v1 RC with PostgreSQL
 - **Styling**: TailwindCSS 4.1.14
 - **UI Components**: Radix UI primitives
 - **State Management**: TanStack Query (React Query) 5.90.3
@@ -47,7 +47,7 @@ This is a Next.js-based shopping list application with AI-powered categorization
 │   ├── categories.actions.ts    # Category CRUD operations
 │   ├── pantry.actions.ts       # Pantry CRUD operations
 │   ├── auth.actions.ts         # Authentication actions
-│   └── prisma.ts               # Prisma client setup
+│   └── db/                     # Drizzle schema and client
 ├── services/                    # External services
 │   └── ai.ts                   # AI categorization service
 └── lib/                        # Utility libraries
@@ -91,15 +91,20 @@ This is a Next.js-based shopping list application with AI-powered categorization
 npm run dev                    # Start development server with env pull
 
 # Building
-npm run build                 # Build for production (includes DB push)
+npm run build                 # Build for production
 
 # Linting
 npm run lint                  # Run ESLint checks
 
 # Database
-pnpm dlx prisma db push           # Push schema changes to database
-pnpm dlx prisma studio            # Open Prisma Studio
+pnpm db:generate                  # Generate a migration after schema changes
+pnpm db:migrate                   # Apply reviewed migrations
+pnpm db:studio                    # Open Drizzle Studio
 ```
+
+## Database Agent Rules
+
+Follow `AGENTS.md` for local PostgreSQL provisioning, Drizzle migration safety, cascade behavior, and tenant-scoped query requirements.
 
 ## Recent Implementation: Category Group Delete Button
 
@@ -128,38 +133,9 @@ pnpm dlx prisma studio            # Open Prisma Studio
 
 ## Database Schema
 
-The app uses Prisma with the following key models:
+The app defines these PostgreSQL tables in `server/db/schema.ts`:
 
-```prisma
-model User {
-  id            Int            @id @default(autoincrement())
-  email         String         @unique
-  passwordHash  String
-  shoppingItems ShoppingItem[]
-  categories    Category[]
-  pantryItems   PantryItem[]
-}
-
-model Category {
-  id            Int            @id @default(autoincrement())
-  name          String
-  description   String?
-  sortIndex     Int            @default(0)
-  userId        Int
-  user          User           @relation(fields: [userId], references: [id])
-  shoppingItems ShoppingItem[]
-}
-
-model ShoppingItem {
-  id         Int      @id @default(autoincrement())
-  name       String
-  categoryId Int
-  userId     Int
-  createdAt  DateTime @default(now())
-  category   Category @relation(fields: [categoryId], references: [id])
-  user       User     @relation(fields: [userId], references: [id])
-}
-```
+`User`, `Category`, `ShoppingItem`, `PantryArea`, and `PantryItem`. Foreign keys cascade from users to their records, categories to shopping items, and pantry areas to pantry items.
 
 ## State Management
 
@@ -204,7 +180,7 @@ Required environment variables:
 
 ```
 DATABASE_URL="postgresql://..."
-JWT_SECRET="your-jwt-secret"
+SECRET_KEY_BASE="your-jwt-secret"
 OPENAI_API_KEY="sk-..."  # For AI features
 ```
 
