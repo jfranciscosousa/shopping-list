@@ -12,9 +12,26 @@ import { useToast } from "@/hooks/use-toast";
 import useWakeLock from "@/hooks/use-wake-lock";
 import { getItems } from "@/server/shopping-items.actions";
 import { Leaf, ShoppingBasket, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
+
+const INTRO_DISMISSED_KEY = "smart-shopping:intro-dismissed";
+const INTRO_PREFERENCE_EVENT = "smart-shopping:intro-preference-change";
+
+function subscribeToIntroPreference(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(INTRO_PREFERENCE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(INTRO_PREFERENCE_EVENT, onStoreChange);
+  };
+}
+
+function getIntroPreference() {
+  return localStorage.getItem(INTRO_DISMISSED_KEY) !== "true";
+}
 
 type Props = {
   initialShoppingItems: Awaited<ReturnType<typeof getItems>>;
@@ -25,7 +42,16 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
   const { toast } = useToast();
   const { data = [] } = useShoppingListItems(initialShoppingItems);
   const deleteItemsByCategoryMutation = useShoppingListDeleteItemsByCategory();
-  const [showIntro, setShowIntro] = useState(true);
+  const showIntro = useSyncExternalStore(
+    subscribeToIntroPreference,
+    getIntroPreference,
+    () => true,
+  );
+
+  function dismissIntro() {
+    localStorage.setItem(INTRO_DISMISSED_KEY, "true");
+    window.dispatchEvent(new Event(INTRO_PREFERENCE_EVENT));
+  }
 
   const handleDeleteCategory = (categoryId: number, categoryName: string) => {
     deleteItemsByCategoryMutation.mutate(categoryId, {
@@ -53,7 +79,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
             variant="ghost"
             size="icon"
             className="absolute right-0 top-0 size-9 rounded-full text-muted-foreground"
-            onClick={() => setShowIntro(false)}
+            onClick={dismissIntro}
             aria-label="Dismiss introduction"
           >
             <X className="size-4" />
