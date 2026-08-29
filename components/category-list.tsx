@@ -11,7 +11,7 @@ import {
 } from "@/hooks/use-categories";
 import { useToast } from "@/hooks/use-toast";
 import { Category } from "@/generated/prisma";
-import { Plus } from "lucide-react";
+import { GripVertical, Plus } from "lucide-react";
 import type React from "react";
 import { useId } from "react";
 import CategoryListItem from "./category-list-item";
@@ -84,45 +84,62 @@ export default function CategoryList({ initialCategories }: Props) {
 
   return (
     <div>
-      <CardHeader className="px-0">
-        <CardTitle>Shopping Categories</CardTitle>
-        <CardDescription>
-          Customize the categories used to organize your shopping list
-        </CardDescription>
+      <CardHeader className="px-0 pt-0">
+        <CardTitle className="font-display text-3xl font-normal">Shopping categories</CardTitle>
+        <CardDescription>Customize the aisles used to organize your shopping list.</CardDescription>
       </CardHeader>
 
       <CardContent className="px-0">
-        <form className="space-y-4 mb-6" onSubmit={handleAddCategory}>
+        <form
+          className="mb-8 space-y-5 rounded-2xl border border-border/70 bg-secondary/25 p-4 sm:p-5"
+          onSubmit={handleAddCategory}
+        >
+          <div>
+            <h3 className="font-semibold">Add a new aisle</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              A good description helps AI sort each item correctly.
+            </p>
+          </div>
           <div>
             <label htmlFor="name" className="text-sm font-medium">
-              New Category Name
+              Category name
             </label>
             <Input
               id="name"
               name="name"
               placeholder="e.g., Electronics"
-              className="mt-1"
+              className="mt-2 h-11 rounded-xl bg-background/70"
               required
             />
           </div>
 
           <div>
             <label htmlFor="new-category-description" className="text-sm font-medium">
-              Description (helps the AI categorize items)
+              Description
             </label>
             <Textarea
               id="description"
               name="description"
               placeholder="Describe what items belong in this category..."
-              className="mt-1"
+              className="mt-2 rounded-xl bg-background/70"
               rows={3}
             />
           </div>
 
-          <Button type="submit">
-            <Plus className="h-4 w-4 mr-2" /> Add Category
+          <Button type="submit" className="h-10 rounded-xl">
+            <Plus className="size-4" /> Add category
           </Button>
         </form>
+
+        <div className="mb-3 flex items-center justify-between gap-4">
+          <div>
+            <h3 className="font-semibold">Your aisle order</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Drag categories to match your usual route through the store.
+            </p>
+          </div>
+          <GripVertical className="hidden size-5 text-muted-foreground sm:block" />
+        </div>
 
         <DndContext
           id={id}
@@ -131,7 +148,7 @@ export default function CategoryList({ initialCategories }: Props) {
           onDragEnd={handleDragEnd}
         >
           <SortableContext items={categories} strategy={verticalListSortingStrategy}>
-            <div className="border rounded-md">
+            <div className="overflow-hidden rounded-2xl border border-border/80 bg-background/40">
               {categories.length === 0 ? (
                 <div className="p-4 text-center text-muted-foreground">
                   No categories defined. Add some categories to get started.

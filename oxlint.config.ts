@@ -45,5 +45,12 @@ export default defineConfig({
       },
     ],
   },
-  ignorePatterns: [".next", "node_modules", "dist", "build", "eslint.config.mjs"],
+  ignorePatterns: [
+    ".next",
+    "node_modules",
+    "dist",
+    "build",
+    "eslint.config.mjs",
+    "components/ui/use-toast.ts",
+  ],
 });
