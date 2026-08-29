@@ -60,7 +60,7 @@ export default function ShoppingListInput() {
   }
 
   return (
-    <Card className="border-border/80 bg-card/80 shadow-sm backdrop-blur-sm lg:col-span-8">
+    <Card className="border-border/80 bg-card/80 shadow-sm backdrop-blur-sm">
       <CardHeader className="pb-3">
         <div className="flex items-start gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground">

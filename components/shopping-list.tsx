@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   useShoppingListItems,
@@ -11,7 +11,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import useWakeLock from "@/hooks/use-wake-lock";
 import { getItems } from "@/server/shopping-items.actions";
-import { Leaf, ListChecks, ShoppingBasket, Trash2 } from "lucide-react";
+import { Leaf, ShoppingBasket, Trash2, X } from "lucide-react";
+import { useState } from "react";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
 
@@ -24,7 +25,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
   const { toast } = useToast();
   const { data = [] } = useShoppingListItems(initialShoppingItems);
   const deleteItemsByCategoryMutation = useShoppingListDeleteItemsByCategory();
-  const itemCount = data.reduce((total, { shoppingItems }) => total + shoppingItems.length, 0);
+  const [showIntro, setShowIntro] = useState(true);
 
   const handleDeleteCategory = (categoryId: number, categoryName: string) => {
     deleteItemsByCategoryMutation.mutate(categoryId, {
@@ -46,43 +47,34 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-      <header className="mb-10 max-w-3xl">
-        <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-          <Leaf className="size-4" />
-          This week&apos;s market run
-        </div>
-        <h1 className="font-display text-4xl leading-none tracking-tight sm:text-5xl lg:text-6xl">
-          Everything you need,
-          <span className="text-primary"> beautifully sorted.</span>
-        </h1>
-        <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-          Add a quick item or describe the whole plan. Smart Shopping will organize the rest into an
-          aisle-ready list.
-        </p>
-      </header>
+      {showIntro && (
+        <header className="relative mb-10 max-w-3xl pr-12">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-0 top-0 size-9 rounded-full text-muted-foreground"
+            onClick={() => setShowIntro(false)}
+            aria-label="Dismiss introduction"
+          >
+            <X className="size-4" />
+          </Button>
+          <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+            <Leaf className="size-4" />
+            This week&apos;s market run
+          </div>
+          <h1 className="font-display text-4xl leading-none tracking-tight sm:text-5xl lg:text-6xl">
+            Everything you need,
+            <span className="text-primary"> beautifully sorted.</span>
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+            Add a quick item or describe the whole plan. Smart Shopping will organize the rest into
+            an aisle-ready list.
+          </p>
+        </header>
+      )}
 
-      <div className="mb-12 grid gap-5 lg:grid-cols-12">
+      <div className="mb-12">
         <ShoppingListInput />
-
-        <Card className="overflow-hidden border-primary/15 bg-primary text-primary-foreground shadow-lg shadow-primary/10 lg:col-span-4">
-          <CardHeader className="relative flex h-full min-h-48 flex-col justify-between">
-            <div className="absolute -right-8 -top-8 size-36 rounded-full border border-primary-foreground/15" />
-            <div className="absolute -bottom-16 -right-1 size-40 rounded-full bg-primary-foreground/5" />
-            <div className="relative flex items-center justify-between">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/65">
-                List overview
-              </span>
-              <ListChecks className="size-5 text-primary-foreground/70" />
-            </div>
-            <div className="relative mt-8">
-              <CardTitle className="font-display text-5xl font-normal">{itemCount}</CardTitle>
-              <CardDescription className="mt-1 text-primary-foreground/70">
-                {itemCount === 1 ? "item" : "items"} across {data.length}{" "}
-                {data.length === 1 ? "category" : "categories"}
-              </CardDescription>
-            </div>
-          </CardHeader>
-        </Card>
       </div>
 
       {Object.keys(data).length === 0 ? (
