@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm dlx vercel env pull .env && next dev",
+    "dev": "vercel env pull .env && next dev",
     "dev:e2e": "next dev",
     "build": "next build",
     "build:ci": "next build",
@@ -72,7 +72,8 @@
     "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.12",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vercel": "^59.6.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
