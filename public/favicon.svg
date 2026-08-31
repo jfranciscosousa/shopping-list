@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Smart Shopping basket">
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#285f45"/>
+  <path d="M39.5 20.5c.4-7 6.1-11.2 13.4-10.7.6 7.2-4.7 12.9-12.3 13.3" fill="#f3c9b5"/>
+  <path d="M40.3 23c3.2-4.5 6.5-7.6 10.4-9.8" fill="none" stroke="#285f45" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M20.5 29.5v-3.3c0-7.1 5.2-12.2 11.6-12.2 5.7 0 10.4 4 11.4 9.9" fill="none" stroke="#fffaf0" stroke-width="5" stroke-linecap="round"/>
+  <path d="M14.1 28.5h35.8c1.5 0 2.5 1.4 2.1 2.8l-5 18.2a5.5 5.5 0 0 1-5.3 4H22.3a5.5 5.5 0 0 1-5.3-4l-5-18.2c-.4-1.4.7-2.8 2.1-2.8Z" fill="#fffaf0"/>
+  <path d="M25 35.5v11M32 35.5v11M39 35.5v11" fill="none" stroke="#285f45" stroke-width="2.8" stroke-linecap="round" opacity=".78"/>
+</svg>

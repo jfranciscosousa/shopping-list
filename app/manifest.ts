@@ -7,18 +7,20 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "A very simple shopping list app that categorizes items with AI",
     start_url: "/",
     display: "standalone",
-    background_color: "#ffffff",
-    theme_color: "#000000",
+    background_color: "#f8f6f0",
+    theme_color: "#285f45",
     icons: [
       {
         src: "/android-chrome-192x192.png",
         sizes: "192x192",
         type: "image/png",
+        purpose: "maskable",
       },
       {
         src: "/android-chrome-512x512.png",
         sizes: "512x512",
         type: "image/png",
+        purpose: "maskable",
       },
     ],
     screenshots: [
