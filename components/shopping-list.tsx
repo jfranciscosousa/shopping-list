@@ -68,11 +68,11 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       {showIntro && (
-        <header className="relative mb-10 max-w-3xl pr-12">
+        <Card className="relative mb-10 w-full rounded-[2rem] border-border/80 bg-card/80 p-6 pr-14 shadow-sm backdrop-blur-sm sm:p-8 sm:pr-16 lg:p-10 lg:pr-20">
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-0 top-0 size-9 rounded-full text-muted-foreground"
+            className="absolute right-5 top-5 size-9 rounded-full text-muted-foreground sm:right-6 sm:top-6"
             onClick={dismissIntro}
             aria-label="Dismiss introduction"
           >
@@ -90,7 +90,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
             Add a quick item or describe the whole plan. Smart Shopping will organize the rest into
             an aisle-ready list.
           </p>
-        </header>
+        </Card>
       )}
 
       <div className="mb-12">
@@ -122,11 +122,11 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
             <p className="hidden text-sm text-muted-foreground sm:block">Tap an item to edit it</p>
           </div>
 
-          <div className="grid items-start gap-5 md:grid-cols-2">
+          <div className="columns-1 gap-5 md:columns-2 xl:columns-3">
             {data.map(({ id, name, shoppingItems }) => (
               <Card
                 key={id}
-                className="overflow-hidden border-border/80 bg-card/80 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md"
+                className="mb-5 inline-block w-full break-inside-avoid overflow-hidden border-border/80 bg-card/80 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md"
               >
                 <CardHeader className="border-b border-border/70 bg-secondary/35 py-4">
                   <CardTitle className="flex items-center justify-between text-lg">
