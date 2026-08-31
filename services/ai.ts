@@ -32,7 +32,7 @@ export async function generateCategoryEmojis(
     const {
       output: { assignments },
     } = await generateText({
-      model: "gpt-oss-20b",
+      model: "gpt-oss-120b",
       system: "Select the single best emoji for each shopping category.",
       prompt: `Choose one emoji from this exact allowlist for every category. Do not invent emojis. Return one assignment for every category ID.\n\nAllowlist: ${CATEGORY_EMOJIS.join(" ")}\n\nCategories:\n${categories
         .map(
