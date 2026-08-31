@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/server/auth.actions";
 import { LogOut, Menu, ShoppingBasket, ShoppingCart, User, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,30 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/pantry", label: "Pantry", icon: ShoppingBasket },
   { href: "/profile", label: "Profile", icon: User },
 ];
+
+function BrandMark() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <span
+      className="block size-10 shrink-0 overflow-hidden rounded-2xl bg-[#285f45] shadow-sm transition-transform group-hover:-rotate-3"
+      aria-hidden="true"
+    >
+      <Image
+        src="/favicon.svg"
+        alt=""
+        width={40}
+        height={40}
+        preload
+        onLoad={() => setIsLoaded(true)}
+        className={cn(
+          "size-10 transition-opacity duration-200",
+          isLoaded ? "opacity-100" : "opacity-0",
+        )}
+      />
+    </span>
+  );
+}
 
 type NavItemProps = {
   href: string;
@@ -77,9 +102,7 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
       <nav className="border-b border-border/70 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="group flex items-center gap-3 font-semibold">
-            <span className="grid size-10 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:-rotate-3">
-              <ShoppingCart className="h-5 w-5" />
-            </span>
+            <BrandMark />
             <span className="font-display text-xl font-normal tracking-tight">Smart Shopping</span>
           </Link>
         </div>
@@ -91,9 +114,7 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
     <nav className="sticky top-0 z-50 border-b border-border/70 bg-background/80 text-nowrap backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="group flex items-center gap-3 font-semibold">
-          <span className="grid size-10 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:-rotate-3">
-            <ShoppingCart className="h-5 w-5" />
-          </span>
+          <BrandMark />
           <span className="font-display text-xl font-normal tracking-tight">Smart Shopping</span>
         </Link>
 
