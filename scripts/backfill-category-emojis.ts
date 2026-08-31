@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { backfillCategoryEmojis } from "@/server/category-emojis";
+import { closeDatabaseConnection } from "@/server/db";
 
 const batchSize = Number(process.env.CATEGORY_EMOJI_BACKFILL_BATCH_SIZE ?? 25);
 const runAll = process.argv.includes("--all");
@@ -15,4 +16,8 @@ async function runBackfill() {
   return result;
 }
 
-console.log(JSON.stringify(await runBackfill()));
+try {
+  console.log(JSON.stringify(await runBackfill()));
+} finally {
+  await closeDatabaseConnection();
+}

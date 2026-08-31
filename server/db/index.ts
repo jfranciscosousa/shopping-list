@@ -19,3 +19,11 @@ const lazyClient = new Proxy(client, {
 }) as Client;
 
 export const db = drizzle({ client: lazyClient });
+
+export async function closeDatabaseConnection() {
+  if (!connection) return;
+
+  await connection;
+  await client.end();
+  connection = undefined;
+}
