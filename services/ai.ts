@@ -1,6 +1,11 @@
 "use server";
 
 import { generateText, Output } from "ai";
+import {
+  CATEGORY_EMOJIS,
+  CATEGORY_EMOJI_FALLBACK,
+  type CategoryEmoji,
+} from "@/lib/category-emojis";
 import type { Category } from "@/server/db/schema";
 import { z } from "zod";
 
@@ -11,6 +16,61 @@ export interface ShoppingItem {
 
 export interface ShoppingListGenerationResult {
   items: ShoppingItem[];
+}
+
+type CategoryForEmoji = Pick<Category, "id" | "name" | "description"> & {
+  items?: string[];
+};
+
+export async function generateCategoryEmojis(
+  categories: CategoryForEmoji[],
+): Promise<Map<number, CategoryEmoji>> {
+  if (categories.length === 0) return new Map();
+
+  const validIds = new Set(categories.map((category) => category.id));
+  const requestAssignments = async () => {
+    const {
+      output: { assignments },
+    } = await generateText({
+      model: "gpt-oss-20b",
+      system: "Select the single best emoji for each shopping category.",
+      prompt: `Choose one emoji from this exact allowlist for every category. Do not invent emojis. Return one assignment for every category ID.\n\nAllowlist: ${CATEGORY_EMOJIS.join(" ")}\n\nCategories:\n${categories
+        .map(
+          ({ id, name, description, items = [] }) =>
+            `ID: ${id}\nName: ${name}\nDescription: ${description || "None"}\nItems: ${items.join(", ") || "None"}`,
+        )
+        .join("\n\n")}`,
+      temperature: 0,
+      output: Output.object({
+        schema: z.object({
+          assignments: z.array(
+            z.object({
+              id: z.number().int(),
+              emoji: z.enum(CATEGORY_EMOJIS),
+            }),
+          ),
+        }),
+      }),
+    });
+
+    const emojis = new Map(
+      assignments
+        .filter((assignment) => validIds.has(assignment.id))
+        .map((assignment) => [assignment.id, assignment.emoji]),
+    );
+
+    if (emojis.size !== categories.length) throw new Error("Incomplete emoji assignments");
+    return emojis;
+  };
+
+  return requestAssignments()
+    .catch(requestAssignments)
+    .catch(requestAssignments)
+    .catch(() => new Map());
+}
+
+export async function generateCategoryEmoji(category: CategoryForEmoji): Promise<CategoryEmoji> {
+  return (await generateCategoryEmojis([category])).get(category.id) ?? CATEGORY_EMOJI_FALLBACK;
 }
 
 /**

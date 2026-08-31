@@ -17,6 +17,7 @@ export const categories = pgTable("Category", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
+  emoji: text("emoji"),
   sortIndex: integer("sortIndex"),
   userId: integer("userId")
     .notNull()

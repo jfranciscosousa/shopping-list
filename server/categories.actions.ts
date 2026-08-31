@@ -4,6 +4,7 @@ import { z } from "zod";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "./db";
 import { categories } from "./db/schema";
+import { generateCategoryEmoji } from "@/services/ai";
 import { requireAuth, validateFormData } from "./utils";
 import { withActionHandling, withServerLogging } from "./error-handler";
 
@@ -31,12 +32,14 @@ export const addCategory = withActionHandling("addCategory", async (formData: Fo
 
   const { name, description } = validateResult.data;
   const user = await requireAuth();
+  const emoji = await generateCategoryEmoji({ id: 0, name, description: description ?? null });
 
   const [category] = await db
     .insert(categories)
     .values({
       name,
       description,
+      emoji,
       userId: user.id,
       sortIndex:
         sql<number>`-((select count(*) from "Category" where "userId" = ${user.id}) + 1)`.mapWith(
@@ -64,13 +67,20 @@ export const updateCategory = withActionHandling("updateCategory", async (formDa
 
   const { name, description, id, sortIndex } = validateResult.data;
   const user = await requireAuth();
+  const emoji = await generateCategoryEmoji({
+    id,
+    name: name ?? "",
+    description: description ?? null,
+  });
 
   const [category] = await db
     .update(categories)
     .set({
       name,
       description,
+      emoji,
       sortIndex,
+      updatedAt: new Date(),
     })
     .where(and(eq(categories.id, id), eq(categories.userId, user.id)))
     .returning();
@@ -93,6 +103,7 @@ export const updateCategoryBulk = withActionHandling(
             .update(categories)
             .set({
               sortIndex: Number(value),
+              updatedAt: new Date(),
             })
             .where(and(eq(categories.id, Number(key)), eq(categories.userId, user.id))),
         ),

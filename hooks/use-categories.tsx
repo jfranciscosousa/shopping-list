@@ -8,6 +8,7 @@ import {
   updateCategory,
   updateCategoryBulk,
 } from "@/server/categories.actions";
+import { CATEGORY_EMOJI_FALLBACK } from "@/lib/category-emojis";
 import type { Category } from "@/server/db/schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { requireSuccess } from "./action-result";
@@ -37,6 +38,7 @@ export function useCategoriesAdd() {
           userId: 0,
           name: newCategory.get("name") as string,
           description: newCategory.get("description") as string,
+          emoji: CATEGORY_EMOJI_FALLBACK,
           sortIndex: Infinity,
           createdAt: new Date(),
           updatedAt: new Date(),

@@ -11,6 +11,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import useWakeLock from "@/hooks/use-wake-lock";
 import { getItems } from "@/server/shopping-items.actions";
+import { CATEGORY_EMOJI_FALLBACK } from "@/lib/category-emojis";
 import { Leaf, ShoppingBasket, Trash2, X } from "lucide-react";
 import { useSyncExternalStore } from "react";
 import ShoppingListInput from "./shopping-list-input";
@@ -123,7 +124,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
           </div>
 
           <div className="columns-1 gap-5 md:columns-2 xl:columns-3">
-            {data.map(({ id, name, shoppingItems }) => (
+            {data.map(({ id, name, emoji, shoppingItems }) => (
               <Card
                 key={id}
                 className="mb-5 inline-block w-full break-inside-avoid overflow-hidden border-border/80 bg-card/80 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md"
@@ -134,6 +135,9 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
                       <Badge className="min-w-7 justify-center rounded-full bg-primary/10 text-primary shadow-none hover:bg-primary/10">
                         {shoppingItems.length}
                       </Badge>
+                      <span className="text-xl" aria-hidden="true">
+                        {emoji ?? CATEGORY_EMOJI_FALLBACK}
+                      </span>
                       <span className="font-display text-xl font-normal">{name}</span>
                     </div>
                     <Button

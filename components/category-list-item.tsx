@@ -8,6 +8,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { Category } from "@/server/db/schema";
 import { GripVertical, X } from "lucide-react";
 import { CategoryListItemUpdate } from "./category-list-item-update";
+import { CATEGORY_EMOJI_FALLBACK } from "@/lib/category-emojis";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -54,6 +55,9 @@ export default function CategoryListItem({ id, category }: Props) {
             >
               <GripVertical className="size-4 cursor-move text-muted-foreground" />
             </div>
+            <span className="text-lg" aria-hidden="true">
+              {category.emoji ?? CATEGORY_EMOJI_FALLBACK}
+            </span>
             <div className="truncate font-medium">{category.name}</div>
           </div>
         </div>

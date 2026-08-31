@@ -12,6 +12,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",
     "db:studio": "drizzle-kit studio",
+    "backfill:category-emojis": "tsx scripts/backfill-category-emojis.ts",
     "start": "next start",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
