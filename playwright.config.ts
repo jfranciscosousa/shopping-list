@@ -22,7 +22,7 @@ const config: PlaywrightTestConfig = {
     trace: "on-first-retry",
   },
   webServer: {
-    command: "PORT=3001 corepack pnpm dev:e2e",
+    command: "PORT=3001 pnpm dev:e2e",
     env: {
       ...process.env,
       SECRET_KEY_BASE: process.env.SECRET_KEY_BASE ?? "e2e-test-secret",

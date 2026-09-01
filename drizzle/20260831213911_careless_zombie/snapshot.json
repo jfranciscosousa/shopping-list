@@ -2,9 +2,7 @@
   "version": "8",
   "dialect": "postgres",
   "id": "6e1d6f3e-3d65-4a46-ba04-748c3cd694b6",
-  "prevIds": [
-    "b3c4d5e6-0000-0000-0000-000000000002"
-  ],
+  "prevIds": ["b3c4d5e6-0000-0000-0000-000000000002"],
   "ddl": [
     {
       "isRlsEnabled": false,
@@ -488,14 +486,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "userId"
-      ],
+      "columns": ["userId"],
       "schemaTo": "public",
       "tableTo": "User",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "Category_userId_User_id_fkey",
@@ -505,14 +499,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "userId"
-      ],
+      "columns": ["userId"],
       "schemaTo": "public",
       "tableTo": "User",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "PantryArea_userId_User_id_fkey",
@@ -522,14 +512,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "pantryAreaId"
-      ],
+      "columns": ["pantryAreaId"],
       "schemaTo": "public",
       "tableTo": "PantryArea",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "PantryItem_pantryAreaId_PantryArea_id_fkey",
@@ -539,14 +525,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "userId"
-      ],
+      "columns": ["userId"],
       "schemaTo": "public",
       "tableTo": "User",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "PantryItem_userId_User_id_fkey",
@@ -556,14 +538,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "categoryId"
-      ],
+      "columns": ["categoryId"],
       "schemaTo": "public",
       "tableTo": "Category",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "ShoppingItem_categoryId_Category_id_fkey",
@@ -573,14 +551,10 @@
     },
     {
       "nameExplicit": false,
-      "columns": [
-        "userId"
-      ],
+      "columns": ["userId"],
       "schemaTo": "public",
       "tableTo": "User",
-      "columnsTo": [
-        "id"
-      ],
+      "columnsTo": ["id"],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "name": "ShoppingItem_userId_User_id_fkey",
@@ -589,9 +563,7 @@
       "table": "ShoppingItem"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "Category_pkey",
       "schema": "public",
@@ -599,9 +571,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "PantryArea_pkey",
       "schema": "public",
@@ -609,9 +579,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "PantryItem_pkey",
       "schema": "public",
@@ -619,9 +587,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "ShoppingItem_pkey",
       "schema": "public",
@@ -629,9 +595,7 @@
       "entityType": "pks"
     },
     {
-      "columns": [
-        "id"
-      ],
+      "columns": ["id"],
       "nameExplicit": false,
       "name": "User_pkey",
       "schema": "public",
