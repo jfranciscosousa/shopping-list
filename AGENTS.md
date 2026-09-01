@@ -30,7 +30,6 @@ Set `ALLOWED_DEV_ORIGINS` to a comma-separated list of hostnames that may access
 
 ---
 
-
 ## Project Overview
 
 This is a Next.js-based shopping list application with AI-powered categorization, built with TypeScript, Drizzle ORM, and TailwindCSS. The app allows users to manage shopping items organized by categories, with features for adding, editing, deleting, and AI-assisted categorization.
