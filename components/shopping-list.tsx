@@ -118,7 +118,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
                 Aisle by aisle
               </p>
-              <h2 className="mt-1 font-display text-3xl">Your shopping list</h2>
+              <h2 className="mt-1 font-display text-3xl">Your shopping list, sorted</h2>
             </div>
             <p className="hidden text-sm text-muted-foreground sm:block">Tap an item to edit it</p>
           </div>
