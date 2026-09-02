@@ -123,7 +123,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
             <p className="hidden text-sm text-muted-foreground sm:block">Tap an item to edit it</p>
           </div>
 
-          <div className="columns-1 gap-5 md:columns-2 xl:columns-3">
+          <div className="columns-[20rem] gap-5">
             {data.map(({ id, name, emoji, shoppingItems }) => (
               <Card
                 key={id}
