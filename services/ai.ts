@@ -9,6 +9,8 @@ import {
 import type { Category } from "@/server/db/schema";
 import { z } from "zod";
 
+const AI_MODEL = "google/gemini-2.5-flash-lite";
+
 export interface ShoppingItem {
   name: string;
   categoryId: number;
@@ -32,7 +34,7 @@ export async function generateCategoryEmojis(
     const {
       output: { assignments },
     } = await generateText({
-      model: "gpt-oss-120b",
+      model: AI_MODEL,
       system: "Select the single best emoji for each shopping category.",
       prompt: `Choose one emoji from this exact allowlist for every category. Do not invent emojis. Return one assignment for every category ID.\n\nAllowlist: ${CATEGORY_EMOJIS.join(" ")}\n\nCategories:\n${categories
         .map(
@@ -77,8 +79,10 @@ export async function generateCategoryEmoji(category: CategoryForEmoji): Promise
  * Categorizes a single grocery item using AI
  */
 export async function categorizeItem(item: string, categories: Category[]): Promise<Category> {
-  const { text } = await generateText({
-    model: "gpt-oss-120b",
+  const {
+    output: { categoryId },
+  } = await generateText({
+    model: AI_MODEL,
     system: `You are an expert shopping list categorization assistant. Your role is to analyze grocery items and assign them to the most appropriate category from a user's predefined categories.
 
 Guidelines:
@@ -90,20 +94,20 @@ Guidelines:
     prompt: `Categorize this grocery item: "${item}"
 
 IMPORTANT INSTRUCTIONS:
-- You must return ONLY the numeric category ID
-- Do not include any explanation, reasoning, or additional text
-- Do not include quotes, spaces, or other characters
-- The response must be a single integer that exists in the categories list
+- Return the category ID of the best matching category
 
 Available categories:
 ${categories.map((cat) => `ID: ${cat.id} - ${cat.name} (${cat.description || "No description"})`).join("\n")}
 
-Item to categorize: "${item}"
-Response format: [category_id_number_only]`,
+Item to categorize: "${item}"`,
     temperature: 0.1,
+    output: Output.object({
+      schema: z.object({
+        categoryId: z.number().int().describe("The ID of the best matching category"),
+      }),
+    }),
   });
 
-  const categoryId = Number(text);
   const category = categories.find((cat) => cat.id === categoryId);
 
   if (!category) {
@@ -124,7 +128,7 @@ export async function generateShoppingList(
   const {
     output: { items },
   } = await generateText({
-    model: "gpt-oss-120b",
+    model: AI_MODEL,
     system: `You are an expert shopping list assistant. Your role is to interpret user requests and generate a well-organized shopping list with properly categorized items.
 
 Core responsibilities:
