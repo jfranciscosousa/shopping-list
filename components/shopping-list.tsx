@@ -116,7 +116,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
           <div className="mb-5 flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                Aisle by aisle
+                Shop aisle by aisle
               </p>
               <h2 className="mt-1 font-display text-3xl">Your shopping list, sorted</h2>
             </div>
