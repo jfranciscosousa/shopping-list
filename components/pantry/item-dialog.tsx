@@ -32,6 +32,75 @@ interface EditItemDialogProps {
   selectedAreaId?: number;
 }
 
+function ItemDetailsFields({
+  item,
+  areas,
+  selectedAreaId,
+}: Pick<EditItemDialogProps, "item" | "areas" | "selectedAreaId">) {
+  return (
+    <div className="grid gap-4 py-4">
+      <div className="grid gap-2">
+        <Label htmlFor="edit-item-name">Item Name</Label>
+        <Input
+          name="name"
+          placeholder="e.g., Milk, Bread, Chicken"
+          defaultValue={item?.name}
+          required
+        />
+      </div>
+
+      {areas && item && (
+        <div className="grid gap-2">
+          <Label htmlFor="edit-item-area">Storage Area</Label>
+          <Select
+            name="pantryAreaId"
+            defaultValue={item?.pantryAreaId.toString()}
+            value={selectedAreaId?.toString()}
+            required
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select an area" />
+            </SelectTrigger>
+            <SelectContent>
+              {areas.map((area) => (
+                <SelectItem key={area.id} value={area.id.toString()}>
+                  {area.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {!item && (
+        <input type="hidden" name="pantryAreaId" value={selectedAreaId?.toString() || ""} />
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="edit-made-date">Made/Bought Date</Label>
+          <Input
+            name="producedAt"
+            type="date"
+            defaultValue={item?.producedAt ? datetimeToDateString(item.producedAt) : ""}
+            required
+          />
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="edit-expiry-date">Expiry Date</Label>
+          <Input
+            name="expiresAt"
+            type="date"
+            defaultValue={item?.expiresAt ? datetimeToDateString(item.expiresAt) : ""}
+            required
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function EditItemDialog({
   open,
   onOpenChange,
@@ -82,66 +151,7 @@ export default function EditItemDialog({
 
           {item && <input type="hidden" name="id" value={item.id} />}
 
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="edit-item-name">Item Name</Label>
-              <Input
-                name="name"
-                placeholder="e.g., Milk, Bread, Chicken"
-                defaultValue={item?.name}
-                required
-              />
-            </div>
-
-            {areas && item && (
-              <div className="grid gap-2">
-                <Label htmlFor="edit-item-area">Storage Area</Label>
-                <Select
-                  name="pantryAreaId"
-                  defaultValue={item?.pantryAreaId.toString()}
-                  value={selectedAreaId?.toString()}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select an area" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {areas.map((area) => (
-                      <SelectItem key={area.id} value={area.id.toString()}>
-                        {area.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {!item && (
-              <input type="hidden" name="pantryAreaId" value={selectedAreaId?.toString() || ""} />
-            )}
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-made-date">Made/Bought Date</Label>
-                <Input
-                  name="producedAt"
-                  type="date"
-                  defaultValue={item?.producedAt ? datetimeToDateString(item.producedAt) : ""}
-                  required
-                />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="edit-expiry-date">Expiry Date</Label>
-                <Input
-                  name="expiresAt"
-                  type="date"
-                  defaultValue={item?.expiresAt ? datetimeToDateString(item.expiresAt) : ""}
-                  required
-                />
-              </div>
-            </div>
-          </div>
+          <ItemDetailsFields item={item} areas={areas} selectedAreaId={selectedAreaId} />
 
           <AlertDialogFooter>
             <Button

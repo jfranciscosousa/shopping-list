@@ -17,6 +17,7 @@ export default defineConfig({
         varsIgnorePattern: "^_",
       },
     ],
+    complexity: ["error", { max: 15 }],
     "react/react-in-jsx-scope": "off",
     // React Compiler handles memoization automatically
     "react-perf/jsx-no-new-function-as-prop": "off",
