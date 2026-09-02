@@ -120,7 +120,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
               </p>
               <h2 className="mt-1 font-display text-3xl">Your shopping list, sorted</h2>
             </div>
-            <p className="hidden text-sm text-muted-foreground sm:block">Tap an item to edit it</p>
+            <p className="hidden text-sm text-muted-foreground sm:block">Tap any item to edit it</p>
           </div>
 
           <div className="columns-[20rem] gap-5">
