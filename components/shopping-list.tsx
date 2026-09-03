@@ -95,7 +95,7 @@ export default function ShoppingList({ initialShoppingItems }: Props) {
       )}
 
       <div className="mb-12">
-        <ShoppingListInput />
+        <ShoppingListInput categories={data} />
       </div>
 
       {isError && <QueryErrorAlert retry={() => void refetch()} />}
