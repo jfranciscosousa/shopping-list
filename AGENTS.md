@@ -4,6 +4,11 @@
 
 Set `ALLOWED_DEV_ORIGINS` to a comma-separated list of hostnames that may access Next.js development resources.
 
+## Agent skills
+
+For local setup, local database state, development servers, AI Gateway validation, or browser
+testing, follow `.agents/skills/local-dev/SKILL.md`.
+
 # Database Instructions
 
 ## Local PostgreSQL
