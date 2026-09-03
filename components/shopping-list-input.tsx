@@ -7,11 +7,16 @@ import useTabs from "@/hooks/use-tabs";
 import { LoaderCircle, Plus, Sparkles } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import ShoppingListPdfExport, { type ShoppingListCategory } from "./shopping-list-pdf-export";
 import ShoppingListReset from "./shopping-list-reset";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
-export default function ShoppingListInput() {
+type Props = {
+  categories: ShoppingListCategory[];
+};
+
+export default function ShoppingListInput({ categories }: Props) {
   const { activeTab, setActiveTab } = useTabs("single");
   const [singleInput, setSingleInput] = useState("");
   const [multiInput, setMultiInput] = useState("");
@@ -42,16 +47,17 @@ export default function ShoppingListInput() {
   return (
     <Card className="border-border/80 bg-card/80 shadow-sm backdrop-blur-sm">
       <CardHeader className="pb-3">
-        <div className="flex items-start gap-3">
+        <div className="flex items-start justify-between gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-accent text-accent-foreground">
             <Plus className="size-5" />
           </span>
-          <div>
+          <div className="mr-auto">
             <CardTitle className="font-display text-2xl font-normal">Build your list</CardTitle>
             <CardDescription className="mt-1">
               Add a staple or let AI unpack a whole meal plan.
             </CardDescription>
           </div>
+          <ShoppingListPdfExport categories={categories} />
         </div>
       </CardHeader>
       <CardContent>
