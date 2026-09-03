@@ -1,5 +1,7 @@
 import { devices, type PlaywrightTestConfig } from "@playwright/test";
 
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3001";
+
 const config: PlaywrightTestConfig = {
   expect: {
     timeout: 5000,
@@ -18,18 +20,18 @@ const config: PlaywrightTestConfig = {
   timeout: 30 * 1000,
   use: {
     actionTimeout: 0,
-    baseURL: "http://localhost:3001",
+    baseURL,
     trace: "on-first-retry",
   },
   webServer: {
-    command: "PORT=3001 pnpm dev:e2e",
+    command: `PORT=${new URL(baseURL).port || "3001"} pnpm dev:e2e`,
     env: {
       ...process.env,
       SECRET_KEY_BASE: process.env.SECRET_KEY_BASE ?? "e2e-test-secret",
     },
     reuseExistingServer: !process.env.CI,
     timeout: 30 * 1000,
-    url: "http://localhost:3001",
+    url: baseURL,
   },
   workers: 1,
 };
