@@ -1,4 +1,8 @@
-import { integer, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+
+export type UserConfig = {
+  introDismissed?: boolean;
+};
 
 export const users = pgTable(
   "User",
@@ -7,6 +11,7 @@ export const users = pgTable(
     email: text("email").notNull(),
     password: text("password").notNull(),
     name: text("name"),
+    config: jsonb("config").$type<UserConfig>().notNull().default({}),
     createdAt: timestamp("createdAt", { precision: 3 }).defaultNow().notNull(),
     updatedAt: timestamp("updatedAt", { precision: 3 }).defaultNow().notNull(),
   },
