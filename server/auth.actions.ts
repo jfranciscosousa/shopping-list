@@ -77,6 +77,7 @@ const getCurrentUserInner = cache(async (authToken: string) => {
         id: users.id,
         email: users.email,
         name: users.name,
+        config: users.config,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })

@@ -6,5 +6,10 @@ export default async function ListPage() {
   const user = await getCurrentUserOptional();
   if (!user) return null;
 
-  return <ShoppingList initialShoppingItems={await getItems()} />;
+  return (
+    <ShoppingList
+      initialShoppingItems={await getItems()}
+      initialIntroDismissed={user.config.introDismissed === true}
+    />
+  );
 }

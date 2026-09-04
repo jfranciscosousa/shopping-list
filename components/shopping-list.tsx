@@ -11,48 +11,38 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import useWakeLock from "@/hooks/use-wake-lock";
 import { getItems } from "@/server/shopping-items.actions";
+import { dismissShoppingListIntro } from "@/server/user-config.actions";
 import { CATEGORY_EMOJI_FALLBACK } from "@/lib/category-emojis";
 import { Leaf, ShoppingBasket, Trash2, X } from "lucide-react";
-import { useSyncExternalStore } from "react";
+import { useState } from "react";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
 import QueryErrorAlert from "./query-error-alert";
 
-const INTRO_DISMISSED_KEY = "smart-shopping:intro-dismissed";
-const INTRO_PREFERENCE_EVENT = "smart-shopping:intro-preference-change";
-
-function subscribeToIntroPreference(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  window.addEventListener(INTRO_PREFERENCE_EVENT, onStoreChange);
-
-  return () => {
-    window.removeEventListener("storage", onStoreChange);
-    window.removeEventListener(INTRO_PREFERENCE_EVENT, onStoreChange);
-  };
-}
-
-function getIntroPreference() {
-  return localStorage.getItem(INTRO_DISMISSED_KEY) !== "true";
-}
-
 type Props = {
   initialShoppingItems: Awaited<ReturnType<typeof getItems>>;
+  initialIntroDismissed: boolean;
 };
 
-export default function ShoppingList({ initialShoppingItems }: Props) {
+export default function ShoppingList({ initialShoppingItems, initialIntroDismissed }: Props) {
   useWakeLock(useIsMobile());
   const { toast } = useToast();
   const { data = [], isError, refetch } = useShoppingListItems(initialShoppingItems);
   const deleteItemsByCategoryMutation = useShoppingListDeleteItemsByCategory();
-  const showIntro = useSyncExternalStore(
-    subscribeToIntroPreference,
-    getIntroPreference,
-    () => true,
-  );
+  const [showIntro, setShowIntro] = useState(!initialIntroDismissed);
 
-  function dismissIntro() {
-    localStorage.setItem(INTRO_DISMISSED_KEY, "true");
-    window.dispatchEvent(new Event(INTRO_PREFERENCE_EVENT));
+  async function dismissIntro() {
+    setShowIntro(false);
+
+    const result = await dismissShoppingListIntro();
+    if (!result.success) {
+      setShowIntro(true);
+      toast({
+        title: "Could not save preference",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
   }
 
   const handleDeleteCategory = (categoryId: number, categoryName: string) => {
