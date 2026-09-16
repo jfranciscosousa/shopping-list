@@ -8,6 +8,7 @@ Set `ALLOWED_DEV_ORIGINS` to a comma-separated list of hostnames that may access
 
 For local setup, local database state, development servers, AI Gateway validation, or browser
 testing, follow `.agents/skills/local-dev/SKILL.md`.
+Use `agent-browser` for manual controlled agent-led testing; use `pnpm test:e2e` for automated testing.
 
 # Database Instructions
 
