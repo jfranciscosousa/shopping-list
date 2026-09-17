@@ -1,6 +1,6 @@
 "use server";
 
-import { experimental_evaluate as evaluate, generateText, Output } from "ai";
+import { generateText, Output } from "ai";
 import {
   CATEGORY_EMOJIS,
   CATEGORY_EMOJI_FALLBACK,
@@ -10,7 +10,6 @@ import type { Category } from "@/server/db/schema";
 import { z } from "zod";
 
 const AI_MODEL = "google/gemini-2.5-flash-lite";
-const JEV_MODEL = "typesafe-ai/jev-latest";
 
 export interface ShoppingItem {
   name: string;
@@ -77,59 +76,42 @@ export async function generateCategoryEmoji(category: CategoryForEmoji): Promise
 }
 
 /**
- * Categorizes a single grocery item using Jev only.
- * Jev has no reasoning: it returns a typed choice plus probabilities.
- * Low-confidence and failed evaluations throw.
+ * Categorizes a single grocery item using AI
  */
 export async function categorizeItem(item: string, categories: Category[]): Promise<Category> {
-  if (categories.length === 0) throw new Error("No categories available for categorization");
-  if (categories.length === 1 && categories[0]) return categories[0];
+  const {
+    output: { categoryId },
+  } = await generateText({
+    model: AI_MODEL,
+    system: `You are an expert shopping list categorization assistant. Your role is to analyze grocery items and assign them to the most appropriate category from a user's predefined categories.
 
-  return await categorizeItemWithJev(item, categories);
-}
+Guidelines:
+- Analyze the item based on its typical grocery store placement and usage
+- Consider the item's primary purpose and common consumer categorization
+- If the item could fit multiple categories, choose the most specific and appropriate one
+- Always return a valid category ID from the provided list
+- If no perfect match exists, choose the closest logical category`,
+    prompt: `Categorize this grocery item: "${item}"
 
-/**
- * Fast probabilistic categorization via TypeSafe Jev on AI Gateway.
- */
-async function categorizeItemWithJev(item: string, categories: Category[]): Promise<Category> {
-  const criteria = Object.fromEntries(
-    categories.map((cat) => [
-      String(cat.id),
-      `${cat.name}${cat.description ? `: ${cat.description}` : ""}`,
-    ]),
-  );
+IMPORTANT INSTRUCTIONS:
+- Return the category ID of the best matching category
 
-  const result = await evaluate({
-    model: JEV_MODEL,
-    state: `Grocery item: "${item}"`,
-    questions: {
-      category: {
-        type: "choice",
-        instructions:
-          "Select the grocery category this item belongs in, based on typical grocery store placement and usage. Choose the most specific match.",
-        criteria,
-      },
-    },
-    providerOptions: { gateway: { zeroDataRetention: true } },
+Available categories:
+${categories.map((cat) => `ID: ${cat.id} - ${cat.name} (${cat.description || "No description"})`).join("\n")}
+
+Item to categorize: "${item}"`,
+    temperature: 0.1,
+    output: Output.object({
+      schema: z.object({
+        categoryId: z.number().int().describe("The ID of the best matching category"),
+      }),
+    }),
   });
 
-  const answer = result.answers.category;
-
-  // Highest probability wins; ties keep the first category in user order.
-  let category = categories.find((cat) => String(cat.id) === answer.choice);
-  if (answer.probabilities) {
-    let best = -Infinity;
-    for (const cat of categories) {
-      const probability = answer.probabilities[String(cat.id)] ?? -Infinity;
-      if (probability > best) {
-        best = probability;
-        category = cat;
-      }
-    }
-  }
+  const category = categories.find((cat) => cat.id === categoryId);
 
   if (!category) {
-    throw new Error(`Jev returned an unknown category: ${answer.choice}`);
+    throw new Error(`AI returned an unknown category ID: ${categoryId}`);
   }
 
   return category;
