@@ -1,6 +1,6 @@
 "use server";
 
-import { generateText, Output } from "ai";
+import { experimental_evaluate as evaluate, generateText, Output } from "ai";
 import {
   CATEGORY_EMOJIS,
   CATEGORY_EMOJI_FALLBACK,
@@ -10,6 +10,8 @@ import type { Category } from "@/server/db/schema";
 import { z } from "zod";
 
 const AI_MODEL = "google/gemini-2.5-flash-lite";
+const JEV_MODEL = "typesafe-ai/jev";
+const JEV_ENABLED = false;
 
 export interface ShoppingItem {
   name: string;
@@ -76,9 +78,11 @@ export async function generateCategoryEmoji(category: CategoryForEmoji): Promise
 }
 
 /**
- * Categorizes a single grocery item using AI
+ * Categorizes a single grocery item using AI.
  */
 export async function categorizeItem(item: string, categories: Category[]): Promise<Category> {
+  if (JEV_ENABLED) return categorizeItemWithJev(item, categories);
+
   const {
     output: { categoryId },
   } = await generateText({
@@ -112,6 +116,49 @@ Item to categorize: "${item}"`,
 
   if (!category) {
     throw new Error(`AI returned an unknown category ID: ${categoryId}`);
+  }
+
+  return category;
+}
+
+async function categorizeItemWithJev(item: string, categories: Category[]): Promise<Category> {
+  if (categories.length === 0) throw new Error("No categories available for categorization");
+  if (categories.length === 1 && categories[0]) return categories[0];
+
+  const criteria = Object.fromEntries(
+    categories.map((cat) => [
+      String(cat.id),
+      `${cat.name}${cat.description ? `: ${cat.description}` : ""}`,
+    ]),
+  );
+  const result = await evaluate({
+    model: JEV_MODEL,
+    state: `Grocery item: "${item}"`,
+    questions: {
+      category: {
+        type: "choice",
+        instructions:
+          "Select the grocery category this item belongs in, based on typical grocery store placement and usage. Choose the most specific match.",
+        criteria,
+      },
+    },
+  });
+  const answer = result.answers.category;
+
+  let category = categories.find((cat) => String(cat.id) === answer.choice);
+  if (answer.probabilities) {
+    let best = -Infinity;
+    for (const candidate of categories) {
+      const probability = answer.probabilities[String(candidate.id)] ?? -Infinity;
+      if (probability > best) {
+        best = probability;
+        category = candidate;
+      }
+    }
+  }
+
+  if (!category) {
+    throw new Error(`Jev returned an unknown category: ${answer.choice}`);
   }
 
   return category;
