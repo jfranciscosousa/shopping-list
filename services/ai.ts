@@ -11,7 +11,7 @@ import { z } from "zod";
 
 const AI_MODEL = "google/gemini-2.5-flash-lite";
 const JEV_MODEL = "typesafe-ai/jev";
-const JEV_ENABLED = false;
+const JEV_ENABLED = true;
 
 export interface ShoppingItem {
   name: string;
