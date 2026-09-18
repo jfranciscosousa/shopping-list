@@ -12,6 +12,10 @@ import { z } from "zod";
 const AI_MODEL = "google/gemini-2.5-flash-lite";
 const JEV_MODEL = "typesafe-ai/jev";
 const JEV_ENABLED = true;
+const JEV_MIN_TOP_PROBABILITY = 0.8;
+const JEV_MIN_PROBABILITY_MARGIN = 0.15;
+const AI_CATEGORIZATION_DEBUG =
+  process.env.NODE_ENV === "development" || process.env.AI_CATEGORIZATION_DEBUG === "true";
 
 export interface ShoppingItem {
   name: string;
@@ -25,6 +29,19 @@ export interface ShoppingListGenerationResult {
 type CategoryForEmoji = Pick<Category, "id" | "name" | "description"> & {
   items?: string[];
 };
+
+type JevCategorizationResult = {
+  category: Category;
+  fallbackReason?: string;
+  isConfident: boolean;
+  probabilityMargin?: number;
+  rankedCategories: Array<{ id: number; name: string; probability: number }>;
+  topProbability?: number;
+};
+
+function logCategorization(event: string, details: Record<string, unknown>) {
+  if (AI_CATEGORIZATION_DEBUG) console.info(`[ai.categorization] ${event}`, details);
+}
 
 export async function generateCategoryEmojis(
   categories: CategoryForEmoji[],
@@ -81,8 +98,54 @@ export async function generateCategoryEmoji(category: CategoryForEmoji): Promise
  * Categorizes a single grocery item using AI.
  */
 export async function categorizeItem(item: string, categories: Category[]): Promise<Category> {
-  if (JEV_ENABLED) return categorizeItemWithJev(item, categories);
+  if (categories.length === 0) throw new Error("No categories available for categorization");
+  if (categories.length === 1 && categories[0]) return categories[0];
+  if (!JEV_ENABLED) {
+    const category = await categorizeItemWithLlm(item, categories);
+    logCategorization("llm-only", { item, category: category.name, categoryId: category.id });
+    return category;
+  }
 
+  try {
+    const result = await categorizeItemWithJev(item, categories);
+    logCategorization("jev", {
+      item,
+      category: result.category.name,
+      categoryId: result.category.id,
+      fallbackReason: result.fallbackReason,
+      isConfident: result.isConfident,
+      probabilityMargin: result.probabilityMargin,
+      rankedCategories: result.rankedCategories,
+      topProbability: result.topProbability,
+    });
+    if (result.isConfident) return result.category;
+
+    const category = await categorizeItemWithLlm(item, categories);
+    logCategorization("llm-fallback", {
+      item,
+      category: category.name,
+      categoryId: category.id,
+      fallbackReason: result.fallbackReason,
+    });
+    return category;
+  } catch (error) {
+    logCategorization("jev-error", {
+      item,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+
+  const category = await categorizeItemWithLlm(item, categories);
+  logCategorization("llm-fallback", {
+    item,
+    category: category.name,
+    categoryId: category.id,
+    fallbackReason: "jev-error",
+  });
+  return category;
+}
+
+async function categorizeItemWithLlm(item: string, categories: Category[]): Promise<Category> {
   const {
     output: { categoryId },
   } = await generateText({
@@ -92,6 +155,8 @@ export async function categorizeItem(item: string, categories: Category[]): Prom
 Guidelines:
 - Analyze the item based on its typical grocery store placement and usage
 - Consider the item's primary purpose and common consumer categorization
+- Use explicit product-form words before the generic item name: frozen, canned, dried, chips, ready-made, and fresh
+- For an unqualified ingredient, prefer its fresh-produce category when one exists
 - If the item could fit multiple categories, choose the most specific and appropriate one
 - Always return a valid category ID from the provided list
 - If no perfect match exists, choose the closest logical category`,
@@ -121,10 +186,10 @@ Item to categorize: "${item}"`,
   return category;
 }
 
-async function categorizeItemWithJev(item: string, categories: Category[]): Promise<Category> {
-  if (categories.length === 0) throw new Error("No categories available for categorization");
-  if (categories.length === 1 && categories[0]) return categories[0];
-
+async function categorizeItemWithJev(
+  item: string,
+  categories: Category[],
+): Promise<JevCategorizationResult> {
   const criteria = Object.fromEntries(
     categories.map((cat) => [
       String(cat.id),
@@ -138,30 +203,62 @@ async function categorizeItemWithJev(item: string, categories: Category[]): Prom
       category: {
         type: "choice",
         instructions:
-          "Select the grocery category this item belongs in, based on typical grocery store placement and usage. Choose the most specific match.",
+          "Select the grocery category based on typical store placement and product form. Explicit form words take priority over the generic item name: frozen, canned, dried, chips, ready-made, and fresh. For an unqualified ingredient, choose its fresh-produce category when available. Choose the most specific match from the supplied category definitions.",
         criteria,
       },
     },
   });
   const answer = result.answers.category;
 
-  let category = categories.find((cat) => String(cat.id) === answer.choice);
-  if (answer.probabilities) {
-    let best = -Infinity;
-    for (const candidate of categories) {
-      const probability = answer.probabilities[String(candidate.id)] ?? -Infinity;
-      if (probability > best) {
-        best = probability;
-        category = candidate;
-      }
-    }
-  }
+  const rankedCategories = categories
+    .map((category) => ({
+      category,
+      probability: answer.probabilities?.[String(category.id)],
+    }))
+    .filter(
+      (candidate): candidate is { category: Category; probability: number } =>
+        typeof candidate.probability === "number" && Number.isFinite(candidate.probability),
+    )
+    .sort((left, right) => right.probability - left.probability);
+
+  const bestCandidate = rankedCategories[0];
+  const runnerUp = rankedCategories[1];
+  const category =
+    bestCandidate?.category ?? categories.find((cat) => String(cat.id) === answer.choice);
 
   if (!category) {
     throw new Error(`Jev returned an unknown category: ${answer.choice}`);
   }
 
-  return category;
+  const isConfident =
+    bestCandidate !== undefined &&
+    runnerUp !== undefined &&
+    bestCandidate.probability >= JEV_MIN_TOP_PROBABILITY &&
+    bestCandidate.probability - runnerUp.probability >= JEV_MIN_PROBABILITY_MARGIN;
+
+  const fallbackReason = !bestCandidate
+    ? "probabilities-unavailable"
+    : !runnerUp
+      ? "runner-up-unavailable"
+      : bestCandidate.probability < JEV_MIN_TOP_PROBABILITY
+        ? "top-probability-below-threshold"
+        : bestCandidate.probability - runnerUp.probability < JEV_MIN_PROBABILITY_MARGIN
+          ? "probability-margin-below-threshold"
+          : undefined;
+
+  return {
+    category,
+    fallbackReason,
+    isConfident,
+    probabilityMargin:
+      bestCandidate && runnerUp ? bestCandidate.probability - runnerUp.probability : undefined,
+    rankedCategories: rankedCategories.map(({ category: candidateCategory, probability }) => ({
+      id: candidateCategory.id,
+      name: candidateCategory.name,
+      probability,
+    })),
+    topProbability: bestCandidate?.probability,
+  };
 }
 
 /**
