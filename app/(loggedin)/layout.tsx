@@ -1,5 +1,6 @@
 import LoginForm from "@/components/login-form";
 import Navbar from "@/components/navbar";
+import QueryProvider from "@/components/query-provider";
 import { getCurrentUserOptional } from "@/server/auth.actions";
 import { Suspense } from "react";
 import Loading from "./loading";
@@ -13,7 +14,7 @@ async function LayoutWithUser({ children }: { children: React.ReactNode }) {
     <>
       <Navbar user={user} />
 
-      {user ? children : <LoginForm />}
+      {user ? <QueryProvider key={user.id}>{children}</QueryProvider> : <LoginForm />}
     </>
   );
 }

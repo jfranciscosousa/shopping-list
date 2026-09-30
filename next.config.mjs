@@ -6,6 +6,10 @@ const allowedDevOrigins = process.env.ALLOWED_DEV_ORIGINS?.split(",")
 const nextConfig = {
   allowedDevOrigins,
 
+  experimental: {
+    staleTimes: { dynamic: 300 },
+  },
+
   async headers() {
     return [
       {

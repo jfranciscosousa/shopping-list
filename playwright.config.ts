@@ -24,13 +24,16 @@ const config: PlaywrightTestConfig = {
     trace: "on-first-retry",
   },
   webServer: {
-    command: `PORT=${new URL(baseURL).port || "3001"} pnpm dev:e2e`,
+    command:
+      process.env.PLAYWRIGHT_PRODUCTION === "1"
+        ? `pnpm build && pnpm start --port ${new URL(baseURL).port || "3001"}`
+        : `PORT=${new URL(baseURL).port || "3001"} pnpm dev:e2e`,
     env: {
       ...process.env,
       SECRET_KEY_BASE: process.env.SECRET_KEY_BASE ?? "e2e-test-secret",
     },
-    reuseExistingServer: !process.env.CI,
-    timeout: 30 * 1000,
+    reuseExistingServer: !process.env.CI && process.env.PLAYWRIGHT_PRODUCTION !== "1",
+    timeout: process.env.PLAYWRIGHT_PRODUCTION === "1" ? 120 * 1000 : 30 * 1000,
     url: baseURL,
   },
   workers: 1,

@@ -64,7 +64,7 @@ const NavItem = ({ href, icon: Icon, children, onClick, active }: NavItemProps) 
         "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:text-primary-foreground",
     )}
   >
-    <Link href={href} className="flex items-center gap-2" onClick={onClick}>
+    <Link href={href} prefetch={true} className="flex items-center gap-2" onClick={onClick}>
       <Icon className="h-4 w-4" />
       <span>{children}</span>
     </Link>

@@ -72,3 +72,49 @@ test("logs in", async ({ page }) => {
 
   await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 });
+
+test("revisits pages without a server navigation roundtrip", async ({ page }) => {
+  test.skip(process.env.PLAYWRIGHT_PRODUCTION !== "1", "Next.js prefetching requires production");
+  const { email, name } = createCredentials();
+  await createUser(email, name);
+
+  await page.goto("/");
+  await page.locator("#login-email").fill(email);
+  await page.locator("#login-password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  const shoppingHeading = page.getByRole("heading", {
+    name: /Everything you need, beautifully sorted\./,
+  });
+  await expect(shoppingHeading).toBeVisible();
+  await page.getByRole("link", { name: "Pantry", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: "Pantry Manager" })).toBeVisible();
+  await page.getByRole("link", { name: "Profile", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
+
+  const navigationRequests: string[] = [];
+  await page.route("**/*", async (route) => {
+    const request = route.request();
+    if (request.method() === "GET" && request.headers()["rsc"] === "1") {
+      navigationRequests.push(request.url());
+      await route.abort();
+    } else {
+      await route.continue();
+    }
+  });
+
+  await page.getByRole("link", { name: "Shopping list", exact: true }).first().click();
+  await expect(shoppingHeading).toBeVisible();
+  await page.getByRole("link", { name: "Pantry", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: "Pantry Manager" })).toBeVisible();
+  await page.getByRole("link", { name: "Profile", exact: true }).first().click();
+  await expect(page.getByRole("heading", { name: "Settings", exact: true })).toBeVisible();
+  expect(navigationRequests).toEqual([]);
+
+  await page.unroute("**/*");
+  await page.getByRole("button", { name: "Logout", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+  await page.goto("/pantry");
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pantry Manager" })).not.toBeVisible();
+});
