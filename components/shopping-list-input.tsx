@@ -89,6 +89,7 @@ export default function ShoppingListInput({ categories }: Props) {
                 className="size-12 rounded-xl p-0 sm:w-auto sm:px-5"
                 disabled={isLoading}
                 aria-label="Add item"
+                onPointerDown={(event) => event.preventDefault()}
               >
                 <Plus className="size-4" /> <span className="hidden sm:inline">Add item</span>
               </Button>
@@ -113,6 +114,7 @@ export default function ShoppingListInput({ categories }: Props) {
                 className="size-12 rounded-xl p-0 sm:w-auto sm:px-5"
                 disabled={isLoading}
                 aria-label="Organize smart list"
+                onPointerDown={(event) => event.preventDefault()}
               >
                 <Sparkles className="size-4" /> <span className="hidden sm:inline">Organize</span>
               </Button>
