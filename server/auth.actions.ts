@@ -5,7 +5,6 @@ import { db } from "./db";
 import { categories, users, type User } from "./db/schema";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { hashPassword, verifyPassword } from "./password";
 import { validateFormData } from "./utils";
@@ -221,8 +220,7 @@ export const signup = withActionHandling("signup", async (formData: FormData) =>
   return { success: true };
 });
 
-// Server action for logout
-export async function logout() {
+export const logout = withActionHandling("logout", async () => {
   await clearAuthCookie();
-  redirect("/");
-}
+  return { success: true };
+});

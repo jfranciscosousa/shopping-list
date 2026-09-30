@@ -11,45 +11,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { requireSuccess } from "@/hooks/action-result";
 import { updateUser } from "@/server/user.actions";
 import type { User } from "@/server/db/schema";
 import type React from "react";
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 export default function UserProfileForm({ user }: { user: Omit<User, "password"> }) {
-  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-
-    try {
-      const data = await updateUser(formData);
-
-      if (data.success) {
-        toast({
-          title: "Success",
-          description: "Profile updated successfully",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to update profile",
-          variant: "destructive",
-        });
-      }
-    } catch (_error) {
+  const router = useRouter();
+  const updateMutation = useMutation({
+    mutationFn: (formData: FormData) => requireSuccess(updateUser(formData)),
+    onSuccess: () => {
+      router.refresh();
       toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
+        title: "Success",
+        description: "Profile updated successfully",
       });
-    } finally {
-      setIsLoading(false);
-    }
+    },
+  });
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    updateMutation.mutate(new FormData(e.currentTarget));
   }
 
   return (
@@ -127,7 +112,7 @@ export default function UserProfileForm({ user }: { user: Omit<User, "password">
         <LoadingButton
           type="submit"
           className="h-11 rounded-xl px-6"
-          isLoading={isLoading}
+          isLoading={updateMutation.isPending}
           loadingText="Saving..."
         >
           Save Changes
