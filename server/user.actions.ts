@@ -56,6 +56,7 @@ export const updateUser = withActionHandling("updateUser", async (formData: Form
       email,
       name,
       password: newPassword ? await hashPassword(newPassword) : userWithPassword.password,
+      updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
 

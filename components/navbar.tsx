@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { logout } from "@/server/auth.actions";
+import { useLogout } from "@/hooks/use-auth";
 import { LogOut, Menu, ShoppingBasket, ShoppingCart, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -90,10 +90,7 @@ const NavLinks = ({ onItemClick, pathname }: { onItemClick?: () => void; pathnam
 export default function Navbar({ user }: { user?: { id: number } | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-
-  async function handleLogout() {
-    await logout();
-  }
+  const logoutMutation = useLogout();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -123,7 +120,8 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleLogout}
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
             className="h-10 rounded-full px-4 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
           >
             <LogOut className="h-4 w-4" />
@@ -154,7 +152,8 @@ export default function Navbar({ user }: { user?: { id: number } | null }) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleLogout}
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
             className="w-full justify-start gap-2"
           >
             <LogOut className="h-4 w-4" />

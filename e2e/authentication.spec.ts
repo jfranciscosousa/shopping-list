@@ -67,10 +67,61 @@ test("logs in", async ({ page }) => {
 
   await page.goto("/");
   await page.locator("#login-email").fill(email);
+  await page.locator("#login-password").fill("wrong-password");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByText("Invalid email or password", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in" })).toBeEnabled();
+
   await page.locator("#login-password").fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
 
   await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
+});
+
+test("updates a profile and clears cached data when switching accounts", async ({ page }) => {
+  const firstUser = createCredentials();
+  const secondUser = createCredentials();
+  await createUser(firstUser.email, firstUser.name);
+  await createUser(secondUser.email, secondUser.name);
+
+  const client = new Client({ connectionString: process.env.DATABASE_URL });
+  await client.connect();
+  try {
+    await client.query(
+      'INSERT INTO "Category" (name, "userId") SELECT $1, id FROM "User" WHERE email = $2',
+      ["First account aisle", firstUser.email],
+    );
+    await client.query(
+      'INSERT INTO "Category" (name, "userId") SELECT $1, id FROM "User" WHERE email = $2',
+      ["Second account aisle", secondUser.email],
+    );
+  } finally {
+    await client.end();
+  }
+
+  await page.goto("/");
+  await page.locator("#login-email").fill(firstUser.email);
+  await page.locator("#login-password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("link", { name: "Profile", exact: true }).first().click();
+  await page.locator("#name").fill("Updated profile name");
+  await page.getByRole("button", { name: "Save Changes" }).click();
+  await expect(page.getByText("Profile updated successfully", { exact: true })).toBeVisible();
+
+  await page.getByRole("tab", { name: "Categories", exact: true }).click();
+  await expect(page.getByText("First account aisle", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Logout", exact: true }).click();
+  await expect(page).toHaveURL("/");
+  await expect(page.getByRole("button", { name: "Sign in", exact: true })).toBeVisible();
+  await expect(page.getByText("First account aisle", { exact: true })).not.toBeVisible();
+
+  await page.locator("#login-email").fill(secondUser.email);
+  await page.locator("#login-password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("link", { name: "Profile", exact: true }).first().click();
+  await page.getByRole("tab", { name: "Categories", exact: true }).click();
+  await expect(page.getByText("Second account aisle", { exact: true })).toBeVisible();
+  await expect(page.getByText("First account aisle", { exact: true })).not.toBeVisible();
 });
 
 test("revisits pages without a server navigation roundtrip", async ({ page }) => {

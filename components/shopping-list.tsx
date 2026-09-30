@@ -9,12 +9,14 @@ import {
   useShoppingListDeleteItemsByCategory,
 } from "@/hooks/use-shopping-list";
 import { useToast } from "@/hooks/use-toast";
+import { requireSuccess } from "@/hooks/action-result";
 import useWakeLock from "@/hooks/use-wake-lock";
 import { getItems } from "@/server/shopping-items.actions";
 import { dismissShoppingListIntro } from "@/server/user-config.actions";
 import { CATEGORY_EMOJI_FALLBACK } from "@/lib/category-emojis";
 import { Leaf, ShoppingBasket, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import ShoppingListInput from "./shopping-list-input";
 import ShoppingListItem from "./shopping-list-item";
 import QueryErrorAlert from "./query-error-alert";
@@ -31,19 +33,11 @@ export default function ShoppingList({ initialShoppingItems, initialIntroDismiss
   const deleteItemsByCategoryMutation = useShoppingListDeleteItemsByCategory();
   const [showIntro, setShowIntro] = useState(!initialIntroDismissed);
 
-  async function dismissIntro() {
-    setShowIntro(false);
-
-    const result = await dismissShoppingListIntro();
-    if (!result.success) {
-      setShowIntro(true);
-      toast({
-        title: "Could not save preference",
-        description: result.error,
-        variant: "destructive",
-      });
-    }
-  }
+  const dismissIntroMutation = useMutation({
+    mutationFn: () => requireSuccess(dismissShoppingListIntro()),
+    onMutate: () => setShowIntro(false),
+    onError: () => setShowIntro(true),
+  });
 
   const handleDeleteCategory = (categoryId: number, categoryName: string) => {
     deleteItemsByCategoryMutation.mutate(categoryId, {
@@ -64,7 +58,8 @@ export default function ShoppingList({ initialShoppingItems, initialIntroDismiss
             variant="ghost"
             size="icon"
             className="absolute right-5 top-5 size-9 rounded-full text-muted-foreground sm:right-6 sm:top-6"
-            onClick={dismissIntro}
+            onClick={() => dismissIntroMutation.mutate()}
+            disabled={dismissIntroMutation.isPending}
             aria-label="Dismiss introduction"
           >
             <X className="size-4" />

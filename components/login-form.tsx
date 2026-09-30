@@ -16,69 +16,24 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { login, signup } from "@/server/auth.actions";
-import { useState } from "react";
+import { useLogin, useSignup } from "@/hooks/use-auth";
 import useTabs from "@/hooks/use-tabs";
 import { Check, Sparkles } from "lucide-react";
 
 export default function LoginForm() {
   const { activeTab, setActiveTab } = useTabs("login");
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const loginMutation = useLogin();
+  const signupMutation = useSignup();
+  const isLoading = loginMutation.isPending || signupMutation.isPending;
 
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+  function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-
-    try {
-      const data = await login(formData);
-
-      if (!data.success) {
-        toast({
-          title: "Error",
-          description: data.error || "Invalid email or password",
-          variant: "destructive",
-        });
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "We couldn't log you in. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    loginMutation.mutate(new FormData(e.currentTarget));
   }
 
-  async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
+  function handleSignup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-
-    try {
-      const data = await signup(formData);
-
-      if (!data.success) {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to create account",
-          variant: "destructive",
-        });
-      }
-    } catch {
-      toast({
-        title: "Error",
-        description: "We couldn't create your account. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    signupMutation.mutate(new FormData(e.currentTarget));
   }
 
   return (

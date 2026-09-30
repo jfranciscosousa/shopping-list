@@ -7,29 +7,28 @@ import Loading from "./loading";
 
 export const dynamic = "force-dynamic";
 
+const loadingFallback = (
+  <QueryProvider>
+    <Navbar />
+    <Loading />
+  </QueryProvider>
+);
+
 async function LayoutWithUser({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUserOptional();
 
   return (
-    <>
+    <QueryProvider key={user?.id ?? "anonymous"}>
       <Navbar user={user} />
 
-      {user ? <QueryProvider key={user.id}>{children}</QueryProvider> : <LoginForm />}
-    </>
+      {user ? children : <LoginForm />}
+    </QueryProvider>
   );
 }
 
 export default function LoggedInLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense
-      fallback={
-        <>
-          <Navbar />
-
-          <Loading />
-        </>
-      }
-    >
+    <Suspense fallback={loadingFallback}>
       <LayoutWithUser>{children}</LayoutWithUser>
     </Suspense>
   );
