@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { categories, users, type User } from "./db/schema";
@@ -28,12 +29,16 @@ const signupSchema = z
     path: ["confirmPassword"],
   });
 
+function passwordVersion(password: string) {
+  return createHmac("sha256", process.env.SECRET_KEY_BASE!).update(password).digest("hex");
+}
+
 // Helper to set the auth cookie
 async function setAuthCookie(user: User, rememberMe = false) {
   const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
   const expiresIn = rememberMe ? 60 * 60 * 24 * 365 : 60 * 60;
 
-  const jwt = await new SignJWT({ id: user.id })
+  const jwt = await new SignJWT({ id: user.id, passwordVersion: passwordVersion(user.password) })
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime(`${expiresIn}s`)
     .sign(secret);
@@ -54,6 +59,7 @@ export async function clearAuthCookie() {
 
 const jwtPayloadSchema = z.object({
   id: z.uuid(),
+  passwordVersion: z.string().regex(/^[a-f0-9]{64}$/),
 });
 
 const getCurrentUserInner = async (authToken: string) => {
@@ -69,6 +75,7 @@ const getCurrentUserInner = async (authToken: string) => {
     const [user] = await db
       .select({
         id: users.id,
+        password: users.password,
         email: users.email,
         name: users.name,
         config: users.config,
@@ -79,9 +86,12 @@ const getCurrentUserInner = async (authToken: string) => {
       .where(eq(users.id, userId))
       .limit(1);
 
-    if (!user) return null;
+    if (!user || validatedPayload.data.passwordVersion !== passwordVersion(user.password)) {
+      return null;
+    }
 
-    return user;
+    const { password: _password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   } catch (error) {
     console.error("Session verification failed", { error });
     return null;

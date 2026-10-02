@@ -324,5 +324,10 @@ Please generate a structured list of new shopping items with their category assi
     }),
   });
 
+  const validCategoryIds = new Set(categories.map((category) => category.id));
+  if (items.some((item) => !validCategoryIds.has(item.categoryId))) {
+    throw new Error("AI returned an unknown category ID");
+  }
+
   return { items };
 }

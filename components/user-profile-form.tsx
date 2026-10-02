@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { requireSuccess } from "@/hooks/action-result";
+import { useResetAuthCache } from "@/hooks/use-auth";
 import { updateUser } from "@/server/user.actions";
 import type { User } from "@/server/db/schema";
 import type React from "react";
@@ -21,13 +22,17 @@ import { useRouter } from "@tanstack/react-router";
 export default function UserProfileForm({ user }: { user: Omit<User, "password"> }) {
   const { toast } = useToast();
   const router = useRouter();
+  const resetAuthCache = useResetAuthCache();
   const updateMutation = useMutation({
     mutationFn: (formData: FormData) => requireSuccess(updateUser({ data: formData })),
-    onSuccess: () => {
-      void router.invalidate();
+    onSuccess: async (_data, formData) => {
+      if (formData.get("newPassword")) await resetAuthCache();
+      else await router.invalidate();
       toast({
         title: "Success",
-        description: "Profile updated successfully",
+        description: formData.get("newPassword")
+          ? "Password changed. Please sign in again."
+          : "Profile updated successfully",
       });
     },
   });

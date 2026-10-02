@@ -5,7 +5,7 @@ import { useRouter } from "@tanstack/react-router";
 import { login, logout, signup } from "@/server/auth.actions";
 import { requireSuccess } from "./action-result";
 
-function useResetAuthCache() {
+export function useResetAuthCache() {
   const queryClient = useQueryClient();
   const router = useRouter();
 

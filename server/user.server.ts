@@ -5,6 +5,7 @@ import { db } from "./db";
 import { users } from "./db/schema";
 import { requireAuth, validateFormData } from "./utils";
 import { withActionHandling } from "./error-handler";
+import { clearAuthCookie } from "./auth.server";
 
 const updateUserSchema = z
   .object({
@@ -53,10 +54,12 @@ export const updateUser = withActionHandling("updateUser", async (formData: Form
     .set({
       email,
       name,
-      password: newPassword ? await hashPassword(newPassword) : userWithPassword.password,
+      password: newPassword ? await hashPassword(newPassword) : undefined,
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id));
+
+  if (newPassword) await clearAuthCookie();
 
   return { success: true };
 });
