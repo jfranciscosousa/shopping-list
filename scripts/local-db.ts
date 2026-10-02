@@ -13,6 +13,7 @@ const logFile = join(stateDirectory, "postgres.log");
 
 export const localDatabaseName = `shopping_list_local_${workspaceId}`;
 export const e2eDatabaseName = `shopping_list_e2e_${workspaceId}`;
+export const vitestDatabaseName = `shopping_list_vitest_${workspaceId}`;
 
 function databaseUrl(databaseName: string) {
   return `postgresql://postgres@127.0.0.1:${port}/${databaseName}`;
@@ -20,6 +21,7 @@ function databaseUrl(databaseName: string) {
 
 export const localDatabaseUrl = databaseUrl(localDatabaseName);
 export const e2eDatabaseUrl = databaseUrl(e2eDatabaseName);
+export const vitestDatabaseUrl = databaseUrl(vitestDatabaseName);
 
 function runMise(command: string, args: string[], allowFailure = false) {
   const result = spawnSync("mise", ["exec", "--", command, ...args], {

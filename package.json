@@ -25,6 +25,8 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "typecheck": "tsc --noEmit",
+    "test": "tsx scripts/run-vitest.ts run",
+    "test:watch": "tsx scripts/run-vitest.ts",
     "test:e2e": "tsx scripts/run-e2e.ts",
     "test:e2e:ci": "playwright test",
     "ci": "pnpm fmt:check && pnpm typecheck && pnpm lint && pnpm db:check && pnpm build:ci && pnpm test:e2e",
@@ -72,6 +74,9 @@
     "@playwright/test": "1.63.0",
     "@rolldown/plugin-babel": "^0.2.4",
     "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/lodash": "^4.17.25",
     "@types/node": "^26.6.3",
     "@types/pg": "^8.23.1",
@@ -80,6 +85,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "babel-plugin-react-compiler": "^1.0.0",
     "drizzle-kit": "1.0.0-rc.4",
+    "happy-dom": "^20.14.5",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "nitro": "3.0.260903-beta",
@@ -89,7 +95,8 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vercel": "^60.1.3",
-    "vite": "^8.3.1"
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
