@@ -4,13 +4,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLogout } from "@/hooks/use-auth";
 import { LogOut, Menu, ShoppingBasket, ShoppingCart, User, X } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 
 type NavItem = {
-  href: string;
+  href: "/" | "/pantry" | "/profile";
   label: string;
   icon: React.ComponentType<{ className?: string }>;
 };
@@ -22,31 +20,25 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 function BrandMark() {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   return (
     <span
       className="block size-10 shrink-0 overflow-hidden rounded-2xl bg-[#285f45] shadow-sm transition-transform group-hover:-rotate-3"
       aria-hidden="true"
     >
-      <Image
+      <img
         src="/favicon.svg"
         alt=""
         width={40}
         height={40}
-        preload
-        onLoad={() => setIsLoaded(true)}
-        className={cn(
-          "size-10 transition-opacity duration-200",
-          isLoaded ? "opacity-100" : "opacity-0",
-        )}
+        fetchPriority="high"
+        className="size-10"
       />
     </span>
   );
 }
 
 type NavItemProps = {
-  href: string;
+  href: "/" | "/pantry" | "/profile";
   icon: React.ComponentType<{ className?: string }>;
   children: React.ReactNode;
   onClick?: () => void;
@@ -64,7 +56,7 @@ const NavItem = ({ href, icon: Icon, children, onClick, active }: NavItemProps) 
         "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:text-primary-foreground",
     )}
   >
-    <Link href={href} prefetch={true} className="flex items-center gap-2" onClick={onClick}>
+    <Link to={href} preload="intent" className="flex items-center gap-2" onClick={onClick}>
       <Icon className="h-4 w-4" />
       <span>{children}</span>
     </Link>
@@ -89,7 +81,7 @@ const NavLinks = ({ onItemClick, pathname }: { onItemClick?: () => void; pathnam
 
 export default function Navbar({ user }: { user?: { id: string } | null }) {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname = useLocation({ select: (location) => location.pathname });
   const logoutMutation = useLogout();
 
   const toggleMenu = () => setIsOpen(!isOpen);
@@ -98,7 +90,7 @@ export default function Navbar({ user }: { user?: { id: string } | null }) {
     return (
       <nav className="border-b border-border/70 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="group flex items-center gap-3 font-semibold">
+          <Link to="/" className="group flex items-center gap-3 font-semibold">
             <BrandMark />
             <span className="font-display text-xl font-normal tracking-tight">Smart Shopping</span>
           </Link>
@@ -110,7 +102,7 @@ export default function Navbar({ user }: { user?: { id: string } | null }) {
   return (
     <nav className="sticky top-0 z-50 border-b border-border/70 bg-background/80 text-nowrap backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="group flex items-center gap-3 font-semibold">
+        <Link to="/" className="group flex items-center gap-3 font-semibold">
           <BrandMark />
           <span className="font-display text-xl font-normal tracking-tight">Smart Shopping</span>
         </Link>

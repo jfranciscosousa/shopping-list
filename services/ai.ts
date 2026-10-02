@@ -1,4 +1,4 @@
-"use server";
+import "@tanstack/react-start/server-only";
 
 import { experimental_evaluate as evaluate, generateText, Output } from "ai";
 import {

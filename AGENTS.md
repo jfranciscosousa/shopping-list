@@ -2,7 +2,11 @@
 
 # Development
 
-Set `ALLOWED_DEV_ORIGINS` to a comma-separated list of hostnames that may access Next.js development resources.
+Set `ALLOWED_DEV_ORIGINS` to a comma-separated list of hostnames that may access Vite development resources.
+
+Use TanStack Start `createServerFn` for application reads and mutations. Do not add custom API routes
+or React Server Components. Keep database and AI code on the server. Enable SSR for application routes.
+Keep the existing E2E test files unchanged during the framework migration.
 
 ## Agent skills
 
@@ -38,33 +42,30 @@ Use `agent-browser` for manual controlled agent-led testing; use `pnpm test:e2e`
 
 ## Project Overview
 
-This is a Next.js-based shopping list application with AI-powered categorization, built with TypeScript, Drizzle ORM, and TailwindCSS. The app allows users to manage shopping items organized by categories, with features for adding, editing, deleting, and AI-assisted categorization.
+This is a TanStack Start shopping list application with AI-powered categorization, built with TypeScript, Drizzle ORM, and TailwindCSS. Route loaders fetch initial data for SSR. TanStack Query handles client reads and mutations through server functions.
 
 ## Tech Stack
 
-- **Framework**: Next.js 15.5.5 (App Router)
-- **Language**: TypeScript 5.9.3
+- **Framework**: TanStack Start, TanStack Router, Vite, and Nitro
+- **Language**: TypeScript
 - **Database**: Drizzle ORM v1 RC with PostgreSQL
-- **Styling**: TailwindCSS 4.1.14
+- **Styling**: TailwindCSS 4
 - **UI Components**: Radix UI primitives
-- **State Management**: TanStack Query (React Query) 5.90.3
+- **State Management**: TanStack Query (React Query) 5
 - **Authentication**: Custom JWT-based auth with jose
-- **AI Integration**: Vercel AI SDK 5.0.72
+- **AI Integration**: Vercel AI SDK
 - **Drag & Drop**: @dnd-kit
 - **Deployment**: Vercel
 
 ## Project Structure
 
 ```
-├── app/                          # Next.js App Router pages
-│   ├── (loggedin)/              # Protected routes group
-│   │   ├── layout.tsx           # Protected layout
-│   │   ├── page.tsx             # Main shopping list page
-│   │   ├── list/page.tsx        # Shopping list view
-│   │   ├── pantry/page.tsx      # Pantry management
-│   │   └── profile/page.tsx     # User profile
-│   ├── layout.tsx               # Root layout
-│   └── manifest.ts              # PWA manifest
+├── src/
+│   ├── routes/                  # File routes, SSR loaders, and layouts
+│   ├── router.tsx               # Router configuration
+│   └── routeTree.gen.ts         # Generated route tree
+├── public/manifest.webmanifest  # PWA manifest
+├── styles.css                   # Global styles and fonts
 ├── components/                   # React components
 │   ├── ui/                      # Reusable UI components (Radix-based)
 │   ├── pantry/                  # Pantry-specific components
@@ -78,11 +79,9 @@ This is a Next.js-based shopping list application with AI-powered categorization
 │   ├── use-categories.tsx       # Category state management
 │   ├── use-pantry.tsx          # Pantry state management
 │   └── use-*.tsx               # Other utility hooks
-├── server/                      # Server actions and utilities
-│   ├── shopping-items.actions.ts # Shopping item CRUD operations
-│   ├── categories.actions.ts    # Category CRUD operations
-│   ├── pantry.actions.ts       # Pantry CRUD operations
-│   ├── auth.actions.ts         # Authentication actions
+├── server/                      # Server functions and utilities
+│   ├── *.actions.ts             # Typed createServerFn boundaries
+│   ├── *.server.ts              # Server-only database and authentication logic
 │   └── db/                     # Drizzle schema and client
 ├── services/                    # External services
 │   └── ai.ts                   # AI categorization service
@@ -124,13 +123,16 @@ This is a Next.js-based shopping list application with AI-powered categorization
 
 ```bash
 # Development
-npm run dev                    # Start development server with env pull
+pnpm dev                       # Start local Vite development server
 
 # Building
-npm run build                 # Build for production
+pnpm build                     # Build for production
+pnpm start --port 3000          # Start the production Node.js server
 
 # Linting
-npm run lint                  # Run ESLint checks
+pnpm lint                      # Run oxlint checks
+pnpm test:e2e                  # Run unchanged E2E tests against development
+PLAYWRIGHT_PRODUCTION=1 pnpm test:e2e # Run unchanged E2E tests against production
 
 # Database
 pnpm db:generate                  # Generate a migration after schema changes
@@ -154,7 +156,7 @@ Follow `AGENTS.md` for local PostgreSQL provisioning, Drizzle migration safety, 
 
 ### Files modified:
 
-1. `server/shopping-items.actions.ts:111-124` - Added `deleteItemsByCategory` server action
+1. `server/shopping-items.actions.ts` and `server/shopping-items.server.ts` - `deleteItemsByCategory` server function and database logic
 2. `hooks/use-shopping-list.tsx:8,104-117` - Added import and hook for category deletion
 3. `components/shopping-list.tsx:4,7-10,21-41,67-84` - Added UI button and delete functionality
 
@@ -191,8 +193,9 @@ All hooks include optimistic updates for immediate UI feedback.
 Custom JWT-based authentication using the `jose` library:
 
 - Server-side session validation in `server/utils.ts:requireAuth()`
-- Protected routes wrapped in `(loggedin)` group
-- Authentication actions in `server/auth.actions.ts`
+- Protected routes wrapped in the `_app` pathless layout
+- Authentication server functions in `server/auth.actions.ts`; cookie and JWT logic in `server/auth.server.ts`
+- Clear both Query and Router caches when the session changes
 
 ## AI Integration
 
@@ -225,17 +228,7 @@ OPENAI_API_KEY="sk-..."  # For AI features
 1. Follow the existing code patterns and conventions
 2. Use TypeScript strictly
 3. Follow the component structure in `/components`
-4. Use server actions for data mutations
+4. Use validated `createServerFn` functions for data mutations
 5. Include proper error handling and loading states
-6. Run `npm run lint` before committing
+6. Run `pnpm lint` before committing
 7. Test optimistic updates work correctly
-
-<!-- BEGIN:nextjs-agent-rules -->
-
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->

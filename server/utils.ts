@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getCurrentUser } from "./auth.actions";
+import { getCurrentUser } from "./auth.server";
 
 export async function requireAuth() {
   const user = await getCurrentUser();

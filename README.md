@@ -4,7 +4,7 @@ A personal shopping list app with AI-powered item categorization.
 
 ## Stack
 
-- [Next.js](https://nextjs.org/) — framework
+- [TanStack Start](https://tanstack.com/start) — SSR framework and server functions
 - [Drizzle ORM](https://orm.drizzle.team/) + PostgreSQL — database
 - [TailwindCSS](https://tailwindcss.com/) — styling
 - [TanStack Query](https://tanstack.com/query) — server state
@@ -38,6 +38,22 @@ Start the application:
 ```bash
 pnpm dev
 ```
+
+The app renders initial pages on the server. Route loaders and TanStack Query call typed
+`createServerFn` functions for reads and mutations. Database and AI logic stay on the server.
+The app does not use React Server Components or custom API routes.
+
+Use `PORT` to change the development port. Set `ALLOWED_DEV_ORIGINS` to a comma-separated list
+of hostnames when you access the development server through another hostname.
+
+To run the production server locally:
+
+```bash
+pnpm build
+pnpm start --port 3000
+```
+
+Vercel builds use Nitro's Vercel preset. Local builds use its Node.js preset.
 
 ## Local database
 
@@ -76,6 +92,7 @@ the token, but AI-assisted flows require it.
 ```bash
 pnpm exec playwright install chromium
 pnpm test:e2e
+PLAYWRIGHT_PRODUCTION=1 pnpm test:e2e
 ```
 
 `test:e2e` starts local PostgreSQL and recreates/migrates a separate workspace-local E2E database

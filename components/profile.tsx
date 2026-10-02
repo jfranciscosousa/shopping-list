@@ -6,10 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserProfileForm from "@/components/user-profile-form";
 import useTabs from "@/hooks/use-tabs";
 import { cn } from "@/lib/utils";
-import { UserWithoutPassword } from "@/server/auth.actions";
+import type { UserWithoutPassword } from "@/server/auth.actions";
 import type { Category } from "@/server/db/schema";
 import { ArrowLeft, Settings2, Tags, UserRound } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import CategoryList from "./category-list";
 
 type Props = { user: UserWithoutPassword; initialCategories: Category[] };
@@ -21,7 +21,7 @@ export default function Profile({ user, initialCategories }: Props) {
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="mb-8">
         <Link
-          href="/"
+          to="/"
           className={cn(
             "-ml-3 mb-5 flex w-fit items-center gap-2 rounded-full text-muted-foreground",
             buttonVariants({ variant: "ghost", size: "sm" }),

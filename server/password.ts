@@ -1,4 +1,4 @@
-"use server";
+import "@tanstack/react-start/server-only";
 
 import { compareSync, genSaltSync, hashSync } from "bcrypt-ts";
 
