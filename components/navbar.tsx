@@ -20,8 +20,6 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 function BrandMark() {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   return (
     <span
       className="block size-10 shrink-0 overflow-hidden rounded-2xl bg-[#285f45] shadow-sm transition-transform group-hover:-rotate-3"
@@ -33,11 +31,7 @@ function BrandMark() {
         width={40}
         height={40}
         fetchPriority="high"
-        onLoad={() => setIsLoaded(true)}
-        className={cn(
-          "size-10 transition-opacity duration-200",
-          isLoaded ? "opacity-100" : "opacity-0",
-        )}
+        className="size-10"
       />
     </span>
   );
