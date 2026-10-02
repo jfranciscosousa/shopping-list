@@ -39,7 +39,7 @@ export default function ShoppingList({ initialShoppingItems, initialIntroDismiss
     onError: () => setShowIntro(true),
   });
 
-  const handleDeleteCategory = (categoryId: number, categoryName: string) => {
+  const handleDeleteCategory = (categoryId: string, categoryName: string) => {
     deleteItemsByCategoryMutation.mutate(categoryId, {
       onSuccess: () => {
         toast({

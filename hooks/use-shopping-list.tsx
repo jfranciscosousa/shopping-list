@@ -48,7 +48,7 @@ export function useShoppingListUpdateItem() {
     useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
   return useMutation({
-    mutationFn: ({ id, newName }: { id: number; newName: string }) =>
+    mutationFn: ({ id, newName }: { id: string; newName: string }) =>
       requireSuccess(editItem(id, newName)),
     onMutate: async ({ id, newName }) =>
       optimisticUpdate((categories) =>
@@ -81,7 +81,7 @@ export function useShoppingListDeleteItem() {
     useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteItem(id)),
+    mutationFn: (id: string) => requireSuccess(deleteItem(id)),
     onMutate: async (id) =>
       optimisticUpdate((categories) =>
         categories
@@ -101,7 +101,7 @@ export function useShoppingListDeleteItemsByCategory() {
     useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (categoryId: number) => requireSuccess(deleteItemsByCategory(categoryId)),
+    mutationFn: (categoryId: string) => requireSuccess(deleteItemsByCategory(categoryId)),
     onMutate: async (categoryId) =>
       optimisticUpdate((categories) => categories.filter((category) => category.id !== categoryId)),
     onError: handleError,

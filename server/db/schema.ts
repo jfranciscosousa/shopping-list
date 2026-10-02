@@ -1,4 +1,4 @@
-import { integer, jsonb, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 
 export type UserConfig = {
   introDismissed?: boolean;
@@ -7,7 +7,7 @@ export type UserConfig = {
 export const users = pgTable(
   "User",
   {
-    id: serial("id").primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     email: text("email").notNull(),
     password: text("password").notNull(),
     name: text("name"),
@@ -19,12 +19,12 @@ export const users = pgTable(
 );
 
 export const categories = pgTable("Category", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
   emoji: text("emoji"),
   sortIndex: integer("sortIndex"),
-  userId: integer("userId")
+  userId: uuid("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt", { precision: 3 }).defaultNow().notNull(),
@@ -32,12 +32,12 @@ export const categories = pgTable("Category", {
 });
 
 export const shoppingItems = pgTable("ShoppingItem", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
-  categoryId: integer("categoryId")
+  categoryId: uuid("categoryId")
     .notNull()
     .references(() => categories.id, { onDelete: "cascade" }),
-  userId: integer("userId")
+  userId: uuid("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt", { precision: 3 }).defaultNow().notNull(),
@@ -45,9 +45,9 @@ export const shoppingItems = pgTable("ShoppingItem", {
 });
 
 export const pantryAreas = pgTable("PantryArea", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
-  userId: integer("userId")
+  userId: uuid("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt", { precision: 3 }).defaultNow().notNull(),
@@ -55,14 +55,14 @@ export const pantryAreas = pgTable("PantryArea", {
 });
 
 export const pantryItems = pgTable("PantryItem", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   producedAt: timestamp("producedAt", { precision: 3 }).defaultNow().notNull(),
   expiresAt: timestamp("expiresAt", { precision: 3 }).notNull(),
-  pantryAreaId: integer("pantryAreaId")
+  pantryAreaId: uuid("pantryAreaId")
     .notNull()
     .references(() => pantryAreas.id, { onDelete: "cascade" }),
-  userId: integer("userId")
+  userId: uuid("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("createdAt", { precision: 3 }).defaultNow().notNull(),

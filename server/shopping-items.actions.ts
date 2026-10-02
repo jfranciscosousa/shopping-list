@@ -8,13 +8,13 @@ import { requireAuth } from "./utils";
 import { categorizeItem, generateShoppingList } from "../services/ai";
 import { withActionHandling, withServerLogging } from "./error-handler";
 
-async function categoryFromAI(item: string, user: { id: number }) {
+async function categoryFromAI(item: string, user: { id: string }) {
   const userCategories = await db.select().from(categories).where(eq(categories.userId, user.id));
 
   return await categorizeItem(item, userCategories);
 }
 
-async function buildItemsFromPrompt(prompt: string, user: { id: number }) {
+async function buildItemsFromPrompt(prompt: string, user: { id: string }) {
   const userCategories = await db.select().from(categories).where(eq(categories.userId, user.id));
   const items = await getItems();
   const existingItems = items.flatMap((category) =>
@@ -61,7 +61,7 @@ export const addMultiItem = withActionHandling("addMultiItem", async (prompt: st
   return { success: true, data: { count: createdItems.length } };
 });
 
-export const editItem = withActionHandling("editItem", async (id: number, newName: string) => {
+export const editItem = withActionHandling("editItem", async (id: string, newName: string) => {
   const user = await requireAuth();
 
   if (!newName || !newName.trim()) {
@@ -83,7 +83,7 @@ export const editItem = withActionHandling("editItem", async (id: number, newNam
   return { success: true, data: item };
 });
 
-export const deleteItem = withActionHandling("deleteItem", async (id: number) => {
+export const deleteItem = withActionHandling("deleteItem", async (id: string) => {
   const user = await requireAuth();
 
   const deletedItems = await db
@@ -108,7 +108,7 @@ export const deleteAllItems = withActionHandling("deleteAllItems", async () => {
 
 export const deleteItemsByCategory = withActionHandling(
   "deleteItemsByCategory",
-  async (categoryId: number) => {
+  async (categoryId: string) => {
     const user = await requireAuth();
 
     await db
@@ -134,7 +134,7 @@ export const getItems = withServerLogging("getItems", async () => {
     .orderBy(asc(categories.sortIndex), asc(shoppingItems.createdAt));
 
   const groupedItems = new Map<
-    number,
+    string,
     {
       category: typeof categories.$inferSelect;
       shoppingItems: (typeof shoppingItems.$inferSelect)[];

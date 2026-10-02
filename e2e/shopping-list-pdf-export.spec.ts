@@ -24,7 +24,7 @@ async function createCategorizedShoppingList(email: string, name: string) {
     await client.query("BEGIN");
     const {
       rows: [user],
-    } = await client.query<{ id: number }>(
+    } = await client.query<{ id: string }>(
       'INSERT INTO "User" (email, name, password) VALUES ($1, $2, $3) RETURNING id',
       [email, name, hashSync(password, genSaltSync(12))],
     );
@@ -32,7 +32,7 @@ async function createCategorizedShoppingList(email: string, name: string) {
 
     const {
       rows: [produce, dairy],
-    } = await client.query<{ id: number }>(
+    } = await client.query<{ id: string }>(
       'INSERT INTO "Category" (name, emoji, "userId", "sortIndex") VALUES ($1, $2, $3, $4), ($5, $6, $3, $7) RETURNING id',
       ["Produce", "🥬", user.id, 0, "Dairy", "🥛", 1],
     );

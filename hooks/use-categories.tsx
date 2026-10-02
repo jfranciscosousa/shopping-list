@@ -34,8 +34,8 @@ export function useCategoriesAdd() {
     onMutate: async (newCategory) =>
       optimisticUpdate((old: Category[]) => [
         {
-          id: new Date().getTime(),
-          userId: 0,
+          id: crypto.randomUUID(),
+          userId: "",
           name: newCategory.get("name") as string,
           description: newCategory.get("description") as string,
           emoji: CATEGORY_EMOJI_FALLBACK,
@@ -59,7 +59,7 @@ export function useCategoriesUpdate() {
     onMutate: async (newCategory) =>
       optimisticUpdate((old: Category[]) =>
         old.map((category) =>
-          category.id === Number(newCategory.get("id"))
+          category.id === newCategory.get("id")
             ? {
                 ...category,
                 name: newCategory.get("name") as string,
@@ -114,7 +114,7 @@ export function useCategoriesDelete() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteCategory(id)),
+    mutationFn: (id: string) => requireSuccess(deleteCategory(id)),
     onMutate: async (id) => optimisticUpdate((old) => old.filter((c) => c.id !== id)),
     onError: handleError,
     onSettled: handleSettled,

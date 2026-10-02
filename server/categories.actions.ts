@@ -32,7 +32,11 @@ export const addCategory = withActionHandling("addCategory", async (formData: Fo
 
   const { name, description } = validateResult.data;
   const user = await requireAuth();
-  const emoji = await generateCategoryEmoji({ id: 0, name, description: description ?? null });
+  const emoji = await generateCategoryEmoji({
+    id: crypto.randomUUID(),
+    name,
+    description: description ?? null,
+  });
 
   const [category] = await db
     .insert(categories)
@@ -54,7 +58,7 @@ export const addCategory = withActionHandling("addCategory", async (formData: Fo
 });
 
 const categoryUpdateSchema = categorySchema.partial().extend({
-  id: z.preprocess(Number, z.number().int().positive()),
+  id: z.uuid(),
   sortIndex: z.preprocess(Number, z.number().int().optional()).optional(),
 });
 
@@ -105,7 +109,7 @@ export const updateCategoryBulk = withActionHandling(
               sortIndex: Number(value),
               updatedAt: new Date(),
             })
-            .where(and(eq(categories.id, Number(key)), eq(categories.userId, user.id))),
+            .where(and(eq(categories.id, z.uuid().parse(key)), eq(categories.userId, user.id))),
         ),
       );
     });
@@ -122,7 +126,7 @@ export const deleteAllCategories = withActionHandling("deleteAllCategories", asy
   return { success: true };
 });
 
-export const deleteCategory = withActionHandling("deleteCategory", async (id: number) => {
+export const deleteCategory = withActionHandling("deleteCategory", async (id: string) => {
   const user = await requireAuth();
 
   const deletedCategories = await db

@@ -12,7 +12,7 @@ import { CATEGORY_EMOJI_FALLBACK } from "@/lib/category-emojis";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  id: number;
+  id: string;
   category: Category;
 };
 

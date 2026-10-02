@@ -17,7 +17,7 @@ async function seed() {
 
   try {
     await client.query("BEGIN");
-    const user = await client.query<{ id: number }>(
+    const user = await client.query<{ id: string }>(
       `INSERT INTO "User" (email, name, password)
        VALUES ($1, $2, $3)
        ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, password = EXCLUDED.password, "updatedAt" = NOW()
@@ -29,11 +29,11 @@ async function seed() {
     await client.query('DELETE FROM "Category" WHERE "userId" = $1', [userId]);
     await client.query('DELETE FROM "PantryArea" WHERE "userId" = $1', [userId]);
 
-    const produce = await client.query<{ id: number }>(
+    const produce = await client.query<{ id: string }>(
       'INSERT INTO "Category" (name, description, emoji, "sortIndex", "userId") VALUES ($1, $2, $3, $4, $5) RETURNING id',
       ["Produce", "Fresh fruit and vegetables", "🥬", 0, userId],
     );
-    const dairy = await client.query<{ id: number }>(
+    const dairy = await client.query<{ id: string }>(
       'INSERT INTO "Category" (name, description, emoji, "sortIndex", "userId") VALUES ($1, $2, $3, $4, $5) RETURNING id',
       ["Dairy", "Milk, cheese, and chilled products", "🥛", 1, userId],
     );
@@ -52,7 +52,7 @@ async function seed() {
       ],
     );
 
-    const fridge = await client.query<{ id: number }>(
+    const fridge = await client.query<{ id: string }>(
       'INSERT INTO "PantryArea" (name, "userId") VALUES ($1, $2) RETURNING id',
       ["Fridge", userId],
     );
