@@ -10,6 +10,8 @@ export function getRouter() {
     defaultPreload: "intent",
     defaultStaleTime: 300_000,
     defaultPendingComponent: RouteLoading,
+    defaultPendingMs: 0,
+    defaultPendingMinMs: 0,
     defaultErrorComponent: RouteError,
   });
 }
