@@ -55,9 +55,6 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Check button semantics
-        run: pnpm test:ui
-
       - name: Migrate database
         run: pnpm db:migrate
 

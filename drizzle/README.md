@@ -45,8 +45,3 @@ Before deploying:
 If the build fails after the migration commits, keep traffic disabled and fix
 forward. Do not promote an older integer-ID deployment against the UUID schema.
 A rollback requires the pre-deployment backup and a coordinated application rollback.
-
-Run `pnpm test:db-migration` to verify conversion, transactional rollback, concurrent
-migration runners, repeat deployments, UUID defaults, and deletion cascades. This
-check creates and removes a disposable workspace-local database under the pinned
-mise PostgreSQL cluster. It does not access production.
