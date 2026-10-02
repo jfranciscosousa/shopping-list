@@ -45,7 +45,7 @@ export function usePantryAreasUpdate() {
     onMutate: async (newArea) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
         old.map((area) =>
-          area.id === Number(newArea.get("id"))
+          area.id === newArea.get("id")
             ? {
                 ...area,
                 name: newArea.get("name") as string,
@@ -63,7 +63,7 @@ export function usePantryAreasDelete() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteArea({ data: id })),
+    mutationFn: (id: string) => requireSuccess(deleteArea({ data: id })),
     onMutate: async (id) => optimisticUpdate((old) => old.filter((area) => area.id !== id)),
     onError: handleError,
     onSettled: handleSettled,
@@ -92,11 +92,11 @@ export function usePantryItemsUpdate() {
     onMutate: async (newItem) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
         old.map((area) =>
-          area.id === Number(newItem.get("pantryAreaId"))
+          area.id === newItem.get("pantryAreaId")
             ? {
                 ...area,
                 pantryItems: area.pantryItems.map((item) =>
-                  item.id === Number(newItem.get("id"))
+                  item.id === newItem.get("id")
                     ? {
                         ...item,
                         name: newItem.get("name") as string,
@@ -119,17 +119,13 @@ export function usePantryItemsDelete() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteItem({ data: id })),
+    mutationFn: (id: string) => requireSuccess(deleteItem({ data: id })),
     onMutate: async (id) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
-        old.map((area) =>
-          area.id === Number(id)
-            ? {
-                ...area,
-                pantryItems: area.pantryItems.filter((item) => item.id !== Number(id)),
-              }
-            : area,
-        ),
+        old.map((area) => ({
+          ...area,
+          pantryItems: area.pantryItems.filter((item) => item.id !== id),
+        })),
       ),
     onError: handleError,
     onSettled: handleSettled,

@@ -20,14 +20,14 @@ type Props = {
 export default function PantryManager({ initialAreas }: Props) {
   const { data: areas = [], isError, refetch } = usePantryAreas(initialAreas);
   const [itemDialog, setItemDialog] = useState<PantryItem | boolean | undefined>();
-  const [selectedAreaId, setSelectedAreaId] = useState<number | undefined>(undefined);
+  const [selectedAreaId, setSelectedAreaId] = useState<string | undefined>(undefined);
   const [areaDialog, setAreaDialog] = useState<PantryArea | boolean | undefined>(undefined);
 
   const expiredItems = areas
     .flatMap((area) => area.pantryItems)
     .filter((item) => isExpired(item.expiresAt));
 
-  const openAddItemDialog = (areaId?: number) => {
+  const openAddItemDialog = (areaId?: string) => {
     setSelectedAreaId(areaId);
     setItemDialog(true);
   };

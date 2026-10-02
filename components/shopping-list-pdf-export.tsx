@@ -7,11 +7,11 @@ import { FileText, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 
 export type ShoppingListCategory = {
-  id: number;
+  id: string;
   name: string;
   emoji: string | null;
   shoppingItems: {
-    id: number;
+    id: string;
     name: string;
   }[];
 };

@@ -18,7 +18,7 @@ export const updateCategoryBulk = createServerFn({ method: "POST" })
   .validator((data: FormData) => {
     const formData = z.instanceof(FormData).parse(data);
     for (const [id, index] of formData) {
-      z.coerce.number().int().positive().parse(id);
+      z.uuid().parse(id);
       z.coerce.number().int().parse(index);
     }
     return formData;
@@ -30,5 +30,5 @@ export const deleteAllCategories = createServerFn({ method: "POST" }).handler(()
 );
 
 export const deleteCategory = createServerFn({ method: "POST" })
-  .validator(z.number().int().positive())
+  .validator(z.uuid())
   .handler(({ data }) => categories.deleteCategory(data));

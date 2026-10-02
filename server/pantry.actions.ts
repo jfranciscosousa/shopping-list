@@ -17,7 +17,7 @@ export const updateArea = createServerFn({ method: "POST" })
   .handler(({ data }) => pantry.updateArea(data));
 
 export const deleteArea = createServerFn({ method: "POST" })
-  .validator(z.number().int().positive())
+  .validator(z.uuid())
   .handler(({ data }) => pantry.deleteArea(data));
 
 export const createItem = createServerFn({ method: "POST" })
@@ -29,5 +29,5 @@ export const updateItem = createServerFn({ method: "POST" })
   .handler(({ data }) => pantry.updateItem(data));
 
 export const deleteItem = createServerFn({ method: "POST" })
-  .validator(z.number().int().positive())
+  .validator(z.uuid())
   .handler(({ data }) => pantry.deleteItem(data));

@@ -53,7 +53,7 @@ export async function clearAuthCookie() {
 }
 
 const jwtPayloadSchema = z.object({
-  id: z.number().int().positive(),
+  id: z.uuid(),
 });
 
 const getCurrentUserInner = async (authToken: string) => {

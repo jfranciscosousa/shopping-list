@@ -79,7 +79,7 @@ const NavLinks = ({ onItemClick, pathname }: { onItemClick?: () => void; pathnam
   </>
 );
 
-export default function Navbar({ user }: { user?: { id: number } | null }) {
+export default function Navbar({ user }: { user?: { id: string } | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = useLocation({ select: (location) => location.pathname });
   const logoutMutation = useLogout();

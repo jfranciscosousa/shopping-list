@@ -24,7 +24,7 @@ export const getAreasAndItems = withServerLogging(
       .where(eq(pantryAreas.userId, user.id))
       .orderBy(desc(pantryAreas.createdAt), asc(pantryItems.createdAt));
 
-    const groupedAreas = new Map<number, PantryAreaWithItems>();
+    const groupedAreas = new Map<string, PantryAreaWithItems>();
     for (const { area, pantryItem } of rows) {
       const group = groupedAreas.get(area.id);
       if (group) {
@@ -66,7 +66,7 @@ export const createArea = withActionHandling("createArea", async (formData: Form
 });
 
 const updateAreaSchema = areaSchema.partial().extend({
-  id: z.preprocess(Number, z.number().int().positive()),
+  id: z.uuid(),
 });
 
 export const updateArea = withActionHandling("updateArea", async (formData: FormData) => {
@@ -93,7 +93,7 @@ export const updateArea = withActionHandling("updateArea", async (formData: Form
   return { success: true, data: area };
 });
 
-export const deleteArea = withActionHandling("deleteArea", async (id: number) => {
+export const deleteArea = withActionHandling("deleteArea", async (id: string) => {
   const user = await requireAuth();
 
   const deletedAreas = await db
@@ -112,10 +112,10 @@ const itemSchema = z.object({
     .preprocess((v) => (typeof v === "string" ? new Date(v) : undefined), z.date())
     .optional(),
   expiresAt: z.preprocess((v) => (typeof v === "string" ? new Date(v) : undefined), z.date()),
-  pantryAreaId: z.preprocess(Number, z.number().int().positive()),
+  pantryAreaId: z.uuid(),
 });
 
-async function assertAreaOwnership(areaId: number, userId: number) {
+async function assertAreaOwnership(areaId: string, userId: string) {
   const [area] = await db
     .select({ id: pantryAreas.id })
     .from(pantryAreas)
@@ -153,7 +153,7 @@ export const createItem = withActionHandling("createItem", async (formData: Form
 });
 
 const updateItemSchema = itemSchema.partial().extend({
-  id: z.preprocess(Number, z.number().int().positive()),
+  id: z.uuid(),
 });
 
 export const updateItem = withActionHandling("updateItem", async (formData: FormData) => {
@@ -184,7 +184,7 @@ export const updateItem = withActionHandling("updateItem", async (formData: Form
   return { success: true, data: item };
 });
 
-export const deleteItem = withActionHandling("deleteItem", async (id: number) => {
+export const deleteItem = withActionHandling("deleteItem", async (id: string) => {
   const user = await requireAuth();
 
   const deletedItems = await db

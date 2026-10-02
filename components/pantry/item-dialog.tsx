@@ -29,7 +29,7 @@ interface EditItemDialogProps {
   onOpenChange: (open: boolean) => void;
   item?: PantryItem;
   areas?: PantryArea[];
-  selectedAreaId?: number;
+  selectedAreaId?: string;
 }
 
 function ItemDetailsFields({
