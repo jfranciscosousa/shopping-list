@@ -89,6 +89,8 @@
 
 @layer base {
   :root {
+    --font-dm-sans: "DM Sans Variable";
+    --font-dm-serif: "DM Serif Display";
     --background: 42 38% 97%;
     --foreground: 153 26% 14%;
     --card: 45 50% 99%;

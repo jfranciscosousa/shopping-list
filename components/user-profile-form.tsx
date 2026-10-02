@@ -16,15 +16,15 @@ import { updateUser } from "@/server/user.actions";
 import type { User } from "@/server/db/schema";
 import type React from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@tanstack/react-router";
 
 export default function UserProfileForm({ user }: { user: Omit<User, "password"> }) {
   const { toast } = useToast();
   const router = useRouter();
   const updateMutation = useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(updateUser(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(updateUser({ data: formData })),
     onSuccess: () => {
-      router.refresh();
+      void router.invalidate();
       toast({
         title: "Success",
         description: "Profile updated successfully",

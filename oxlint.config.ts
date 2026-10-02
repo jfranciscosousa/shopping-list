@@ -35,7 +35,7 @@ export default defineConfig({
     "import/no-unassigned-import": [
       "error",
       {
-        allow: ["**/*.css", "dotenv/config"],
+        allow: ["**/*.css", "dotenv/config", "@tanstack/react-start/server-only"],
       },
     ],
     "jsx-a11y/anchor-is-valid": [
@@ -47,7 +47,9 @@ export default defineConfig({
     ],
   },
   ignorePatterns: [
-    ".next",
+    ".output",
+    ".tanstack",
+    "src/routeTree.gen.ts",
     "node_modules",
     "dist",
     "build",
