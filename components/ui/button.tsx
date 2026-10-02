@@ -47,13 +47,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isLoading ? true : disabled}
         {...props}
       >
-        <span className="contents">
-          {isLoading && (
-            <Loader2 className="h-[70%] w-[70%] animate-spin absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-          )}
+        {asChild ? (
+          children
+        ) : (
+          <span className="contents">
+            {isLoading && (
+              <Loader2 className="h-[70%] w-[70%] animate-spin absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+            )}
 
-          <span className={cn("contents", { "text-transparent": isLoading })}>{children}</span>
-        </span>
+            <span className={cn("contents", { "text-transparent": isLoading })}>{children}</span>
+          </span>
+        )}
       </Comp>
     );
   },

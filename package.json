@@ -26,9 +26,10 @@
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "typecheck": "tsc --noEmit",
+    "test:ui": "tsx scripts/check-button.tsx",
     "test:e2e": "tsx scripts/run-e2e.ts",
     "test:e2e:ci": "playwright test",
-    "ci": "pnpm fmt:check && pnpm typecheck && pnpm lint && pnpm db:check && pnpm build:ci",
+    "ci": "pnpm fmt:check && pnpm typecheck && pnpm lint && pnpm test:ui && pnpm db:check && pnpm build:ci",
     "prepare": "husky"
   },
   "dependencies": {
