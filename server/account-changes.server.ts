@@ -1,6 +1,13 @@
 import { Client } from "pg";
+import { z } from "zod";
 
-type Subscriber = { userId: string; changed: () => void; disconnected: () => void };
+const changeSchema = z.object({ userId: z.uuid(), sourceId: z.uuid().nullable() });
+type Subscriber = {
+  userId: string;
+  sourceId?: string;
+  changed: () => void;
+  disconnected: () => void;
+};
 const subscribers = new Set<Subscriber>();
 let listener: Client | undefined;
 let connecting: Promise<void> | undefined;
@@ -25,9 +32,25 @@ export async function subscribeToAccountChanges(subscriber: Subscriber) {
     });
     listener = client;
     client.on("notification", ({ channel, payload }) => {
-      if (channel !== "account_changes") return;
+      if (channel !== "account_changes" || !payload) return;
+      // Accept the original payload during a rolling migration/deployment.
+      const legacy = z.uuid().safeParse(payload);
+      let change: z.infer<typeof changeSchema>;
+      try {
+        change = legacy.success
+          ? { userId: legacy.data, sourceId: null }
+          : changeSchema.parse(JSON.parse(payload));
+      } catch {
+        console.error("Invalid account change notification");
+        return;
+      }
       for (const subscription of subscribers) {
-        if (subscription.userId === payload) subscription.changed();
+        if (
+          subscription.userId === change.userId &&
+          (!change.sourceId || subscription.sourceId !== change.sourceId)
+        ) {
+          subscription.changed();
+        }
       }
     });
     client.on("error", (error) => {

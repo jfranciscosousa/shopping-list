@@ -24,6 +24,8 @@ it("invalidates on changes and reconnect readiness, without polling, and stops o
   });
   try {
     expect(sockets[0].url.pathname).toBe("/_sync");
+    const sourceId = sockets[0].url.searchParams.get("sourceId");
+    expect(sourceId).toMatch(/^[a-f0-9-]{36}$/);
     act(() => sockets[0].onmessage?.({ data: "ready" }));
     expect(invalidate).toHaveBeenCalledTimes(1);
     act(() => vi.advanceTimersByTime(10_000));
@@ -33,6 +35,7 @@ it("invalidates on changes and reconnect readiness, without polling, and stops o
     act(() => sockets[0].close());
     act(() => vi.advanceTimersByTime(1_000));
     expect(sockets).toHaveLength(2);
+    expect(sockets[1].url.searchParams.get("sourceId")).toBe(sourceId);
     act(() => sockets[1].onmessage?.({ data: "ready" }));
     expect(invalidate).toHaveBeenCalledTimes(3);
     unmount();

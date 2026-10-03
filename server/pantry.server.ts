@@ -2,6 +2,7 @@ import { z } from "zod";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { requireAuth, validateFormData } from "./utils";
 import { db } from "./db";
+import { withAccountChange } from "./mutation-source.server";
 import { pantryAreas, pantryItems, type PantryArea, type PantryItem } from "./db/schema";
 import { withActionHandling, withServerLogging } from "./error-handler";
 
@@ -52,13 +53,15 @@ export const createArea = withActionHandling("createArea", async (formData: Form
   const { name } = validateResult.data;
   const user = await requireAuth();
 
-  const [area] = await db
-    .insert(pantryAreas)
-    .values({
-      name,
-      userId: user.id,
-    })
-    .returning();
+  const [area] = await withAccountChange((tx) =>
+    tx
+      .insert(pantryAreas)
+      .values({
+        name,
+        userId: user.id,
+      })
+      .returning(),
+  );
 
   if (!area) throw new Error("Unable to create pantry area");
 
@@ -79,14 +82,16 @@ export const updateArea = withActionHandling("updateArea", async (formData: Form
   const { name, id } = validateResult.data;
   const user = await requireAuth();
 
-  const [area] = await db
-    .update(pantryAreas)
-    .set({
-      name,
-      updatedAt: new Date(),
-    })
-    .where(and(eq(pantryAreas.id, id), eq(pantryAreas.userId, user.id)))
-    .returning();
+  const [area] = await withAccountChange((tx) =>
+    tx
+      .update(pantryAreas)
+      .set({
+        name,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(pantryAreas.id, id), eq(pantryAreas.userId, user.id)))
+      .returning(),
+  );
 
   if (!area) throw new Error("Pantry area not found");
 
@@ -96,10 +101,12 @@ export const updateArea = withActionHandling("updateArea", async (formData: Form
 export const deleteArea = withActionHandling("deleteArea", async (id: string) => {
   const user = await requireAuth();
 
-  const deletedAreas = await db
-    .delete(pantryAreas)
-    .where(and(eq(pantryAreas.id, id), eq(pantryAreas.userId, user.id)))
-    .returning({ id: pantryAreas.id });
+  const deletedAreas = await withAccountChange((tx) =>
+    tx
+      .delete(pantryAreas)
+      .where(and(eq(pantryAreas.id, id), eq(pantryAreas.userId, user.id)))
+      .returning({ id: pantryAreas.id }),
+  );
 
   if (deletedAreas.length === 0) throw new Error("Pantry area not found");
 
@@ -136,16 +143,18 @@ export const createItem = withActionHandling("createItem", async (formData: Form
   const user = await requireAuth();
   await assertAreaOwnership(pantryAreaId, user.id);
 
-  const [item] = await db
-    .insert(pantryItems)
-    .values({
-      name,
-      ...(producedAt ? { producedAt } : {}),
-      expiresAt,
-      pantryAreaId,
-      userId: user.id,
-    })
-    .returning();
+  const [item] = await withAccountChange((tx) =>
+    tx
+      .insert(pantryItems)
+      .values({
+        name,
+        ...(producedAt ? { producedAt } : {}),
+        expiresAt,
+        pantryAreaId,
+        userId: user.id,
+      })
+      .returning(),
+  );
 
   if (!item) throw new Error("Unable to create pantry item");
 
@@ -167,17 +176,19 @@ export const updateItem = withActionHandling("updateItem", async (formData: Form
   const user = await requireAuth();
   if (pantryAreaId) await assertAreaOwnership(pantryAreaId, user.id);
 
-  const [item] = await db
-    .update(pantryItems)
-    .set({
-      name,
-      producedAt,
-      expiresAt,
-      pantryAreaId,
-      updatedAt: new Date(),
-    })
-    .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, user.id)))
-    .returning();
+  const [item] = await withAccountChange((tx) =>
+    tx
+      .update(pantryItems)
+      .set({
+        name,
+        producedAt,
+        expiresAt,
+        pantryAreaId,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, user.id)))
+      .returning(),
+  );
 
   if (!item) throw new Error("Pantry item not found");
 
@@ -187,10 +198,12 @@ export const updateItem = withActionHandling("updateItem", async (formData: Form
 export const deleteItem = withActionHandling("deleteItem", async (id: string) => {
   const user = await requireAuth();
 
-  const deletedItems = await db
-    .delete(pantryItems)
-    .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, user.id)))
-    .returning({ id: pantryItems.id });
+  const deletedItems = await withAccountChange((tx) =>
+    tx
+      .delete(pantryItems)
+      .where(and(eq(pantryItems.id, id), eq(pantryItems.userId, user.id)))
+      .returning({ id: pantryItems.id }),
+  );
 
   if (deletedItems.length === 0) throw new Error("Pantry item not found");
 

@@ -63,6 +63,11 @@ or pantry items change. Only browsers signed in to the affected account receive 
 TanStack Query invalidates its cache and refetches active queries. There is no query polling.
 After reconnecting, browsers refetch to recover changes missed while disconnected.
 
+Each tab generates a random source ID in memory. Server-function calls send it in a header,
+and write transactions include it in the notification. The server excludes the originating tab,
+which already refetches through its mutation hook. Other tabs still receive the change. Reloading
+creates a new ID. Source IDs do not authorize access; the authenticated account determines access.
+
 The listener uses one dedicated PostgreSQL connection per active server instance. Set
 `DATABASE_URL_UNPOOLED` when `DATABASE_URL` uses transaction pooling. Otherwise, `DATABASE_URL`
 must be a direct or session-pooled connection that supports `LISTEN`. Do not use the migration

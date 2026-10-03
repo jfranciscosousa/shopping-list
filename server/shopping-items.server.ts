@@ -1,5 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { db } from "./db";
+import { withAccountChange } from "./mutation-source.server";
 import { categories, shoppingItems } from "./db/schema";
 import { requireAuth } from "./utils";
 import { categorizeItem, generateShoppingList } from "../services/ai";
@@ -26,14 +27,16 @@ export const addItem = withActionHandling("addItem", async (item: string) => {
 
   const category = await categoryFromAI(item, user);
 
-  const [newItem] = await db
-    .insert(shoppingItems)
-    .values({
-      name: item,
-      categoryId: category.id,
-      userId: user.id,
-    })
-    .returning();
+  const [newItem] = await withAccountChange((tx) =>
+    tx
+      .insert(shoppingItems)
+      .values({
+        name: item,
+        categoryId: category.id,
+        userId: user.id,
+      })
+      .returning(),
+  );
 
   return { success: true, data: newItem };
 });
@@ -42,16 +45,18 @@ export const addMultiItem = withActionHandling("addMultiItem", async (prompt: st
   const user = await requireAuth();
   const list = await buildItemsFromPrompt(prompt, user);
 
-  const createdItems = await db
-    .insert(shoppingItems)
-    .values(
-      list.items.map((item) => ({
-        name: item.name,
-        categoryId: item.categoryId,
-        userId: user.id,
-      })),
-    )
-    .returning();
+  const createdItems = await withAccountChange((tx) =>
+    tx
+      .insert(shoppingItems)
+      .values(
+        list.items.map((item) => ({
+          name: item.name,
+          categoryId: item.categoryId,
+          userId: user.id,
+        })),
+      )
+      .returning(),
+  );
 
   return { success: true, data: { count: createdItems.length } };
 });
@@ -63,14 +68,16 @@ export const editItem = withActionHandling("editItem", async (id: string, newNam
     return { success: false, error: "Item name is required" };
   }
 
-  const [item] = await db
-    .update(shoppingItems)
-    .set({
-      name: newName,
-      updatedAt: new Date(),
-    })
-    .where(and(eq(shoppingItems.id, id), eq(shoppingItems.userId, user.id)))
-    .returning();
+  const [item] = await withAccountChange((tx) =>
+    tx
+      .update(shoppingItems)
+      .set({
+        name: newName,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(shoppingItems.id, id), eq(shoppingItems.userId, user.id)))
+      .returning(),
+  );
 
   if (!item) throw new Error("Shopping item not found");
 
@@ -80,10 +87,12 @@ export const editItem = withActionHandling("editItem", async (id: string, newNam
 export const deleteItem = withActionHandling("deleteItem", async (id: string) => {
   const user = await requireAuth();
 
-  const deletedItems = await db
-    .delete(shoppingItems)
-    .where(and(eq(shoppingItems.id, id), eq(shoppingItems.userId, user.id)))
-    .returning({ id: shoppingItems.id });
+  const deletedItems = await withAccountChange((tx) =>
+    tx
+      .delete(shoppingItems)
+      .where(and(eq(shoppingItems.id, id), eq(shoppingItems.userId, user.id)))
+      .returning({ id: shoppingItems.id }),
+  );
 
   if (deletedItems.length === 0) throw new Error("Shopping item not found");
 
@@ -93,7 +102,9 @@ export const deleteItem = withActionHandling("deleteItem", async (id: string) =>
 export const deleteAllItems = withActionHandling("deleteAllItems", async () => {
   const user = await requireAuth();
 
-  await db.delete(shoppingItems).where(eq(shoppingItems.userId, user.id));
+  await withAccountChange((tx) =>
+    tx.delete(shoppingItems).where(eq(shoppingItems.userId, user.id)),
+  );
 
   return { success: true };
 });
@@ -103,9 +114,11 @@ export const deleteItemsByCategory = withActionHandling(
   async (categoryId: string) => {
     const user = await requireAuth();
 
-    await db
-      .delete(shoppingItems)
-      .where(and(eq(shoppingItems.userId, user.id), eq(shoppingItems.categoryId, categoryId)));
+    await withAccountChange((tx) =>
+      tx
+        .delete(shoppingItems)
+        .where(and(eq(shoppingItems.userId, user.id), eq(shoppingItems.categoryId, categoryId))),
+    );
 
     return { success: true };
   },

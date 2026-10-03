@@ -2,11 +2,15 @@ import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { expect, it, vi } from "vitest";
 import { subscribeToAccountChanges } from "./account-changes.server";
+import { mutationSource, withAccountChange } from "./mutation-source.server";
+import { sql } from "drizzle-orm";
 
 it("notifies only the affected account after commit, including cascaded deletes", async () => {
   const writer = new Client({ connectionString: process.env.DATABASE_URL });
   const userId = randomUUID();
   const otherId = randomUUID();
+  const sourceId = randomUUID();
+  const ownChanged = vi.fn();
   const changed = vi.fn();
   const foreignChanged = vi.fn();
   const disconnected = vi.fn();
@@ -14,6 +18,12 @@ it("notifies only the affected account after commit, including cascaded deletes"
   const unsubscribeOther = await subscribeToAccountChanges({
     userId: otherId,
     changed: foreignChanged,
+    disconnected,
+  });
+  const unsubscribeOwn = await subscribeToAccountChanges({
+    userId,
+    sourceId,
+    changed: ownChanged,
     disconnected,
   });
   await writer.connect();
@@ -62,9 +72,26 @@ it("notifies only the affected account after commit, including cascaded deletes"
     await vi.waitFor(() => expect(foreignChanged).toHaveBeenCalledTimes(1));
     expect(changed).toHaveBeenCalledTimes(4);
     expect(disconnected).not.toHaveBeenCalled();
+
+    ownChanged.mockClear();
+    await mutationSource.run(sourceId, () =>
+      withAccountChange((tx) =>
+        tx.execute(sql`INSERT INTO "Category" (name, "userId") VALUES ('Own tab', ${userId})`),
+      ),
+    );
+    await vi.waitFor(() => expect(changed).toHaveBeenCalledTimes(5));
+    expect(ownChanged).not.toHaveBeenCalled();
+    expect(foreignChanged).toHaveBeenCalledTimes(1);
+
+    await withAccountChange((tx) =>
+      tx.execute(sql`INSERT INTO "Category" (name, "userId") VALUES ('No source', ${userId})`),
+    );
+    await vi.waitFor(() => expect(ownChanged).toHaveBeenCalledTimes(1));
+    expect(changed).toHaveBeenCalledTimes(6);
   } finally {
     unsubscribe();
     unsubscribeOther();
+    unsubscribeOwn();
     await writer.query("ROLLBACK");
     await writer.query('DELETE FROM "User" WHERE id = ANY($1::uuid[])', [[userId, otherId]]);
     await writer.end();

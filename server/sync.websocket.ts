@@ -1,5 +1,6 @@
 import { defineWebSocketHandler } from "nitro";
 import { decodeJwt } from "jose";
+import { z } from "zod";
 import { authenticateToken } from "./auth.server";
 import { subscribeToAccountChanges } from "./account-changes.server";
 
@@ -19,12 +20,20 @@ export default defineWebSocketHandler({
       ?.slice("auth-token=".length);
     const user = token ? await authenticateToken(token) : null;
     if (!user) return new Response("Unauthorized", { status: 401 });
-    return { context: { userId: user.id, expiresAt: decodeJwt(token!).exp! * 1000 } };
+    const source = z
+      .uuid()
+      .optional()
+      .safeParse(new URL(request.url).searchParams.get("sourceId") ?? undefined);
+    if (!source.success) return new Response("Invalid source ID", { status: 400 });
+    return {
+      context: { userId: user.id, sourceId: source.data, expiresAt: decodeJwt(token!).exp! * 1000 },
+    };
   },
   async open(peer) {
     try {
       const unsubscribe = await subscribeToAccountChanges({
         userId: peer.context.userId as string,
+        sourceId: peer.context.sourceId as string | undefined,
         changed: () => peer.send("changed"),
         disconnected: () => peer.close(1012, "Reconnect"),
       });

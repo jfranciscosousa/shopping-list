@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { db } from "./db";
+import { withAccountChange } from "./mutation-source.server";
 import { categories } from "./db/schema";
 import { generateCategoryEmoji } from "@/services/ai";
 import { requireAuth, validateFormData } from "./utils";
@@ -36,19 +37,21 @@ export const addCategory = withActionHandling("addCategory", async (formData: Fo
     description: description ?? null,
   });
 
-  const [category] = await db
-    .insert(categories)
-    .values({
-      name,
-      description,
-      emoji,
-      userId: user.id,
-      sortIndex:
-        sql<number>`-((select count(*) from "Category" where "userId" = ${user.id}) + 1)`.mapWith(
-          Number,
-        ),
-    })
-    .returning();
+  const [category] = await withAccountChange((tx) =>
+    tx
+      .insert(categories)
+      .values({
+        name,
+        description,
+        emoji,
+        userId: user.id,
+        sortIndex:
+          sql<number>`-((select count(*) from "Category" where "userId" = ${user.id}) + 1)`.mapWith(
+            Number,
+          ),
+      })
+      .returning(),
+  );
 
   if (!category) throw new Error("Unable to create category");
 
@@ -75,17 +78,19 @@ export const updateCategory = withActionHandling("updateCategory", async (formDa
     description: description ?? null,
   });
 
-  const [category] = await db
-    .update(categories)
-    .set({
-      name,
-      description,
-      emoji,
-      sortIndex,
-      updatedAt: new Date(),
-    })
-    .where(and(eq(categories.id, id), eq(categories.userId, user.id)))
-    .returning();
+  const [category] = await withAccountChange((tx) =>
+    tx
+      .update(categories)
+      .set({
+        name,
+        description,
+        emoji,
+        sortIndex,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(categories.id, id), eq(categories.userId, user.id)))
+      .returning(),
+  );
 
   if (!category) throw new Error("Category not found");
 
@@ -98,7 +103,7 @@ export const updateCategoryBulk = withActionHandling(
   async (formData: FormData) => {
     const user = await requireAuth();
 
-    await db.transaction((tx) => {
+    await withAccountChange((tx) => {
       return Promise.all(
         formData.entries().map(([key, value]) =>
           tx
@@ -119,7 +124,7 @@ export const updateCategoryBulk = withActionHandling(
 export const deleteAllCategories = withActionHandling("deleteAllCategories", async () => {
   const user = await requireAuth();
 
-  await db.delete(categories).where(eq(categories.userId, user.id));
+  await withAccountChange((tx) => tx.delete(categories).where(eq(categories.userId, user.id)));
 
   return { success: true };
 });
@@ -127,10 +132,12 @@ export const deleteAllCategories = withActionHandling("deleteAllCategories", asy
 export const deleteCategory = withActionHandling("deleteCategory", async (id: string) => {
   const user = await requireAuth();
 
-  const deletedCategories = await db
-    .delete(categories)
-    .where(and(eq(categories.id, id), eq(categories.userId, user.id)))
-    .returning({ id: categories.id });
+  const deletedCategories = await withAccountChange((tx) =>
+    tx
+      .delete(categories)
+      .where(and(eq(categories.id, id), eq(categories.userId, user.id)))
+      .returning({ id: categories.id }),
+  );
 
   if (deletedCategories.length === 0) throw new Error("Category not found");
 

@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { getTabSourceId } from "@/lib/tab-source";
 
 export default function useAccountSync() {
   const queryClient = useQueryClient();
@@ -12,6 +13,7 @@ export default function useAccountSync() {
 
     function connect() {
       const url = new URL("/_sync", window.location.href);
+      url.searchParams.set("sourceId", getTabSourceId());
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       socket = new WebSocket(url);
       socket.onmessage = ({ data }) => {
