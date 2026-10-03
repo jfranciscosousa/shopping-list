@@ -41,7 +41,8 @@ pnpm dev
 
 The app renders initial pages on the server. Route loaders and TanStack Query call typed
 `createServerFn` functions for reads and mutations. Database and AI logic stay on the server.
-The app does not use React Server Components or custom API routes.
+The app does not use React Server Components. Application reads and mutations use server
+functions. The `/_sync` WebSocket endpoint only sends account-scoped change notifications.
 
 Use `PORT` to change the development port. Set `ALLOWED_DEV_ORIGINS` to a comma-separated list
 of hostnames when you access the development server through another hostname.
@@ -54,6 +55,22 @@ pnpm start --port 3000
 ```
 
 Vercel builds use Nitro's Vercel preset. Local builds use its Node.js preset.
+
+## Cross-device sync
+
+PostgreSQL triggers notify connected browsers when categories, shopping items, pantry areas,
+or pantry items change. Only browsers signed in to the affected account receive the notification.
+TanStack Query invalidates its cache and refetches active queries. There is no query polling.
+After reconnecting, browsers refetch to recover changes missed while disconnected.
+
+The listener uses one dedicated PostgreSQL connection per active server instance. Set
+`DATABASE_URL_UNPOOLED` when `DATABASE_URL` uses transaction pooling. Otherwise, `DATABASE_URL`
+must be a direct or session-pooled connection that supports `LISTEN`. Do not use the migration
+credential for application subscriptions.
+
+Apply the reviewed `account_changes` migration through the deployment migration job. Vercel
+must have Fluid compute enabled for native WebSockets. Connections renew at most every four
+minutes to reauthenticate and recover across Function lifetimes.
 
 ## Local database
 
