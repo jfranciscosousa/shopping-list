@@ -39,6 +39,40 @@ function verifyBranch(branch, id, project, name) {
   }
 }
 
+function verifyBranchAge(branch, pr) {
+  const created = Date.parse(branch.created_at);
+  const closed = Date.parse(pr.closed_at);
+  if (!Number.isFinite(created) || !Number.isFinite(closed) || created > closed) {
+    throw new Error("Refusing a replacement preview or unverified branch/PR timestamps.");
+  }
+}
+
+function verifyPrIdentity(current, original) {
+  if (
+    current.head.ref !== original.head.ref ||
+    current.head.sha !== original.head.sha ||
+    current.closed_at !== original.closed_at
+  ) {
+    throw new Error("PR identity or closure changed during cleanup; refusing deletion.");
+  }
+}
+
+async function unchangedGitRef(github, context, pr) {
+  if (!/^[a-f0-9]{40}$/.test(pr.head.sha ?? "")) {
+    throw new Error("Missing or invalid closed PR head SHA.");
+  }
+  try {
+    const { data } = await github.rest.git.getRef({
+      ...context.repo,
+      ref: `heads/${pr.head.ref}`,
+    });
+    return data.object?.sha === pr.head.sha;
+  } catch (error) {
+    if (error.status === 404) return true;
+    throw error;
+  }
+}
+
 async function previewRef(github, context, core) {
   const { owner, repo } = context.repo;
   const repository = `${owner}/${repo}`;
@@ -76,7 +110,11 @@ async function previewRef(github, context, core) {
     return;
   }
 
-  return pr.head.ref;
+  if (!(await unchangedGitRef(github, context, pr))) {
+    core.info("Skipping Git branch changed since this PR closed.");
+    return;
+  }
+  return pr;
 }
 
 module.exports = async function cleanup({
@@ -86,8 +124,8 @@ module.exports = async function cleanup({
   env = process.env,
   request = fetch,
 }) {
-  const ref = await previewRef(github, context, core);
-  if (!ref) return;
+  const pr = await previewRef(github, context, core);
+  if (!pr) return;
   const {
     NEON_API_KEY: key,
     NEON_PROJECT_ID: project,
@@ -111,7 +149,7 @@ module.exports = async function cleanup({
     return method === "DELETE" ? true : response.json();
   }
 
-  const name = `preview/${ref}`;
+  const name = `preview/${pr.head.ref}`;
   const match = await findBranch(api, base, name);
   if (!match) {
     core.info("Preview branch is already absent; nothing to delete.");
@@ -128,6 +166,10 @@ module.exports = async function cleanup({
     return;
   }
   verifyBranch(details.branch, id, project, name);
+  verifyBranchAge(details.branch, pr);
+  const current = await previewRef(github, context, core);
+  if (!current) return;
+  verifyPrIdentity(current, pr);
   await api(url, "DELETE");
   core.info("Preview branch deleted or already absent.");
 };

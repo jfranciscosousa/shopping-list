@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const cleanup = require("./neon-preview-cleanup.cjs");
 
 const project = "winter-bird-75963371";
+const sha = "a".repeat(40);
 function fixture({
   ref = "fs/example",
   branch = {},
@@ -18,6 +19,7 @@ function fixture({
     parent_id: "br-production-123",
     default: false,
     protected: false,
+    created_at: "2026-10-01T10:00:00Z",
     ...branch,
   };
   const calls = [];
@@ -38,11 +40,17 @@ function fixture({
       rest: {
         pulls: {
           get: async () => ({
-            data: { state: "closed", head: { ref, repo: { full_name: "owner/repo" } }, ...pr },
+            data: {
+              state: "closed",
+              closed_at: "2026-10-02T10:00:00Z",
+              head: { ref, sha, repo: { full_name: "owner/repo" } },
+              ...pr,
+            },
           }),
           list() {},
         },
         repos: { get: async () => ({ data: { default_branch: "master" } }) },
+        git: { getRef: async () => ({ data: { object: { sha } } }) },
       },
       paginate: async () => open,
     },
@@ -191,6 +199,68 @@ test("HTTP failures are not treated as missing branches", async () => {
     }),
   );
 });
+for (const created_at of ["2026-10-03T10:00:00Z", undefined, "invalid"]) {
+  test(`replacement or invalid branch age ${created_at} refuses deletion`, async () => {
+    const { args, calls } = fixture({ branch: { created_at } });
+    await assert.rejects(cleanup(args));
+    assert.ok(calls.every((c) => c.method === "GET"));
+  });
+}
+for (const closed_at of [undefined, "invalid"]) {
+  test(`unverified PR closure ${closed_at} refuses deletion`, async () => {
+    const { args, calls } = fixture({ pr: { closed_at } });
+    await assert.rejects(cleanup(args));
+    assert.ok(calls.every((c) => c.method === "GET"));
+  });
+}
+test("reused Git ref with a different SHA skips before Neon access", async () => {
+  const { args, calls } = fixture();
+  args.github.rest.git.getRef = async () => ({ data: { object: { sha: "b".repeat(40) } } });
+  await cleanup(args);
+  assert.equal(calls.length, 0);
+});
+test("deleted Git ref still permits closed PR cleanup", async () => {
+  const { args, calls } = fixture();
+  args.github.rest.git.getRef = async () => {
+    throw Object.assign(new Error("Not found"), { status: 404 });
+  };
+  await cleanup(args);
+  assert.equal(calls.at(-1).method, "DELETE");
+});
+test("Git ref authorization failure never permits cleanup", async () => {
+  const { args, calls } = fixture();
+  args.github.rest.git.getRef = async () => {
+    throw Object.assign(new Error("Forbidden"), { status: 403 });
+  };
+  await assert.rejects(cleanup(args));
+  assert.equal(calls.length, 0);
+});
+for (const change of ["reopened", "shared", "sha", "closure"]) {
+  test(`mid-run ${change} change prevents DELETE`, async () => {
+    const { args, calls } = fixture();
+    const get = args.github.rest.pulls.get;
+    args.github.rest.pulls.get = async () => {
+      const response = await get();
+      if (calls.length === 2) {
+        if (change === "reopened") response.data.state = "open";
+        if (change === "closure") response.data.closed_at = "2026-10-03T10:00:00Z";
+      }
+      return response;
+    };
+    args.github.paginate = async () =>
+      change === "shared" && calls.length === 2
+        ? [{ head: { ref: "fs/example", repo: { full_name: "owner/repo" } } }]
+        : [];
+    args.github.rest.git.getRef = async () => ({
+      data: { object: { sha: change === "sha" && calls.length === 2 ? "b".repeat(40) : sha } },
+    });
+    if (change === "closure") await assert.rejects(cleanup(args));
+    else await cleanup(args);
+    assert.equal(calls.length, 2);
+    assert.ok(calls.every((c) => c.method === "GET"));
+  });
+}
+
 test("untrusted ref remains literal data", async () => {
   const { args, calls } = fixture({ ref: 'fs/$(touch-pwned);"${process.exit()}' });
   await cleanup(args);

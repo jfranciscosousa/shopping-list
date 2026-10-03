@@ -88,10 +88,16 @@ non-default, non-protected branch, and its ID must differ from the configured pr
 Neon also refuses deletion of root/default branches and branches with children. Cleanup never
 unprotects branches or recursively deletes children. Authentication, rate-limit, and other API
 errors fail the job. An absent exact match or branch-level HTTP 404 succeeds without further action.
+The branch creation timestamp must be valid and no later than the PR closure timestamp. A surviving
+Git ref must still match the closed PR's head SHA. These checks prevent stale reruns from deleting
+replacement previews after branch reuse. Immediately before deletion, cleanup repeats the closed-PR,
+shared-ref, and Git-SHA checks and verifies that the PR identity and closure did not change.
 
 The workflow is available after it reaches the default branch. It does not clean up older closed
 PRs retroactively. A reopened PR needs a new preview deployment to recreate its database.
-Concurrent deployment completion can recreate a branch after cleanup; inspect that case manually.
+GitHub state checks and Neon deletion are not an atomic operation. A PR can still reopen or a
+shared PR can open in the brief interval after the final check. Concurrent deployment completion
+can recreate a branch after cleanup. Inspect these cross-service races manually.
 Deleting the database leaves existing Vercel preview URLs without a working database. Vercel's
 own later cleanup remains compatible with an already-deleted branch.
 
