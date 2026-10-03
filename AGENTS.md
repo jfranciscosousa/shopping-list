@@ -8,6 +8,11 @@ Use TanStack Start `createServerFn` for application reads and mutations. Do not 
 or React Server Components. Keep database and AI code on the server. Enable SSR for application routes.
 Keep the existing E2E test files unchanged during the framework migration.
 
+## Dependencies
+
+- `minimumReleaseAge` is `0` in `pnpm-workspace.yaml`. Never add `minimumReleaseAgeExclude`
+entries unless the human explicitly names the packages to exclude.
+
 ## Agent skills
 
 For local setup, local database state, development servers, AI Gateway validation, or browser
