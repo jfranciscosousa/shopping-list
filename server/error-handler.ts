@@ -1,3 +1,5 @@
+import { isAuthError } from "@/lib/auth-error";
+
 const GENERIC_ERROR_MESSAGE = "We couldn't complete that request. Please try again.";
 
 type ActionFailure = {
@@ -20,6 +22,7 @@ export function withActionHandling<T extends unknown[], R>(
     try {
       return await fn(...args);
     } catch (error) {
+      if (isAuthError(error)) return { success: false, error: error.message };
       logServerError(operation, error);
       return { success: false, error: GENERIC_ERROR_MESSAGE };
     }
@@ -35,6 +38,7 @@ export function withServerLogging<T extends unknown[], R>(
     try {
       return await fn(...args);
     } catch (error) {
+      if (isAuthError(error)) throw error;
       logServerError(operation, error);
       throw new Error(GENERIC_ERROR_MESSAGE, { cause: error });
     }

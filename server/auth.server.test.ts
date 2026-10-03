@@ -4,7 +4,8 @@ import { afterEach, expect, it, vi } from "vitest";
 import { db } from "./db";
 import { users } from "./db/schema";
 import { hashPassword } from "./password";
-import { getCurrentUserOptional, login } from "./auth.server";
+import { getCurrentUser, getCurrentUserOptional, login } from "./auth.server";
+import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-error";
 import { updateUser } from "./user.server";
 
 const cookies = vi.hoisted(() => new Map<string, string>());
@@ -17,6 +18,7 @@ vi.mock("@tanstack/react-start/server", () => ({
 afterEach(() => {
   cookies.clear();
   vi.unstubAllEnvs();
+  vi.restoreAllMocks();
 });
 
 function form(values: Record<string, string>) {
@@ -72,6 +74,32 @@ it.each([false, true])(
     expect(await getCurrentUserOptional()).toMatchObject({ id });
   },
 );
+
+it("reports missing and expired sessions as auth failures", async () => {
+  vi.stubEnv("SECRET_KEY_BASE", "test-session-secret");
+  await expect(getCurrentUser()).rejects.toThrow(SESSION_EXPIRED_MESSAGE);
+  const token = await new SignJWT({ id: randomUUID(), passwordVersion: "0".repeat(64) })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime("0s")
+    .sign(new TextEncoder().encode(process.env.SECRET_KEY_BASE));
+  cookies.set("auth-token", token);
+  expect(await getCurrentUserOptional()).toBeNull();
+  await expect(getCurrentUser()).rejects.toThrow(SESSION_EXPIRED_MESSAGE);
+});
+
+it("does not treat database failures as an expired session", async () => {
+  vi.stubEnv("SECRET_KEY_BASE", "test-session-secret");
+  const token = await new SignJWT({ id: randomUUID(), passwordVersion: "0".repeat(64) })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime("1h")
+    .sign(new TextEncoder().encode(process.env.SECRET_KEY_BASE));
+  cookies.set("auth-token", token);
+  vi.spyOn(db, "select").mockImplementation(() => {
+    throw new Error("Database unavailable");
+  });
+  await expect(getCurrentUserOptional()).rejects.toThrow("Database unavailable");
+  await expect(getCurrentUser()).rejects.toThrow("Database unavailable");
+});
 
 it("rejects legacy JWTs without a password version", async () => {
   vi.stubEnv("SECRET_KEY_BASE", "test-session-secret");

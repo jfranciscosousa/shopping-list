@@ -2,7 +2,8 @@ import { createHmac } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { categories, users, type User } from "./db/schema";
-import { SignJWT, jwtVerify } from "jose";
+import { errors, SignJWT, jwtVerify } from "jose";
+import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-error";
 import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { hashPassword, verifyPassword } from "./password";
@@ -93,8 +94,8 @@ const getCurrentUserInner = async (authToken: string) => {
     const { password: _password, ...userWithoutPassword } = user;
     return userWithoutPassword;
   } catch (error) {
-    console.error("Session verification failed", { error });
-    return null;
+    if (error instanceof errors.JOSEError) return null;
+    throw error;
   }
 };
 
@@ -111,7 +112,7 @@ export async function getCurrentUserOptional(): Promise<UserWithoutPassword | nu
 export async function getCurrentUser(): Promise<UserWithoutPassword> {
   const user = await getCurrentUserOptional();
 
-  if (!user) throw new Error("unauthorized");
+  if (!user) throw new Error(SESSION_EXPIRED_MESSAGE);
 
   return user;
 }
