@@ -46,6 +46,9 @@ jobs:
           node-version: ${{ steps.versions.outputs.nodejs }}
           cache: pnpm
 
+      - name: Test Neon cleanup safety (mock APIs only)
+        run: node --test .github/scripts/neon-preview-cleanup.test.cjs
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
