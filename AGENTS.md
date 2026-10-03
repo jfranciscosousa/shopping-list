@@ -11,7 +11,7 @@ Keep the existing E2E test files unchanged during the framework migration.
 ## Dependencies
 
 - `minimumReleaseAge` is `0` in `pnpm-workspace.yaml`. Never add `minimumReleaseAgeExclude`
-entries unless the human explicitly names the packages to exclude.
+  entries unless the human explicitly names the packages to exclude.
 
 ## Agent skills
 
