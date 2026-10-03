@@ -1,29 +1,52 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 export default function useWakeLock(enabled?: boolean) {
-  const wakeLock = useRef<WakeLockSentinel | null>(null);
-
   useEffect(() => {
-    const cleanup = () => {
-      if (!wakeLock.current) return;
+    if (!enabled || !navigator.wakeLock) return;
 
-      wakeLock.current.release();
-      wakeLock.current = null;
-    };
+    let active = true;
+    let pending = false;
+    let wakeLock: WakeLockSentinel | null = null;
 
-    async function requestWakeLock() {
-      if (wakeLock.current) return;
-
+    async function release(lock: WakeLockSentinel) {
       try {
-        wakeLock.current = await navigator.wakeLock.request();
+        await lock.release();
       } catch {
-        // Wake Lock is optional and may be denied by the browser or user.
+        // Wake Lock is optional; browser release failures must not escape cleanup.
       }
     }
 
-    if (enabled) void requestWakeLock();
-    else cleanup();
+    async function requestWakeLock() {
+      if (
+        !active ||
+        pending ||
+        document.visibilityState !== "visible" ||
+        (wakeLock && !wakeLock.released)
+      )
+        return;
 
-    return cleanup();
+      pending = true;
+      try {
+        const lock = await navigator.wakeLock.request("screen");
+        if (!active || document.visibilityState !== "visible") {
+          void release(lock);
+        } else {
+          wakeLock = lock;
+        }
+      } catch {
+        // Wake Lock is optional and may be denied by the browser or user.
+      } finally {
+        pending = false;
+      }
+    }
+
+    void requestWakeLock();
+    document.addEventListener("visibilitychange", requestWakeLock);
+
+    return () => {
+      active = false;
+      document.removeEventListener("visibilitychange", requestWakeLock);
+      if (wakeLock) void release(wakeLock);
+    };
   }, [enabled]);
 }
