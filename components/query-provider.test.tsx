@@ -7,6 +7,14 @@ import QueryProvider from "./query-provider";
 
 const { router, toast } = vi.hoisted(() => ({
   router: {
+    options: {
+      context: {
+        sessionQueryClient: {
+          cancelQueries: vi.fn().mockResolvedValue(undefined),
+          clear: vi.fn(),
+        },
+      },
+    },
     clearCache: vi.fn(),
     invalidate: vi.fn().mockResolvedValue(undefined),
   },
@@ -52,6 +60,8 @@ it.each(["query", "mutation"])(
 
     await waitFor(() => expect(router.invalidate).toHaveBeenCalledOnce());
     expect(router.clearCache).toHaveBeenCalledOnce();
+    expect(router.options.context.sessionQueryClient.cancelQueries).toHaveBeenCalledOnce();
+    expect(router.options.context.sessionQueryClient.clear).toHaveBeenCalledOnce();
     expect(client.getQueryData(["private"])).toBeUndefined();
     expect(request).toHaveBeenCalledOnce();
     expect(toast).not.toHaveBeenCalled();

@@ -10,8 +10,10 @@ export function useResetAuthCache() {
   const router = useRouter();
 
   return async () => {
-    await queryClient.cancelQueries();
+    const sessionQueryClient = router.options.context.sessionQueryClient;
+    await Promise.all([queryClient.cancelQueries(), sessionQueryClient.cancelQueries()]);
     queryClient.clear();
+    sessionQueryClient.clear();
     router.clearCache();
     await router.navigate({ to: ".", search: {}, replace: true });
     await router.invalidate();
@@ -43,7 +45,11 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: () => requireSuccess(logout()),
-    onMutate: () => queryClient.cancelQueries(),
+    onMutate: () =>
+      Promise.all([
+        queryClient.cancelQueries(),
+        router.options.context.sessionQueryClient.cancelQueries(),
+      ]),
     onSuccess: async () => {
       await resetCache();
       await router.navigate({ to: "/", replace: true });
