@@ -63,7 +63,7 @@ const jwtPayloadSchema = z.object({
   passwordVersion: z.string().regex(/^[a-f0-9]{64}$/),
 });
 
-const getCurrentUserInner = async (authToken: string) => {
+export const authenticateToken = async (authToken: string) => {
   try {
     const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
     const { payload } = await jwtVerify(authToken, secret);
@@ -99,14 +99,14 @@ const getCurrentUserInner = async (authToken: string) => {
   }
 };
 
-export type UserWithoutPassword = NonNullable<Awaited<ReturnType<typeof getCurrentUserInner>>>;
+export type UserWithoutPassword = NonNullable<Awaited<ReturnType<typeof authenticateToken>>>;
 
 export async function getCurrentUserOptional(): Promise<UserWithoutPassword | null> {
   const authToken = getCookie("auth-token");
 
   if (!authToken) return null;
 
-  return getCurrentUserInner(authToken);
+  return authenticateToken(authToken);
 }
 
 export async function getCurrentUser(): Promise<UserWithoutPassword> {

@@ -20,7 +20,6 @@ export function usePantryAreas(initialAreas: PantryAreaWithItems[]) {
     queryKey: PANTRY_AREAS_QUERY_KEY,
     queryFn: () => getAreasAndItems(),
     initialData: initialAreas,
-    refetchInterval: process.env.NODE_ENV === "production" ? 500 : false,
   });
 }
 
