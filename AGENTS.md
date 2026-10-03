@@ -18,10 +18,13 @@ Keep the existing E2E test files unchanged during the framework migration.
 For local setup, local database state, development servers, AI Gateway validation, or browser
 testing, follow `.agents/skills/local-dev/SKILL.md`.
 Use `agent-browser` for manual controlled agent-led testing; use `pnpm test:e2e` for automated testing.
+All browser tests must run headless. Pass `--headed false` explicitly on `agent-browser` launches. Do not open a visible browser for testing.
 
 # Database Instructions
 
 ## Local PostgreSQL
+
+- Local setup and testing are pre-approved. Install pinned dependencies and tools, run `pnpm setup:local`, migrate and seed the guarded workspace-local database, and start local development servers without asking again. This does not authorize remote database changes, production access, or bypassing authentication controls.
 
 - Use the PostgreSQL version pinned in `.tool-versions` through mise. Do not rely on a system PostgreSQL installation.
 - Keep local database state outside the repository. Use `/tmp` or another workspace-specific temporary directory.

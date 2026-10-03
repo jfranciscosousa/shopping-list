@@ -1,4 +1,11 @@
-import { createRootRoute, HeadContent, Outlet, Scripts, useHydrated } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+  Scripts,
+  useHydrated,
+} from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import type { ReactNode } from "react";
@@ -6,7 +13,7 @@ import "@fontsource-variable/dm-sans/wght.css";
 import "@fontsource/dm-serif-display/latin-400.css";
 import "@/styles.css";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{ sessionQueryClient: QueryClient }>()({
   validateSearch: (search: Record<string, unknown>): { tab?: string } => ({
     tab: typeof search.tab === "string" ? search.tab : undefined,
   }),

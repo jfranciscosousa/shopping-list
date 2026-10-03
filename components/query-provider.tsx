@@ -26,8 +26,10 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
       if (!isAuthError(error) || resettingSession) return;
       resettingSession = true;
       try {
-        await client.cancelQueries();
+        const sessionQueryClient = router.options.context.sessionQueryClient;
+        await Promise.all([client.cancelQueries(), sessionQueryClient.cancelQueries()]);
         client.clear();
+        sessionQueryClient.clear();
         router.clearCache();
         await router.invalidate();
       } catch (resetError) {

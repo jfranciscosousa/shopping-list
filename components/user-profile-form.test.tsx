@@ -4,6 +4,14 @@ import { expect, it, vi } from "vitest";
 import UserProfileForm from "./user-profile-form";
 
 const router = vi.hoisted(() => ({
+  options: {
+    context: {
+      sessionQueryClient: {
+        cancelQueries: vi.fn().mockResolvedValue(undefined),
+        clear: vi.fn(),
+      },
+    },
+  },
   clearCache: vi.fn(),
   navigate: vi.fn().mockResolvedValue(undefined),
   invalidate: vi.fn().mockResolvedValue(undefined),
@@ -44,6 +52,12 @@ it.each([false, true])(
     await waitFor(() => expect(router.invalidate).toHaveBeenCalledOnce());
     expect(cancelQueries).toHaveBeenCalledTimes(changePassword ? 1 : 0);
     expect(router.clearCache).toHaveBeenCalledTimes(changePassword ? 1 : 0);
+    expect(router.options.context.sessionQueryClient.cancelQueries).toHaveBeenCalledTimes(
+      changePassword ? 1 : 0,
+    );
+    expect(router.options.context.sessionQueryClient.clear).toHaveBeenCalledTimes(
+      changePassword ? 1 : 0,
+    );
     expect(client.getQueryData(["private"])).toBe(changePassword ? undefined : "cached data");
     client.clear();
   },
