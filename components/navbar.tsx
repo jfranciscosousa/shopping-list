@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLogout } from "@/hooks/use-auth";
 import { LogOut, Menu, ShoppingBasket, ShoppingCart, User, X } from "lucide-react";
@@ -83,8 +83,22 @@ export default function Navbar({ user }: { user?: { id: string } | null }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = useLocation({ select: (location) => location.pathname });
   const logoutMutation = useLogout();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const closeMenu = () => setIsOpen(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
 
   if (!user) {
     return (
@@ -100,8 +114,8 @@ export default function Navbar({ user }: { user?: { id: string } | null }) {
   }
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border/70 bg-background/80 text-nowrap backdrop-blur-xl">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 border-b border-border/70 bg-background text-nowrap">
+      <div className="relative z-10 mx-auto flex h-20 max-w-7xl items-center justify-between bg-background px-4 sm:px-6 lg:px-8">
         <Link to="/" className="group flex items-center gap-3 font-semibold">
           <BrandMark />
           <span className="font-display text-xl font-normal tracking-tight">Smart Shopping</span>
@@ -125,22 +139,38 @@ export default function Navbar({ user }: { user?: { id: string } | null }) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleMenu}
+            ref={menuButtonRef}
+            onClick={() => setIsOpen(!isOpen)}
             aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-navigation"
           >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
 
-      <div
+      <button
+        type="button"
+        aria-label="Dismiss navigation"
+        tabIndex={-1}
+        inert={!isOpen}
+        onClick={closeMenu}
         className={cn(
-          "overflow-hidden border-t bg-background/95 transition-all duration-300 md:hidden",
-          isOpen ? "max-h-64 py-3" : "max-h-0 py-0",
+          "fixed inset-x-0 top-20 bottom-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 motion-reduce:transition-none md:hidden",
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0",
+        )}
+      />
+      <div
+        id="mobile-navigation"
+        inert={!isOpen}
+        className={cn(
+          "absolute inset-x-0 top-full z-10 max-h-[calc(100dvh-5rem)] overflow-y-auto border-t bg-background py-3 shadow-lg transition-[opacity,transform,visibility] duration-300 motion-reduce:transition-none md:hidden",
+          isOpen ? "visible translate-y-0 opacity-100" : "invisible -translate-y-3 opacity-0",
         )}
       >
         <div className="mx-auto flex max-w-7xl flex-col space-y-1 px-4">
-          <NavLinks onItemClick={toggleMenu} pathname={pathname} />
+          <NavLinks onItemClick={closeMenu} pathname={pathname} />
           <Button
             variant="ghost"
             size="sm"
