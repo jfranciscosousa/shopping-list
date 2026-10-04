@@ -1,29 +1,19 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Client } from "pg";
+import { Pool } from "pg";
 
-const client = new Client({ connectionString: process.env.DATABASE_URL });
-let connection: Promise<Client> | undefined;
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 1,
+  connectionTimeoutMillis: 5_000,
+  idleTimeoutMillis: 10_000,
+});
 
-const lazyClient = new Proxy(client, {
-  get(target, property, receiver) {
-    if (property === "query") {
-      return async (...args: Parameters<Client["query"]>) => {
-        connection ??= target.connect();
-        await connection;
-        return target.query(...args);
-      };
-    }
+pool.on("error", (error) => {
+  console.error("Idle database connection failed", { error });
+});
 
-    return Reflect.get(target, property, receiver);
-  },
-}) as Client;
-
-export const db = drizzle({ client: lazyClient });
+export const db = drizzle({ client: pool });
 
 export async function closeDatabaseConnection() {
-  if (!connection) return;
-
-  await connection;
-  await client.end();
-  connection = undefined;
+  await pool.end();
 }

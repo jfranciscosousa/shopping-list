@@ -10,6 +10,8 @@ truth; use mise PostgreSQL, never Docker or a system PostgreSQL installation.
 
 ## Bootstrap
 
+Local setup and testing are pre-approved by `AGENTS.md`. Do not ask for additional approval to install pinned prerequisites, provision the guarded workspace-local database, migrate and seed it, or start a local development server. Remote services and production databases remain outside this approval.
+
 From a fresh checkout, run:
 
 ```bash

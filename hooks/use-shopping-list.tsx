@@ -20,9 +20,8 @@ type ShoppingItem = Awaited<ReturnType<typeof getItems>>[number];
 export function useShoppingListItems(initialShoppingItems: Awaited<ReturnType<typeof getItems>>) {
   return useQuery({
     queryKey: SHOPPING_QUERY_KEY,
-    queryFn: getItems,
+    queryFn: () => getItems(),
     initialData: initialShoppingItems,
-    refetchInterval: process.env.NODE_ENV === "production" ? 500 : false,
   });
 }
 
@@ -30,7 +29,7 @@ export function useShoppingListAddItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (item: string) => requireSuccess(addItem(item)),
+    mutationFn: (item: string) => requireSuccess(addItem({ data: item })),
     onSettled: () => queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
   });
 }
@@ -38,7 +37,7 @@ export function useShoppingListAddItem() {
 export function useShoppingListAddMultiItem() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (prompt: string) => requireSuccess(addMultiItem(prompt)),
+    mutationFn: (prompt: string) => requireSuccess(addMultiItem({ data: prompt })),
     onSettled: () => queryClient.invalidateQueries({ queryKey: SHOPPING_QUERY_KEY }),
   });
 }
@@ -48,8 +47,8 @@ export function useShoppingListUpdateItem() {
     useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
   return useMutation({
-    mutationFn: ({ id, newName }: { id: number; newName: string }) =>
-      requireSuccess(editItem(id, newName)),
+    mutationFn: ({ id, newName }: { id: string; newName: string }) =>
+      requireSuccess(editItem({ data: { id, newName } })),
     onMutate: async ({ id, newName }) =>
       optimisticUpdate((categories) =>
         categories.map((category) => ({
@@ -81,7 +80,7 @@ export function useShoppingListDeleteItem() {
     useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteItem(id)),
+    mutationFn: (id: string) => requireSuccess(deleteItem({ data: id })),
     onMutate: async (id) =>
       optimisticUpdate((categories) =>
         categories
@@ -101,7 +100,7 @@ export function useShoppingListDeleteItemsByCategory() {
     useOptimisticUpdate<ShoppingItem>(SHOPPING_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (categoryId: number) => requireSuccess(deleteItemsByCategory(categoryId)),
+    mutationFn: (categoryId: string) => requireSuccess(deleteItemsByCategory({ data: categoryId })),
     onMutate: async (categoryId) =>
       optimisticUpdate((categories) => categories.filter((category) => category.id !== categoryId)),
     onError: handleError,

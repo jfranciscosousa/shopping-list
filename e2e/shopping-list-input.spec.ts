@@ -29,7 +29,7 @@ for (const submission of ["click", "tap", "Enter"] as const) {
     try {
       const {
         rows: [user],
-      } = await client.query<{ id: number }>(
+      } = await client.query<{ id: string }>(
         'INSERT INTO "User" (email, name, password) VALUES ($1, $2, $3) RETURNING id',
         [email, "E2E Input", hashSync(password, genSaltSync(12))],
       );

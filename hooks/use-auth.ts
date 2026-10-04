@@ -1,16 +1,22 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@tanstack/react-router";
 import { login, logout, signup } from "@/server/auth.actions";
 import { requireSuccess } from "./action-result";
 
-function useResetAuthCache() {
+export function useResetAuthCache() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   return async () => {
-    await queryClient.cancelQueries();
+    const sessionQueryClient = router.options.context.sessionQueryClient;
+    await Promise.all([queryClient.cancelQueries(), sessionQueryClient.cancelQueries()]);
     queryClient.clear();
+    sessionQueryClient.clear();
+    router.clearCache();
+    await router.navigate({ to: ".", search: {}, replace: true });
+    await router.invalidate();
   };
 }
 
@@ -18,7 +24,7 @@ export function useLogin() {
   const resetCache = useResetAuthCache();
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(login(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(login({ data: formData })),
     onSuccess: resetCache,
   });
 }
@@ -27,7 +33,7 @@ export function useSignup() {
   const resetCache = useResetAuthCache();
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(signup(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(signup({ data: formData })),
     onSuccess: resetCache,
   });
 }
@@ -39,10 +45,14 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: () => requireSuccess(logout()),
-    onMutate: () => queryClient.cancelQueries(),
+    onMutate: () =>
+      Promise.all([
+        queryClient.cancelQueries(),
+        router.options.context.sessionQueryClient.cancelQueries(),
+      ]),
     onSuccess: async () => {
       await resetCache();
-      router.replace("/");
+      await router.navigate({ to: "/", replace: true });
     },
   });
 }

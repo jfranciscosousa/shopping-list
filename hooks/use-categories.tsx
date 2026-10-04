@@ -19,9 +19,8 @@ export const CATEGORIES_QUERY_KEY = ["categories"];
 export function useCategories(initialCategories: Category[]) {
   return useQuery({
     queryKey: CATEGORIES_QUERY_KEY,
-    queryFn: getCategories,
+    queryFn: () => getCategories(),
     initialData: initialCategories,
-    refetchInterval: process.env.NODE_ENV === "production" ? 500 : false,
   });
 }
 
@@ -30,12 +29,12 @@ export function useCategoriesAdd() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(addCategory(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(addCategory({ data: formData })),
     onMutate: async (newCategory) =>
       optimisticUpdate((old: Category[]) => [
         {
-          id: new Date().getTime(),
-          userId: 0,
+          id: crypto.randomUUID(),
+          userId: "",
           name: newCategory.get("name") as string,
           description: newCategory.get("description") as string,
           emoji: CATEGORY_EMOJI_FALLBACK,
@@ -55,11 +54,11 @@ export function useCategoriesUpdate() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(updateCategory(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(updateCategory({ data: formData })),
     onMutate: async (newCategory) =>
       optimisticUpdate((old: Category[]) =>
         old.map((category) =>
-          category.id === Number(newCategory.get("id"))
+          category.id === newCategory.get("id")
             ? {
                 ...category,
                 name: newCategory.get("name") as string,
@@ -78,7 +77,7 @@ export function useCategoriesUpdateBulk() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(updateCategoryBulk(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(updateCategoryBulk({ data: formData })),
     onMutate: async (formData) =>
       optimisticUpdate((old: Category[]) =>
         old.map((category) => {
@@ -114,7 +113,7 @@ export function useCategoriesDelete() {
     useOptimisticUpdate<Category>(CATEGORIES_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteCategory(id)),
+    mutationFn: (id: string) => requireSuccess(deleteCategory({ data: id })),
     onMutate: async (id) => optimisticUpdate((old) => old.filter((c) => c.id !== id)),
     onError: handleError,
     onSettled: handleSettled,

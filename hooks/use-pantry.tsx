@@ -20,14 +20,13 @@ export function usePantryAreas(initialAreas: PantryAreaWithItems[]) {
     queryKey: PANTRY_AREAS_QUERY_KEY,
     queryFn: () => getAreasAndItems(),
     initialData: initialAreas,
-    refetchInterval: process.env.NODE_ENV === "production" ? 500 : false,
   });
 }
 
 export function usePantryAreasAdd() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(createArea(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(createArea({ data: formData })),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PANTRY_AREAS_QUERY_KEY,
@@ -41,11 +40,11 @@ export function usePantryAreasUpdate() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(updateArea(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(updateArea({ data: formData })),
     onMutate: async (newArea) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
         old.map((area) =>
-          area.id === Number(newArea.get("id"))
+          area.id === newArea.get("id")
             ? {
                 ...area,
                 name: newArea.get("name") as string,
@@ -63,7 +62,7 @@ export function usePantryAreasDelete() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteArea(id)),
+    mutationFn: (id: string) => requireSuccess(deleteArea({ data: id })),
     onMutate: async (id) => optimisticUpdate((old) => old.filter((area) => area.id !== id)),
     onError: handleError,
     onSettled: handleSettled,
@@ -74,7 +73,7 @@ export function usePantryItemsAdd() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(createItem(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(createItem({ data: formData })),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PANTRY_AREAS_QUERY_KEY,
@@ -88,15 +87,15 @@ export function usePantryItemsUpdate() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (formData: FormData) => requireSuccess(updateItem(formData)),
+    mutationFn: (formData: FormData) => requireSuccess(updateItem({ data: formData })),
     onMutate: async (newItem) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
         old.map((area) =>
-          area.id === Number(newItem.get("pantryAreaId"))
+          area.id === newItem.get("pantryAreaId")
             ? {
                 ...area,
                 pantryItems: area.pantryItems.map((item) =>
-                  item.id === Number(newItem.get("id"))
+                  item.id === newItem.get("id")
                     ? {
                         ...item,
                         name: newItem.get("name") as string,
@@ -119,17 +118,13 @@ export function usePantryItemsDelete() {
     useOptimisticUpdate<PantryAreaWithItems>(PANTRY_AREAS_QUERY_KEY);
 
   return useMutation({
-    mutationFn: (id: number) => requireSuccess(deleteItem(id)),
+    mutationFn: (id: string) => requireSuccess(deleteItem({ data: id })),
     onMutate: async (id) =>
       optimisticUpdate((old: PantryAreaWithItems[]) =>
-        old.map((area) =>
-          area.id === Number(id)
-            ? {
-                ...area,
-                pantryItems: area.pantryItems.filter((item) => item.id !== Number(id)),
-              }
-            : area,
-        ),
+        old.map((area) => ({
+          ...area,
+          pantryItems: area.pantryItems.filter((item) => item.id !== id),
+        })),
       ),
     onError: handleError,
     onSettled: handleSettled,

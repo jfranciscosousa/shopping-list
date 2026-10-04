@@ -1,0 +1,231 @@
+import { createHmac } from "node:crypto";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
+import { categories, users, type User } from "./db/schema";
+import { errors, SignJWT, jwtVerify } from "jose";
+import { SESSION_EXPIRED_MESSAGE } from "@/lib/auth-error";
+import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
+import { z } from "zod";
+import { hashPassword, verifyPassword } from "./password";
+import { validateFormData } from "./utils";
+import { withActionHandling } from "./error-handler";
+
+const loginSchema = z.object({
+  email: z.email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  rememberMe: z.preprocess((v) => v === "on", z.boolean().optional()),
+});
+
+const signupSchema = z
+  .object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+    inviteToken: z.string().optional(),
+    rememberMe: z.preprocess((v) => v === "on", z.boolean().optional()),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Confirm password must match password",
+    path: ["confirmPassword"],
+  });
+
+function passwordVersion(password: string) {
+  return createHmac("sha256", process.env.SECRET_KEY_BASE!).update(password).digest("hex");
+}
+
+// Helper to set the auth cookie
+async function setAuthCookie(user: User, rememberMe = false) {
+  const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
+  const expiresIn = rememberMe ? 60 * 60 * 24 * 365 : 60 * 60;
+
+  const jwt = await new SignJWT({ id: user.id, passwordVersion: passwordVersion(user.password) })
+    .setProtectedHeader({ alg: "HS256" })
+    .setExpirationTime(`${expiresIn}s`)
+    .sign(secret);
+
+  setCookie("auth-token", jwt, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    expires: new Date(Date.now() + expiresIn * 1000),
+    path: "/",
+  });
+}
+
+// Helper to clear the auth cookie
+export async function clearAuthCookie() {
+  deleteCookie("auth-token", { path: "/" });
+}
+
+const jwtPayloadSchema = z.object({
+  id: z.uuid(),
+  passwordVersion: z.string().regex(/^[a-f0-9]{64}$/),
+});
+
+export const authenticateToken = async (authToken: string) => {
+  try {
+    const secret = new TextEncoder().encode(process.env.SECRET_KEY_BASE);
+    const { payload } = await jwtVerify(authToken, secret);
+
+    const validatedPayload = jwtPayloadSchema.safeParse(payload);
+    if (!validatedPayload.success) return null;
+
+    const userId = validatedPayload.data.id;
+
+    const [user] = await db
+      .select({
+        id: users.id,
+        password: users.password,
+        email: users.email,
+        name: users.name,
+        config: users.config,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user || validatedPayload.data.passwordVersion !== passwordVersion(user.password)) {
+      return null;
+    }
+
+    const { password: _password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  } catch (error) {
+    if (error instanceof errors.JOSEError) return null;
+    throw error;
+  }
+};
+
+export type UserWithoutPassword = NonNullable<Awaited<ReturnType<typeof authenticateToken>>>;
+
+export async function getCurrentUserOptional(): Promise<UserWithoutPassword | null> {
+  const authToken = getCookie("auth-token");
+
+  if (!authToken) return null;
+
+  return authenticateToken(authToken);
+}
+
+export async function getCurrentUser(): Promise<UserWithoutPassword> {
+  const user = await getCurrentUserOptional();
+
+  if (!user) throw new Error(SESSION_EXPIRED_MESSAGE);
+
+  return user;
+}
+
+export const login = withActionHandling("login", async (formData: FormData) => {
+  const validateResult = validateFormData(formData, loginSchema);
+
+  if (validateResult.error) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { email, password, rememberMe } = validateResult.data;
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+  if (!user || !(await verifyPassword(user.password, password))) {
+    return { success: false, error: "Invalid email or password" };
+  }
+
+  await setAuthCookie(user, rememberMe);
+
+  return { success: true };
+});
+
+const DEFAULT_CATEGORIES = [
+  {
+    name: "Fruits & Vegetables",
+    description: "fresh non frozen non canned",
+  },
+  {
+    name: "Dairy & Eggs",
+  },
+  {
+    name: "Meat & Fish",
+    description: "fresh non frozen non canned",
+  },
+  {
+    name: "Bakery",
+  },
+  {
+    name: "Pantry",
+  },
+  {
+    name: "Frozen Foods",
+  },
+  {
+    name: "Beverages",
+  },
+  {
+    name: "Snacks",
+  },
+  {
+    name: "Household",
+  },
+  {
+    name: "Personal Care",
+  },
+  {
+    name: "Other",
+  },
+];
+
+export const signup = withActionHandling("signup", async (formData: FormData) => {
+  const validateResult = validateFormData(formData, signupSchema);
+
+  if (validateResult.error) {
+    return { success: false, error: validateResult.error.issues[0].message };
+  }
+
+  const { inviteToken, email, name, password, rememberMe } = validateResult.data;
+
+  if (process.env.INVITE_TOKEN && inviteToken !== process.env.INVITE_TOKEN) {
+    return { success: false, error: "Invalid invite token" };
+  }
+
+  const [user] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  if (user) {
+    return { success: false, error: "Email already exists" };
+  }
+
+  const newUser = await db.transaction(async (tx) => {
+    const [createdUser] = await tx
+      .insert(users)
+      .values({
+        name,
+        email,
+        password: await hashPassword(password),
+      })
+      .returning();
+
+    if (!createdUser) throw new Error("Unable to create user");
+
+    await tx.insert(categories).values(
+      DEFAULT_CATEGORIES.map((category) => ({
+        name: category.name,
+        description: category.description || "",
+        userId: createdUser.id,
+      })),
+    );
+
+    return createdUser;
+  });
+
+  await setAuthCookie(newUser, rememberMe);
+
+  return { success: true };
+});
+
+export const logout = withActionHandling("logout", async () => {
+  await clearAuthCookie();
+  return { success: true };
+});

@@ -1,4 +1,4 @@
-"use server";
+import "@tanstack/react-start/server-only";
 
 import { experimental_evaluate as evaluate, generateText, Output } from "ai";
 import {
@@ -19,7 +19,7 @@ const AI_CATEGORIZATION_DEBUG =
 
 export interface ShoppingItem {
   name: string;
-  categoryId: number;
+  categoryId: string;
 }
 
 export interface ShoppingListGenerationResult {
@@ -35,7 +35,7 @@ type JevCategorizationResult = {
   fallbackReason?: string;
   isConfident: boolean;
   probabilityMargin?: number;
-  rankedCategories: Array<{ id: number; name: string; probability: number }>;
+  rankedCategories: Array<{ id: string; name: string; probability: number }>;
   topProbability?: number;
 };
 
@@ -45,7 +45,7 @@ function logCategorization(event: string, details: Record<string, unknown>) {
 
 export async function generateCategoryEmojis(
   categories: CategoryForEmoji[],
-): Promise<Map<number, CategoryEmoji>> {
+): Promise<Map<string, CategoryEmoji>> {
   if (categories.length === 0) return new Map();
 
   const validIds = new Set(categories.map((category) => category.id));
@@ -66,7 +66,7 @@ export async function generateCategoryEmojis(
         schema: z.object({
           assignments: z.array(
             z.object({
-              id: z.number().int(),
+              id: z.uuid(),
               emoji: z.enum(CATEGORY_EMOJIS),
             }),
           ),
@@ -172,7 +172,7 @@ Item to categorize: "${item}"`,
     temperature: 0.1,
     output: Output.object({
       schema: z.object({
-        categoryId: z.number().int().describe("The ID of the best matching category"),
+        categoryId: z.uuid().describe("The ID of the best matching category"),
       }),
     }),
   });
@@ -317,14 +317,17 @@ Please generate a structured list of new shopping items with their category assi
               .describe(
                 "Specific grocery item name (e.g., 'organic bananas', '2% milk', 'whole grain bread')",
               ),
-            categoryId: z
-              .number()
-              .describe("The ID of the most appropriate category for this item"),
+            categoryId: z.uuid().describe("The ID of the most appropriate category for this item"),
           }),
         ),
       }),
     }),
   });
+
+  const validCategoryIds = new Set(categories.map((category) => category.id));
+  if (items.some((item) => !validCategoryIds.has(item.categoryId))) {
+    throw new Error("AI returned an unknown category ID");
+  }
 
   return { items };
 }

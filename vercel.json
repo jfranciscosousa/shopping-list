@@ -1,3 +1,4 @@
 {
-  "buildCommand": "pnpm db:migrate && next build"
+  "framework": null,
+  "buildCommand": "MIGRATION_DATABASE_URL=\"${MIGRATION_DATABASE_URL:-$DATABASE_URL_UNPOOLED}\" pnpm db:migrate && pnpm build"
 }
