@@ -78,6 +78,58 @@ test("logs in", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Logout" })).toBeVisible();
 });
 
+test("mobile navigation overlays content and dismisses without shifting the page", async ({
+  page,
+}) => {
+  const { email, name } = createCredentials();
+  await createUser(email, name);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.locator("#login-email").fill(email);
+  await page.locator("#login-password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  const heading = page.getByRole("heading", {
+    name: /Everything you need, beautifully sorted\./,
+  });
+  await expect(heading).toBeVisible();
+  const initialBounds = await heading.boundingBox();
+  const menu = page.locator("#mobile-navigation");
+  const backdrop = page.getByRole("button", { name: "Dismiss navigation" });
+  const openMenu = page.getByRole("button", { name: "Open menu", exact: true });
+
+  await expect(menu).toBeHidden();
+  await expect(menu).toHaveAttribute("inert", "");
+  await openMenu.click();
+  await expect(page.getByRole("button", { name: "Close menu", exact: true })).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+  await expect(menu).toBeVisible();
+  await expect(backdrop).toBeVisible();
+  await expect(menu).toHaveCSS("opacity", "1");
+  expect(await heading.boundingBox()).toEqual(initialBounds);
+  await backdrop.click({ position: { x: 10, y: 600 } });
+  await expect(menu).toBeHidden();
+
+  await openMenu.click();
+  await menu.getByRole("link", { name: "Pantry", exact: true }).focus();
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(openMenu).toBeFocused();
+
+  await openMenu.click();
+  await menu.getByRole("link", { name: "Pantry", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Pantry Manager" })).toBeVisible();
+  await expect(menu).toBeHidden();
+
+  await openMenu.click();
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(menu).toBeHidden();
+  await expect(backdrop).toBeHidden();
+  await expect(page.getByRole("link", { name: "Profile", exact: true })).toBeVisible();
+});
+
 test("updates a profile and clears cached data when switching accounts", async ({ page }) => {
   const firstUser = createCredentials();
   const secondUser = createCredentials();
