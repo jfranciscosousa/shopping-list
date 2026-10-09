@@ -34,9 +34,11 @@ export default function ShoppingListItem({ item }: Props) {
   return (
     <li className="group flex min-h-14 items-center justify-between border-b border-border/60 py-2.5 last:border-0">
       {editing ? (
-        <form className="flex flex-1 items-center gap-1" onSubmit={saveEditItem}>
+        <form className="flex min-w-0 flex-1 items-center gap-1" onSubmit={saveEditItem}>
           <Input
             name="item"
+            aria-label="Item name"
+            className="min-w-0 flex-1"
             defaultValue={item.name}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
@@ -56,13 +58,13 @@ export default function ShoppingListItem({ item }: Props) {
         </form>
       ) : (
         <>
-          <span className="flex flex-1 items-center gap-3 font-medium">
+          <span className="flex min-w-0 flex-1 items-center gap-3 font-medium">
             <span className="grid size-6 shrink-0 place-items-center rounded-full border border-primary/20 bg-primary/5 text-primary">
               <Check className="size-3" />
             </span>
-            {item.name}
+            <span className="min-w-0 break-words">{item.name}</span>
           </span>
-          <div className="flex gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
+          <div className="flex shrink-0 gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100">
             <Button
               size="icon"
               variant="ghost"

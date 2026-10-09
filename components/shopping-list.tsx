@@ -112,25 +112,27 @@ export default function ShoppingList({ initialShoppingItems, initialIntroDismiss
             {data.map(({ id, name, emoji, shoppingItems }) => (
               <Card
                 key={id}
-                className="mb-5 inline-block w-full break-inside-avoid overflow-hidden border-border/80 bg-card/80 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md"
+                className="mb-5 w-full break-inside-avoid overflow-hidden border-border/80 bg-card/80 shadow-sm backdrop-blur-sm transition-shadow hover:shadow-md"
               >
-                <CardHeader className="border-b border-border/70 bg-secondary/35 py-4">
+                <CardHeader className="border-b border-border/70 bg-secondary/35 px-5 py-4 md:px-5 md:py-4 lg:px-5 lg:py-4">
                   <CardTitle className="flex items-center justify-between text-lg">
-                    <div className="flex items-center gap-3">
-                      <Badge className="min-w-7 justify-center rounded-full bg-primary/10 text-primary shadow-none hover:bg-primary/10">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Badge className="min-w-7 shrink-0 justify-center rounded-full bg-primary/10 text-primary shadow-none hover:bg-primary/10">
                         {shoppingItems.length}
                       </Badge>
-                      <span className="text-xl" aria-hidden="true">
+                      <span className="shrink-0 text-xl" aria-hidden="true">
                         {emoji ?? CATEGORY_EMOJI_FALLBACK}
                       </span>
-                      <span className="font-display text-xl font-normal">{name}</span>
+                      <span className="min-w-0 break-words font-display text-xl font-normal">
+                        {name}
+                      </span>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDeleteCategory(id, name)}
                       disabled={deleteItemsByCategoryMutation.isPending}
-                      className="size-8 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="ml-2 size-8 shrink-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       title={`Delete all items in ${name}`}
                       aria-label={`Delete all items in ${name}`}
                     >
@@ -138,7 +140,7 @@ export default function ShoppingList({ initialShoppingItems, initialIntroDismiss
                     </Button>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-5 py-2">
+                <CardContent className="px-5 py-2 md:px-5 md:py-2 lg:px-5 lg:py-2">
                   <ul>
                     {shoppingItems.map((item) => (
                       <ShoppingListItem key={item.id} item={item} />
