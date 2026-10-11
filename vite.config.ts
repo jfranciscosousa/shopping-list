@@ -23,8 +23,6 @@ export default defineConfig({
     tailwindcss(),
     tanstackStart(),
     nitro({
-      features: { websocket: true },
-      routes: { "/_sync": "./server/sync.websocket.ts" },
       routeRules: {
         "/**": {
           headers: {
