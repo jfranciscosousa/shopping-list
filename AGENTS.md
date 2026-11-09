@@ -240,3 +240,11 @@ OPENAI_API_KEY="sk-..."  # For AI features
 5. Include proper error handling and loading states
 6. Run `pnpm lint` before committing
 7. Test optimistic updates work correctly
+
+## Runtime and dependency maintenance
+
+- Drizzle stays at `1.0.0-rc.4` to keep migrations compatible. Move to a newer release only after a migration check.
+- Nitro is on a release candidate. No stable release exists under the `nitro` package name.
+- `pnpm-workspace.yaml` keeps major-specific overrides for upstream compatibility. Check each one before you remove it.
+- One production-only E2E test is skipped in local runs.
+- `docs/maintenance.md` lists the versions from the last update, the peer warnings, and the reasons.
