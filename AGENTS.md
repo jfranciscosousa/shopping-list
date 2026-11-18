@@ -243,8 +243,10 @@ OPENAI_API_KEY="sk-..."  # For AI features
 
 ## Runtime and dependency maintenance
 
-- Drizzle stays at `1.0.0-rc.4` to keep migrations compatible. Move to a newer release only after a migration check.
-- Nitro is on a release candidate. No stable release exists under the `nitro` package name.
-- `pnpm-workspace.yaml` keeps major-specific overrides for upstream compatibility. Check each one before you remove it.
-- One production-only E2E test is skipped in local runs.
-- `docs/maintenance.md` lists the versions from the last update, the peer warnings, and the reasons.
+- Drizzle ORM and Kit stay at `1.0.0-rc.4`. Kit `rc.5` rejects the tracked snapshot version. Review the snapshot conversion and test fresh and existing databases before updating. Checked 2026-11-18.
+- Nitro stays on `3.0.261103-rc`, the latest release. No stable release exists under `nitro`. Recheck when a stable release ships. Checked 2026-11-18.
+- Keep Node and pnpm in `.tool-versions`, pnpm in `packageManager`, and the CI PostgreSQL image in sync with their matching pins. `vercel.json` runs migrations before the build; it does not set a Node version.
+- Vercel CLI overrides keep newer compatible dependency versions. Remove each override when upstream selects a fixed version. See `docs/maintenance.md` for the retained overrides and open findings. Checked 2026-11-18.
+- The optional Rolldown WebAssembly binding pins `@emnapi/core` and `@emnapi/runtime` to `2.0.0-beta.2`. Recheck when the binding adopts newer peers. Checked 2026-11-18.
+- TanStack Start brings `picomatch` into the production dependency graph. No patched release was available for [the picomatch advisory](https://github.com/advisories/GHSA-fc5q-39xc-vjpf). Recheck when Picomatch or TanStack Start ships a fix. Checked 2026-11-18.
+- Run both development and `PLAYWRIGHT_PRODUCTION=1` E2E checks. The development run skips one production-only test. Set a unique `PLAYWRIGHT_BASE_URL`. The guarded test runner does not write `.env.local`; `setup:local` does.
