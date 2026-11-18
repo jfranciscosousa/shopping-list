@@ -3,6 +3,14 @@
 `fs/update-maintenance` started from `origin/master` at `2bb0187`. The repository
 tracks one pnpm lockfile and one GitHub Actions workflow.
 
+## Runtime and build settings
+
+- Keep `.tool-versions` and `package.json` (`packageManager`) in sync for pnpm.
+  CI reads Node and pnpm from `.tool-versions`. Match the CI PostgreSQL image
+  tag to the PostgreSQL version in `.tool-versions`.
+- `vercel.json` runs migrations before the build and does not set a Node
+  version. Hosted Vercel runtime settings were not verified.
+
 ## Versions
 
 | Item                    | Before  | After   |
@@ -34,12 +42,15 @@ and tool-versions-action `v2.0.0`. The workflow still uses Ubuntu 26.04.
 - Drizzle ORM and Kit: kept `1.0.0-rc.4`. ORM `rc.5` reapplied migrations to an
   isolated `rc.4` database without changing its schema. Kit `rc.5` failed
   `db:check` on the tracked snapshot and requested `drizzle-kit up`. Review the
-  snapshot conversion separately before updating. The stable tags (`0.45.4`
-  and `0.31.11`) predate the tracked 1.0 migration line.
-- Nitro: the `nitro` package has no stable release. `3.0.261103-rc` is current.
+  snapshot conversion and test fresh and existing databases before updating.
+  The stable tags (`0.45.4` and `0.31.11`) predate the tracked 1.0 migration line.
+  Checked 2026-11-18.
+- Nitro: `3.0.261103-rc` is current. Recheck when `nitro` ships a stable release.
+  Checked 2026-11-18.
 - The optional Rolldown WebAssembly binding still pins `@emnapi/core` and
   `@emnapi/runtime` to `2.0.0-beta.2`. Both packages have a newer `beta.3`, but
   the binding still selects `beta.2`. Recheck when the binding updates its pins.
+  Checked 2026-11-18.
 - Babel still selects `gensync` `1.0.0-beta.2` and `@jridgewell/gen-mapping`
   `0.4.0-beta.0`. Neither has a newer stable release. Vercel CLI's dependency
   graph still selects `@workflow/serde` `4.1.0-beta.2`, `micro` `9.3.5-canary.3`,
@@ -88,9 +99,16 @@ Undici advisories: `GHSA-g9mf-h72j-4rw9`, `GHSA-2mjp-6q6p-2qxm`,
 `GHSA-9fm3-97px-rjf6`, `GHSA-vxpw-j846-p89q`.
 
 Recheck the CLI findings when Vercel updates its dependency ranges. Do not
-force incompatible major versions into the CLI graph.
+force incompatible major versions into the CLI graph. Recheck Picomatch when a
+patched release ships or TanStack Start no longer brings in an affected version.
+Checked 2026-11-18.
 
 ## Verification
+
+Run both `pnpm test:e2e` and `PLAYWRIGHT_PRODUCTION=1 pnpm test:e2e` headless.
+Set a unique `PLAYWRIGHT_BASE_URL`. The development run skips one
+production-only test. The guarded E2E runner does not write `.env.local`;
+`pnpm setup:local` does.
 
 The baseline passed frozen install, format, typecheck, lint, migration check,
 and both builds. Two authentication unit tests timed out at 5 seconds. The
@@ -106,6 +124,4 @@ All final database checks used isolated PostgreSQL 18.7 databases.
 The local Vercel CLI version and `env pull --help` commands passed. The actual
 environment pull and AI Gateway calls were not run.
 
-No push, deployment, hosted CI run, production write, or `.env` change. The
-repository's `vercel.json` runs migrations before the build, but does not set a
-Node version. Hosted Vercel runtime settings were not verified.
+No push, deployment, hosted CI run, production write, or `.env` change.
